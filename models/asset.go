@@ -57,3 +57,13 @@ func (a AccountKDA) String() string {
 
 	return string(result)
 }
+
+type ParsedPack struct {
+	Kda   string           `form:"kda" json:"kda"`
+	Packs []ParsedItemPack `form:"packs" json:"packs"`
+}
+
+type ParsedItemPack struct {
+	Amount float64 `form:"amount" json:"amount"`
+	Price  float64 `form:"price" json:"price"`
+}

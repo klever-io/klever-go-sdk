@@ -3,7 +3,6 @@ package provider
 import "github.com/klever-io/klever-go-sdk/models"
 
 func (kc *kleverChain) Proposal(base *models.BaseTX, description string, parameters map[int32]string, duration uint32) (*models.Transaction, error) {
-
 	contracts := []interface{}{models.ProposalTXRequest{
 		Parameters:     parameters,
 		EpochsDuration: duration,
@@ -14,11 +13,11 @@ func (kc *kleverChain) Proposal(base *models.BaseTX, description string, paramet
 	if err != nil {
 		return nil, err
 	}
+
 	return kc.PrepareTransaction(data)
 }
 
 func (kc *kleverChain) Vote(base *models.BaseTX, proposalID uint64, amount float64, voteType uint64) (*models.Transaction, error) {
-
 	contracts := []interface{}{models.VoteTXRequest{
 		Type:       uint32(voteType),
 		ProposalID: proposalID,
@@ -29,5 +28,6 @@ func (kc *kleverChain) Vote(base *models.BaseTX, proposalID uint64, amount float
 	if err != nil {
 		return nil, err
 	}
+
 	return kc.PrepareTransaction(data)
 }
