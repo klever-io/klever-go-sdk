@@ -29,13 +29,7 @@ func (kc *kleverChain) Decode(tx *models.Transaction) (*models.TransactionAPI, e
 	return result.Data.Transaction, err
 }
 
-func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error) {
-	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount}}
-
-	return kc.MultiTransfer(base, kda, values)
-}
-
-func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error) {
+func (kc *kleverChain) getPrecision(kda string) (uint32, error) {
 	precision := uint32(6)
 	isNFT := false
 	if strings.Contains(kda, "/") {
@@ -46,10 +40,24 @@ func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []m
 	if !isNFT && len(kda) > 0 && kda != core.KLV && kda != core.KFI {
 		asset, err := kc.GetAsset(kda)
 		if err != nil {
-			return nil, err
+			return 0, err
 		}
 
 		precision = asset.Precision
+	}
+	return precision, nil
+}
+
+func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error) {
+	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount}}
+
+	return kc.MultiTransfer(base, kda, values)
+}
+
+func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error) {
+	precision, err := kc.getPrecision(kda)
+	if err != nil {
+		return nil, err
 	}
 
 	contracts := make([]interface{}, 0)
