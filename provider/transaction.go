@@ -1,0 +1,118 @@
+package provider
+
+import (
+	"encoding/json"
+	"fmt"
+	"math"
+	"strings"
+
+	"github.com/klever-io/klever-go-sdk/core"
+	"github.com/klever-io/klever-go-sdk/models"
+)
+
+func (kc *kleverChain) Decode(tx *models.Transaction) (*models.TransactionAPI, error) {
+
+	result := struct {
+		Data struct {
+			Transaction *models.TransactionAPI `json:"tx"`
+		} `json:"data"`
+	}{}
+	result.Data.Transaction = new(models.TransactionAPI)
+
+	body, err := json.Marshal(tx)
+	if err != nil {
+		return result.Data.Transaction, nil
+	}
+
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/decode", kc.networkConfig.GetAPIUri()), string(body), nil, &result)
+
+	return result.Data.Transaction, err
+}
+
+func (kc *kleverChain) Send(fromAddr string, nonce int64, permID int32, toAddr string, amount float64, kda string) (*models.Transaction, error) {
+	values := []models.ToAmount{models.ToAmount{toAddr, amount}}
+	return kc.MultiTransfer(fromAddr, nonce, permID, kda, values)
+}
+
+func (kc *kleverChain) MultiTransfer(fromAddr string, nonce int64, permID int32, kda string, values []models.ToAmount) (*models.Transaction, error) {
+	precision := uint32(6)
+	isNFT := false
+	if strings.Contains(kda, "/") {
+		isNFT = true
+		precision = 0
+	}
+
+	if !isNFT && len(kda) > 0 && kda != core.KLV && kda != core.KFI {
+		asset, err := kc.GetAsset(kda)
+		if err != nil {
+			return nil, err
+		}
+
+		precision = asset.Precision
+	}
+
+	contracts := make([]interface{}, 0)
+	for _, to := range values {
+		parsedAmount := to.Amount * math.Pow10(int(precision))
+		contracts = append(contracts, models.TransferTXRequest{
+			Receiver: to.ToAddress,
+			Amount:   int64(parsedAmount),
+			KDA:      kda,
+		})
+	}
+
+	data, err := kc.buildRequest(models.TXContract_TransferContractType, fromAddr, nonce, permID, contracts)
+	if err != nil {
+		return nil, err
+	}
+	return kc.PrepareTransaction(data)
+}
+
+func (kc *kleverChain) buildRequest(
+	txType models.TXContract_ContractType,
+	fromAddr string,
+	txNonce int64,
+	permID int32,
+	contracts []interface{},
+) (*models.SendTXRequest, error) {
+
+	if len(contracts) == 0 || len(contracts) > core.MaxLenghtOfContracts {
+		return nil, fmt.Errorf("invalid len of contracts to build request: %d", len(contracts))
+	}
+
+	var parsedMessage [][]byte
+
+	var contract interface{}
+	if len(contracts) == 1 {
+		contract = contracts[0]
+	}
+
+	return &models.SendTXRequest{
+		Type:      uint32(txType),
+		Sender:    fromAddr,
+		Nonce:     uint64(txNonce),
+		PermID:    permID,
+		Data:      parsedMessage,
+		Contract:  contract,
+		Contracts: contracts,
+	}, nil
+}
+
+func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*models.Transaction, error) {
+	result := struct {
+		Data struct {
+			Transaction *models.Transaction `json:"result"`
+		} `json:"data"`
+	}{}
+
+	result.Data.Transaction = &models.Transaction{}
+
+	body, err := json.Marshal(request)
+	if err != nil {
+		return nil, err
+	}
+
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetAPIUri()), string(body), nil, &result)
+
+	return result.Data.Transaction, err
+}
