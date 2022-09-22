@@ -44,7 +44,7 @@ func (kc *kleverChain) ValidatorConfig(base *models.BaseTX, blsKey, rewardAddr, 
 		URIs:                uris,
 	}}
 
-	data, err := kc.buildRequest(models.TXContract_CreateValidatorContractType, base, contracts)
+	data, err := kc.buildRequest(models.TXContract_ValidatorConfigContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}
