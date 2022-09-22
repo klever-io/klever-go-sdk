@@ -29,12 +29,13 @@ func (kc *kleverChain) Decode(tx *models.Transaction) (*models.TransactionAPI, e
 	return result.Data.Transaction, err
 }
 
-func (kc *kleverChain) Send(fromAddr string, nonce int64, permID int32, toAddr string, amount float64, kda string) (*models.Transaction, error) {
-	values := []models.ToAmount{models.ToAmount{toAddr, amount}}
-	return kc.MultiTransfer(fromAddr, nonce, permID, kda, values)
+func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error) {
+	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount}}
+
+	return kc.MultiTransfer(base, kda, values)
 }
 
-func (kc *kleverChain) MultiTransfer(fromAddr string, nonce int64, permID int32, kda string, values []models.ToAmount) (*models.Transaction, error) {
+func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error) {
 	precision := uint32(6)
 	isNFT := false
 	if strings.Contains(kda, "/") {
@@ -61,7 +62,7 @@ func (kc *kleverChain) MultiTransfer(fromAddr string, nonce int64, permID int32,
 		})
 	}
 
-	data, err := kc.buildRequest(models.TXContract_TransferContractType, fromAddr, nonce, permID, contracts)
+	data, err := kc.buildRequest(models.TXContract_TransferContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}
@@ -70,9 +71,7 @@ func (kc *kleverChain) MultiTransfer(fromAddr string, nonce int64, permID int32,
 
 func (kc *kleverChain) buildRequest(
 	txType models.TXContract_ContractType,
-	fromAddr string,
-	txNonce int64,
-	permID int32,
+	base *models.BaseTX,
 	contracts []interface{},
 ) (*models.SendTXRequest, error) {
 
@@ -81,6 +80,9 @@ func (kc *kleverChain) buildRequest(
 	}
 
 	var parsedMessage [][]byte
+	for _, m := range base.Message {
+		parsedMessage = append(parsedMessage, []byte(m))
+	}
 
 	var contract interface{}
 	if len(contracts) == 1 {
@@ -89,9 +91,9 @@ func (kc *kleverChain) buildRequest(
 
 	return &models.SendTXRequest{
 		Type:      uint32(txType),
-		Sender:    fromAddr,
-		Nonce:     uint64(txNonce),
-		PermID:    permID,
+		Sender:    base.FromAddress,
+		Nonce:     base.Nonce,
+		PermID:    base.PermID,
 		Data:      parsedMessage,
 		Contract:  contract,
 		Contracts: contracts,

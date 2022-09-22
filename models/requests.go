@@ -1,5 +1,12 @@
 package models
 
+type BaseTX struct {
+	FromAddress string
+	Nonce       uint64
+	PermID      int32
+	Message     []string
+}
+
 // SendTXRequest -
 type SendTXRequest struct {
 	Type      uint32        `form:"type" json:"type"`
