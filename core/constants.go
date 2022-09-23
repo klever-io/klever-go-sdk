@@ -4,8 +4,7 @@ const (
 	KLV = "KLV"
 	KFI = "KFI"
 
-	HRP      = "klv"
-	HDPrefix = "m/44'/690'/0'/0'"
+	HRP = "klv"
 )
 
 // MaxLenghtOfContracts defines max length of contracts allowed

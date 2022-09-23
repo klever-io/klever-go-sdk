@@ -28,7 +28,7 @@ func TestAddress_Address_ShouldFail(t *testing.T) {
 
 	// invalid bech32 prefix
 	_, err = address.NewAddress("kfi1qy352eufzqg3yyc5z5v3wxqeyqsjygeyy5nzw2pfxqcnyve5x5mq7ze5xk")
-	assert.Nil(t, err)
+	assert.NotNil(t, err)
 }
 
 func TestAddress_Address_ShouldWork(t *testing.T) {
