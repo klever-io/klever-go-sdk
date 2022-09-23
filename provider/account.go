@@ -17,3 +17,15 @@ func (kc *kleverChain) GetAccount(address string) (*models.Account, error) {
 
 	return result.Data.Account, err
 }
+
+func (kc *kleverChain) GetAccountAllowance(address string, kda string) (*models.AccountAllowance, error) {
+	result := struct {
+		Data struct {
+			Result *models.AccountAllowance `json:"result"`
+		} `json:"data"`
+	}{}
+
+	err := kc.httpClient.Get(fmt.Sprintf("%s/address/%s/allowance?assetID=%s", kc.networkConfig.GetAPIUri(), address, kda), &result)
+
+	return result.Data.Result, err
+}

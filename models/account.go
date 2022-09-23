@@ -24,6 +24,11 @@ type AccountInfo struct {
 	Foundation    bool          `json:"foundation,omitempty"`
 }
 
+type AccountAllowance struct {
+	Allowance      int64 `json:"allowance"`
+	StakingRewards int64 `json:"stakingRewards"`
+}
+
 type PermissionKey struct {
 	Address string `json:"address"`
 	Weight  int64  `json:"weight"`
@@ -39,6 +44,15 @@ type Permissions struct {
 }
 
 func (acc *Account) String() string {
+	result, err := json.MarshalIndent(acc, "", "\t")
+	if err != nil {
+		result = make([]byte, 0)
+	}
+
+	return string(result)
+}
+
+func (acc *AccountAllowance) String() string {
 	result, err := json.MarshalIndent(acc, "", "\t")
 	if err != nil {
 		result = make([]byte, 0)
