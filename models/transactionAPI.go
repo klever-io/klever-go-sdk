@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 )
 
@@ -32,6 +33,15 @@ type TransactionAPI struct {
 	SearchOrder  uint32                   `json:"searchOrder"`
 	Receipts     []map[string]interface{} `json:"receipts"`
 	Contracts    []*TXContract            `json:"contract"`
+}
+
+func (t *TransactionAPI) String() string {
+	result, err := json.MarshalIndent(t, "", "\t")
+	if err != nil {
+		result = make([]byte, 0)
+	}
+
+	return string(result)
 }
 
 type TXContractAPI struct {

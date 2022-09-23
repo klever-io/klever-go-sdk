@@ -126,3 +126,17 @@ func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*model
 
 	return result.Data.Transaction, err
 }
+
+func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, error) {
+	result := struct {
+		Data struct {
+			Transaction *models.TransactionAPI `json:"transaction"`
+		} `json:"data"`
+	}{}
+
+	result.Data.Transaction = &models.TransactionAPI{}
+
+	err := kc.httpClient.Get(fmt.Sprintf("%s/transaction/%s", kc.networkConfig.GetAPIUri(), hash), &result)
+
+	return result.Data.Transaction, err
+}
