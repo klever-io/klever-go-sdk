@@ -115,7 +115,7 @@ func deriveFromPath(mnemonic, path, password string) ([]byte, error) {
 		pathB[4] = addressIndex.n
 	}
 
-	key := make([]byte, 0)
+	var key []byte
 	digest := hmac.New(sha512.New, []byte(ED25519_SEED))
 	digest.Write(seed)
 	intermediary := digest.Sum(nil)
@@ -137,6 +137,20 @@ func deriveFromPath(mnemonic, path, password string) ([]byte, error) {
 	}
 
 	return key, nil
+}
+
+func (w *wallet) Sign(msg []byte) ([]byte, error) {
+	sig := ed25519.Sign(w.privateKey, msg)
+
+	return sig, nil
+}
+
+func (w *wallet) SignHex(msg string) ([]byte, error) {
+	data, err := hex.DecodeString(msg)
+	if err != nil {
+		return nil, err
+	}
+	return w.Sign(data)
 }
 
 func NewWalletFroHex(privateHex string) (Wallet, error) {
