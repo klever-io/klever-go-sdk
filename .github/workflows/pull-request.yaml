@@ -11,18 +11,7 @@ on:
       - master
 
 jobs:
-  config:
-    uses: klever-io/workflow-calls/.github/workflows/go-setup.yaml@master
-    with:
-      with_vendor: false
-      with_cache: false
-      go_private: "github.com/klever-io/*"
-    secrets:
-      git_user: ${{ secrets.GIT_USER }}
-      git_pass: ${{ secrets.GIT_PASS }}
-
   ensure-code:
-    needs: [config]
     uses: klever-io/workflow-calls/.github/workflows/go-ci.yaml@master
     secrets:
       sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
