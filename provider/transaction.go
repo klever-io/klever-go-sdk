@@ -24,7 +24,7 @@ func (kc *kleverChain) Decode(tx *models.Transaction) (*models.TransactionAPI, e
 		return result.Data.Transaction, nil
 	}
 
-	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/decode", kc.networkConfig.GetAPIUri()), string(body), nil, &result)
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/decode", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
 
 	return result.Data.Transaction, err
 }
@@ -122,7 +122,7 @@ func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*model
 		return nil, err
 	}
 
-	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetAPIUri()), string(body), nil, &result)
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
 
 	return result.Data.Transaction, err
 }
