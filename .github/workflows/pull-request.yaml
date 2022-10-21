@@ -15,7 +15,7 @@ jobs:
 
   build:
     needs: [config]
-    runs-on: klever-pipe
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
