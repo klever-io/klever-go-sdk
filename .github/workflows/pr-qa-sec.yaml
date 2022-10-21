@@ -10,7 +10,7 @@ jobs:
       git_pass: ${{ secrets.GIT_PASS }}
 
   ci:
-    uses: klever-io/klever-go-sdk/.github/workflows/reusable.yaml@chore/qa-sec-tests
+    uses: klever-io/klever-go-sdk/.github/workflows/reusable.yaml@master
     secrets:
       sonar_token: ${{ secrets.SONAR_TOKEN }}
       sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
