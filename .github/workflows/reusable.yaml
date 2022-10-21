@@ -12,7 +12,7 @@ on:
         required: true
 jobs:
   analysis:
-    runs-on: ["self-hosted", "${{ inputs.extra_label }}"]
+    runs-on: ubuntu-latest
     env:
       SONAR_TOKEN: ${{ secrets.sonar_token }}
       SONAR_HOST_URL: ${{ secrets.sonar_host_url }}
