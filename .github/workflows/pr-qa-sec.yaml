@@ -13,4 +13,5 @@ jobs:
     secrets:
       sonar_token: ${{ secrets.SONAR_TOKEN }}
       sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
+      twingate_sa: ${{ secrets.TWINGATE_SERVICE_ACCOUNT }}
     needs: [config]
