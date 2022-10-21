@@ -4,7 +4,7 @@ on: [pull_request]
 
 jobs:
   config:
-    uses: klever-io/workflow-calls/.github/workflows/go-setup.yaml@v0.0.2
+    uses: klever-io/workflow-calls/.github/workflows/go-setup.yaml@master
     with:
       with_vendor: false
       with_cache: false
