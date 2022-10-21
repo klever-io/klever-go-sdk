@@ -1,6 +1,7 @@
 on:
   pull_request:
     types: [opened, reopened, synchronize]
+  workflow_dispatch:
 jobs:
   config:
     uses: klever-io/workflow-calls/.github/workflows/go-setup.yaml@master
