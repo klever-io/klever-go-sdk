@@ -9,7 +9,7 @@ jobs:
   generate-release:
     runs-on: ubuntu-latest
     env:
-      GITHUB_TOKEN: ${{ secrets.github_pass }}
+      GITHUB_TOKEN: ${{ secrets.GIT_PASS }}
     steps:
       - id: release
         uses: rymndhng/release-on-push-action@master
