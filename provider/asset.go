@@ -42,22 +42,11 @@ const (
 	UpdateKDAFeePool
 )
 
-type AssetTriggerOprions struct {
-	Amount               float64
-	AddRolesMint         []string
-	AddRolesSetITOPrices []string
-	Staking              map[string]string
-	Receiver             string
-	Mime                 string
-	Logo                 string
-	URIs                 map[string]string
-}
-
 func (kc *kleverChain) AssetTrigger(
 	base *models.BaseTX,
 	kdaID string,
 	triggerType AssetTriggerType,
-	op *AssetTriggerOprions,
+	op *models.AssetTriggerOptions,
 ) (*models.Transaction, error) {
 	// check if is NFT
 	kda := strings.Split(kdaID, "/")
@@ -147,4 +136,108 @@ func (kc *kleverChain) AssetTrigger(
 		return nil, err
 	}
 	return kc.PrepareTransaction(data)
+}
+
+func (kc *kleverChain) CreateKDA(
+	base *models.BaseTX,
+	kdaType models.KDAData_EnumAssetType,
+	op *models.KDAOptions,
+) (*models.Transaction, error) {
+	if !IsNameValid(op.Name) {
+		return nil, fmt.Errorf("invalid KDA name")
+	}
+
+	if !IsTickerValid(op.Name) {
+		return nil, fmt.Errorf("invalid KDA ticker")
+	}
+
+	if !IsPrecisionValid(op.Precision) {
+		return nil, fmt.Errorf("invalid KDA precision")
+	}
+
+	if len(op.Roles) == 0 {
+		op.Roles = []*models.RolesInfo{
+			{
+				Address:             base.FromAddress,
+				HasRoleMint:         true,
+				HasRoleSetITOPrices: true,
+			},
+		}
+	}
+	if len(op.Royalties.Address) == 0 {
+		op.Royalties.Address = base.FromAddress
+	}
+
+	contracts := make([]interface{}, 0)
+	contracts = append(contracts, models.CreateAssetTXRequest{
+		Type:          uint32(kdaType),
+		OwnerAddress:  base.FromAddress,
+		Name:          op.Name,
+		Ticker:        op.Ticker,
+		Precision:     uint32(op.Precision),
+		InitialSupply: int64(op.InitialSupply * math.Pow10(int(op.Precision))),
+		MaxSupply:     int64(op.MaxSupply * math.Pow10(int(op.Precision))),
+		Logo:          op.Logo,
+		URIs:          op.URIs,
+		Royalties:     &op.Royalties,
+		Attributes:    &op.Attributes,
+		Properties:    &op.Properties,
+		Staking:       &op.Staking,
+		Roles:         op.Roles,
+	})
+
+	data, err := kc.buildRequest(models.TXContract_AssetTriggerContractType, base, contracts)
+	if err != nil {
+		return nil, err
+	}
+	return kc.PrepareTransaction(data)
+}
+
+func IsNameValid(name string) bool {
+	if len(name) < 1 ||
+		len(name) > 32 ||
+		name == "KLV" ||
+		name == "KFI" {
+		return false
+	}
+
+	for _, ch := range []byte(name) {
+		isSmallCharacter := ch >= 'a' && ch <= 'z'
+		isBigCharacter := ch >= 'A' && ch <= 'Z'
+		isNumber := ch >= '0' && ch <= '9'
+		isSpace := ch == ' '
+		isReadable := isSmallCharacter || isBigCharacter || isNumber || isSpace
+		if !isReadable {
+			return false
+		}
+	}
+	return true
+}
+
+func IsTickerValid(tickerName string) bool {
+	if len(tickerName) < 3 ||
+		len(tickerName) > 10 ||
+		tickerName == "KLV" ||
+		tickerName == "KFI" {
+		return false
+	}
+
+	for _, ch := range []byte(tickerName) {
+		isBigCharacter := ch >= 'A' && ch <= 'Z'
+		isNumber := ch >= '0' && ch <= '9'
+		isReadable := isBigCharacter || isNumber
+		if !isReadable {
+			return false
+		}
+	}
+
+	return true
+}
+
+func IsPrecisionValid(precision int) bool {
+	if precision < 0 || precision > 8 {
+		return false
+	}
+
+	return true
 }
