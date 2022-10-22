@@ -40,5 +40,5 @@ type KleverChain interface {
 	Unjail(base *models.BaseTX) (*models.Transaction, error)
 	Claim(base *models.BaseTX, id string, claimType int32) (*models.Transaction, error)
 	// Network Broadcast
-	//Broadcast()
+	BroadcastTransaction(tx *models.Transaction) (string, error)
 }
