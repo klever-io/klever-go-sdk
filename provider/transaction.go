@@ -123,8 +123,28 @@ func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*model
 	}
 
 	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
+	if err == nil {
+		hash, err := kc.CalculateHash(result.Data.Transaction.RawData)
+		if err == nil {
+			result.Data.Transaction.Hash = hash
+		}
+	}
 
 	return result.Data.Transaction, err
+}
+
+// CalculateHash marshalizes the interface and calculates its hash
+func (kc *kleverChain) CalculateHash(
+	object interface{},
+) ([]byte, error) {
+
+	mrsData, err := kc.marshalizer.Marshal(object)
+	if err != nil {
+		return nil, err
+	}
+
+	hash := kc.hasher.Compute(string(mrsData))
+	return hash, nil
 }
 
 func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, error) {
@@ -139,4 +159,37 @@ func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, erro
 	err := kc.httpClient.Get(fmt.Sprintf("%s/transaction/%s", kc.networkConfig.GetAPIUri(), hash), &result)
 
 	return result.Data.Transaction, err
+}
+
+func (kc *kleverChain) BroadcastTransaction(tx *models.Transaction) (string, error) {
+	toBroadcast := struct {
+		TX *models.Transaction `json:"tx"`
+	}{
+		TX: tx,
+	}
+
+	data, err := json.Marshal(toBroadcast)
+	if err != nil {
+		return "", err
+	}
+
+	result := struct {
+		Data struct {
+			TXCount int    `json:"txCount"`
+			TXHash  string `json:"txHash"`
+		} `json:"data"`
+		Error string `json:"error"`
+		Code  string `json:"code"`
+	}{}
+
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
+	if err != nil {
+		return "", err
+	}
+
+	if len(result.Error) != 0 {
+		return "", fmt.Errorf("error broadcasting transcation: %s", result.Error)
+	}
+
+	return result.Data.TXHash, err
 }

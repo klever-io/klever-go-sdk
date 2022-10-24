@@ -56,6 +56,15 @@ func NewWalletFromMnemonic(mnemonic string, option ...WOHDPath) (Wallet, error) 
 	return NewWallet(private[:])
 }
 
+func NewWalletFromPEM(path string) (Wallet, error) {
+	pk, _, err := LoadKey(path, 0, "")
+	if err != nil {
+		return nil, err
+	}
+
+	return NewWallet(pk[:32])
+}
+
 type Path struct {
 	n        uint32
 	hardered bool

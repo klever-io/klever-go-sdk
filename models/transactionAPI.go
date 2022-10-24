@@ -58,7 +58,7 @@ type TransferContract struct {
 	Amount    int64  `json:"amount,omitempty"`
 }
 
-//-- CreateAssetContract
+// -- CreateAssetContract
 type CreateAssetContract struct {
 	Type              string          `json:"type"`
 	Name              string          `json:"name"`
@@ -146,18 +146,18 @@ type FPRData struct {
 	TotalClaimed int64  `json:"TotalClaimed"`
 }
 
-//-- CreateValidatorContract
+// -- CreateValidatorContract
 type CreateValidatorContract struct {
 	OwnerAddress string          `json:"ownerAddress"`
 	Config       ValidatorConfig `json:"config"`
 }
 
-//-- ValidatorConfigContract
+// -- ValidatorConfigContract
 type ValidatorConfigContract struct {
 	Config ValidatorConfig `json:"config,omitempty"`
 }
 
-//-- ValidatorConfig
+// -- ValidatorConfig
 type ValidatorConfig struct {
 	BLSPublicKey        string `json:"blsPublicKey,omitempty"`
 	RewardAddress       string `json:"rewardAddress,omitempty"`
@@ -169,54 +169,54 @@ type ValidatorConfig struct {
 	Name                string `json:"name"`
 }
 
-//-- FreezeContract
+// -- FreezeContract
 type FreezeContract struct {
 	Amount  int64  `json:"amount,omitempty"`
 	AssetID string `json:"assetId,omitempty"`
 }
 
-//-- UnfreezeContract
+// -- UnfreezeContract
 type UnfreezeContract struct {
 	BucketID string `json:"bucketID,omitempty"`
 	AssetID  string `json:"assetId,omitempty"`
 }
 
-//-- DelegateContract
+// -- DelegateContract
 type DelegateContract struct {
 	ToAddress string `json:"toAddress,omitempty"`
 	BucketID  string `json:"bucketID,omitempty"`
 }
 
-//-- UndelegateContract
+// -- UndelegateContract
 type UndelegateContract struct {
 	BucketID string `json:"bucketID,omitempty"`
 }
 
-//--  WithdrawContract
+// --  WithdrawContract
 type WithdrawContract struct {
 	AssetID string `json:"assetId,omitempty"`
 }
 
-//-- UnjailContract
+// -- UnjailContract
 type UnjailContract struct {
 }
 
-//-- RedeemContract
+// -- RedeemContract
 type RedeemContract struct {
 }
 
-//-- ClaimContract
+// -- ClaimContract
 type ClaimContract struct {
 	ClaimType string `json:"claimType,omitempty"`
 	ID        string `json:"id,omitempty"`
 }
 
-//-- SetAccountNameContract
+// -- SetAccountNameContract
 type SetAccountNameContract struct {
 	Name string `json:"name"`
 }
 
-//-- AssetTriggerContract
+// -- AssetTriggerContract
 type AssetTriggerContract struct {
 	TriggerType string     `json:"triggerType"`
 	AssetID     string     `json:"assetId"`
@@ -229,21 +229,21 @@ type AssetTriggerContract struct {
 	Staking     *Staking   `json:"staking,omitempty"`
 }
 
-//-- ProposalContract
+// -- ProposalContract
 type ProposalContract struct {
 	Parameters     map[int32]string `json:"parameters"`
 	Description    string           `json:"description"`
 	EpochsDuration uint32           `json:"epochsDuration"`
 }
 
-//-- VoteContract
+// -- VoteContract
 type VoteContract struct {
 	Type       string `json:"type"`
 	ProposalID uint64 `json:"proposalId"`
 	Amount     int64  `json:"amount"`
 }
 
-//-- ConfigITOContract
+// -- ConfigITOContract
 type ConfigITOContract struct {
 	AssetID         string      `json:"assetId,omitempty"`
 	ReceiverAddress string      `json:"receiverAddress,omitempty"`
@@ -252,7 +252,7 @@ type ConfigITOContract struct {
 	PackInfo        []*PackInfo `json:"packInfo,omitempty"`
 }
 
-//-- SetITOPricesContract
+// -- SetITOPricesContract
 type SetITOPricesContract struct {
 	AssetID  string      `json:"assetId,omitempty"`
 	PackInfo []*PackInfo `json:"packInfo,omitempty"`
@@ -270,7 +270,7 @@ type PackItem struct {
 	Price  int64 `json:"price,omitempty"`
 }
 
-//-- BuyContract
+// -- BuyContract
 type BuyContract struct {
 	BuyType    string `json:"buyType,omitempty"`
 	ID         string `json:"id,omitempty"`
@@ -278,7 +278,7 @@ type BuyContract struct {
 	Amount     int64  `json:"amount,omitempty"`
 }
 
-//-- SellContract
+// -- SellContract
 type SellContract struct {
 	MarketType    string `json:"marketType,omitempty"`
 	MarketplaceID string `json:"marketplaceID,omitempty"`
@@ -289,19 +289,19 @@ type SellContract struct {
 	EndTime       int64  `json:"endTime,omitempty"`
 }
 
-//-- CancelMarketOrderContract
+// -- CancelMarketOrderContract
 type CancelMarketOrderContract struct {
 	OrderID string `json:"orderID,omitempty"`
 }
 
-//-- CreateMarketplaceContract
+// -- CreateMarketplaceContract
 type CreateMarketplaceContract struct {
 	Name               string `json:"name,omitempty"`
 	ReferralAddress    string `json:"referralAddress,omitempty"`
 	ReferralPercentage uint32 `json:"referralPercentage,omitempty"`
 }
 
-//-- ConfigMarketplaceContract
+// -- ConfigMarketplaceContract
 type ConfigMarketplaceContract struct {
 	MarketplaceID      string `json:"marketplaceID,omitempty"`
 	Name               string `json:"name,omitempty"`
@@ -322,7 +322,7 @@ type AccPermission struct {
 	Signers        []AccKey `json:"signers"`
 }
 
-//-- UpdateAccountPermissionContract
+// -- UpdateAccountPermissionContract
 type UpdateAccountPermissionContract struct {
 	Permissions []AccPermission `json:"permissions"`
 }

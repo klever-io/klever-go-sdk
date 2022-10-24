@@ -1,6 +1,10 @@
 package provider
 
-import "github.com/klever-io/klever-go-sdk/models"
+import (
+	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
+	"github.com/klever-io/klever-go-sdk/provider/tools/marshal"
+)
 
 type KleverChain interface {
 	// Query Account data
@@ -10,9 +14,14 @@ type KleverChain interface {
 	// Transaction helpers
 	Decode(tx *models.Transaction) (*models.TransactionAPI, error)
 	GetTransaction(hash string) (*models.TransactionAPI, error)
+	GetHasher() hasher.Hasher
+	GetMarshalizer() marshal.Marshalizer
 	// Transfer actions
 	Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error)
 	MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error)
+	// Asset Actions
+	CreateKDA(base *models.BaseTX, kdaType models.KDAData_EnumAssetType, op *models.KDAOptions) (*models.Transaction, error)
+	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*models.Transaction, error)
 	// Acctount Actions
 	SetAccountName(base *models.BaseTX, name string) (*models.Transaction, error)
 	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*models.Transaction, error)
@@ -36,4 +45,6 @@ type KleverChain interface {
 	// Validator Actions
 	Unjail(base *models.BaseTX) (*models.Transaction, error)
 	Claim(base *models.BaseTX, id string, claimType int32) (*models.Transaction, error)
+	// Network Broadcast
+	BroadcastTransaction(tx *models.Transaction) (string, error)
 }
