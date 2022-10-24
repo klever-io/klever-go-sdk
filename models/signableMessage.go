@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
 	"golang.org/x/crypto/sha3"
@@ -25,6 +26,7 @@ type SignableMessage interface {
 	Sign(Signer) error
 
 	ToJSON() string
+	LoadJSON(string) error
 }
 
 type signableMessage struct {
@@ -106,6 +108,41 @@ func (sm *signableMessage) Sign(wallet Signer) error {
 	sm.SetSignature(siganture)
 
 	return nil
+}
+
+func (sm *signableMessage) LoadJSON(data string) error {
+	obj := struct {
+		Address   string `json:"address"`
+		Message   string `json:"message"`
+		Signature string `json:"signature"`
+		Version   int    `json:"version"`
+		Signer    string `json:"signer"`
+	}{}
+
+	err := json.Unmarshal([]byte(data), &obj)
+	if err != nil {
+		return err
+	}
+
+	sm.Address, err = address.NewAddress(obj.Address)
+	if err != nil {
+		return err
+	}
+
+	sm.Message = decodeHex(obj.Message)
+	sm.Signature = decodeHex(obj.Signature)
+	return nil
+}
+
+func decodeHex(data string) []byte {
+	data = strings.TrimPrefix(data, "0x")
+
+	b, err := hex.DecodeString(data)
+	if err != nil {
+		return make([]byte, 0)
+	}
+
+	return b
 }
 
 func (sm *signableMessage) ToJSON() string {
