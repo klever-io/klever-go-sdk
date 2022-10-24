@@ -6,4 +6,5 @@ type Wallet interface {
 	PrivateKey() []byte
 	PublicKey() []byte
 	GetAccount() (account.Account, error)
+	Sign(msg []byte) ([]byte, error)
 }

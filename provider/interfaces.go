@@ -1,6 +1,10 @@
 package provider
 
-import "github.com/klever-io/klever-go-sdk/models"
+import (
+	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
+	"github.com/klever-io/klever-go-sdk/provider/tools/marshal"
+)
 
 type KleverChain interface {
 	// Query Account data
@@ -10,6 +14,8 @@ type KleverChain interface {
 	// Transaction helpers
 	Decode(tx *models.Transaction) (*models.TransactionAPI, error)
 	GetTransaction(hash string) (*models.TransactionAPI, error)
+	GetHasher() hasher.Hasher
+	GetMarshalizer() marshal.Marshalizer
 	// Transfer actions
 	Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error)
 	MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error)
