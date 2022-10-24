@@ -11,14 +11,14 @@ import (
 
 func main() {
 
-	net := network.NewNetworkConfig(network.MainNet)
+	net := network.NewNetworkConfig(network.TestNet)
 	httpClient := utils.NewHttpClient(10 * time.Second)
 	kc, err := provider.NewKleverChain(net, httpClient)
 	if err != nil {
 		panic(err)
 	}
 
-	acc, err := kc.GetAccount("klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy")
+	acc, err := kc.GetAccount("klv1mt8yw657z6nk9002pccmwql8w90k0ac6340cjqkvm9e7lu0z2wjqudt69s")
 	if err != nil {
 		panic(err)
 	}
