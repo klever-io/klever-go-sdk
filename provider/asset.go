@@ -147,7 +147,7 @@ func (kc *kleverChain) CreateKDA(
 		return nil, fmt.Errorf("invalid KDA name")
 	}
 
-	if !IsTickerValid(op.Name) {
+	if !IsTickerValid(op.Ticker) {
 		return nil, fmt.Errorf("invalid KDA ticker")
 	}
 
@@ -186,7 +186,7 @@ func (kc *kleverChain) CreateKDA(
 		Roles:         op.Roles,
 	})
 
-	data, err := kc.buildRequest(models.TXContract_AssetTriggerContractType, base, contracts)
+	data, err := kc.buildRequest(models.TXContract_CreateAssetContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}
