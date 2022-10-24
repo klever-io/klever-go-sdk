@@ -1,2 +1,8 @@
+*.pem*
+.DS_Store
+*.env*
+bin/
+vendor
 .idea
+
 .vscode
