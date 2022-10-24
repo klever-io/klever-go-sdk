@@ -123,8 +123,28 @@ func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*model
 	}
 
 	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
+	if err == nil {
+		hash, err := kc.CalculateHash(result.Data.Transaction.RawData)
+		if err == nil {
+			result.Data.Transaction.Hash = hash
+		}
+	}
 
 	return result.Data.Transaction, err
+}
+
+// CalculateHash marshalizes the interface and calculates its hash
+func (kc *kleverChain) CalculateHash(
+	object interface{},
+) ([]byte, error) {
+
+	mrsData, err := kc.marshalizer.Marshal(object)
+	if err != nil {
+		return nil, err
+	}
+
+	hash := kc.hasher.Compute(string(mrsData))
+	return hash, nil
 }
 
 func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, error) {

@@ -423,6 +423,8 @@ type Transaction struct {
 	ResultCode Transaction_TXResultCode `protobuf:"varint,4,opt,name=ResultCode,json=resultCode,omitempty,proto3,enum=proto.Transaction_TXResultCode" json:"ResultCode,omitempty"`
 	Receipts   []*Transaction_Receipt   `protobuf:"bytes,5,rep,name=Receipts,json=receipts,proto3" json:"Receipts,omitempty"`
 	Block      uint64                   `protobuf:"varint,6,opt,name=Block,json=block,proto3" json:"Block,omitempty"`
+
+	Hash []byte `json:"hash"`
 }
 
 func (x *Transaction) Reset() {
