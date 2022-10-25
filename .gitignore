@@ -5,3 +5,5 @@ bin/
 vendor
 .idea
 .vscode
+*.out
+out.svg
