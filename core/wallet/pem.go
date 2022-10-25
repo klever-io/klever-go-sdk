@@ -23,7 +23,7 @@ func LoadKey(pemFile string, skIndex int, pwd string) ([]byte, string, error) {
 
 	encodedSk, pkString, err := LoadSkPkFromPemFile(pemFile, skIndex, pwd)
 	if err != nil {
-		return nil, "", nil
+		return nil, "", err
 	}
 
 	skBytes, err := hex.DecodeString(string(encodedSk))

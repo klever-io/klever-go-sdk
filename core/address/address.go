@@ -21,10 +21,10 @@ func ZeroAddress() Address {
 }
 
 func NewAddressFromBytes(pkBytes []byte) (Address, error) {
-	if len(pkBytes) != addrLen {
-		return nil, fmt.Errorf("decoding address, expected length %d, received %d",
-			addrLen, len(pkBytes))
-	}
+	// if len(pkBytes) != addrLen {
+	// 	return nil, fmt.Errorf("decoding address, expected length %d, received %d",
+	// 		addrLen, len(pkBytes))
+	// }
 
 	//since the errors generated here are usually because of a bad config, they will be treated here
 	conv, err := bech32.ConvertBits(pkBytes, 8, 5, true)
