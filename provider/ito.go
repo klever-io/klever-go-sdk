@@ -14,22 +14,9 @@ func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress str
 	}
 	parsedmaxAmount := maxAmount * math.Pow10(int(kda.Precision))
 
-	packInfo := make(map[string]models.PackInfoRequest)
-	for _, p := range packs {
-		packPrecision, err := kc.getPrecision(p.Kda)
-		if err != nil {
-			return nil, err
-		}
-
-		packItems := make([]models.PackItemRequest, 0)
-		for _, pItem := range p.Packs {
-			parsedItemAmount := pItem.Amount * math.Pow10(int(kda.Precision))
-			parsedItemPrice := pItem.Price * math.Pow10(int(packPrecision))
-
-			packItems = append(packItems, models.PackItemRequest{Amount: int64(parsedItemAmount), Price: int64(parsedItemPrice)})
-		}
-
-		packInfo[p.Kda] = models.PackInfoRequest{Packs: packItems}
+	packInfo, err := kc.createPackInfo(kda.Precision, packs)
+	if err != nil {
+		return nil, err
 	}
 
 	configITO := models.ConfigITOTXRequest{
@@ -48,13 +35,9 @@ func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress str
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error) {
-	kda, err := kc.GetAsset(kdaID)
-	if err != nil {
-		return nil, err
-	}
-
+func (kc *kleverChain) createPackInfo(precision uint32, packs []models.ParsedPack) (map[string]models.PackInfoRequest, error) {
 	packInfo := make(map[string]models.PackInfoRequest)
+
 	for _, p := range packs {
 		packPrecision, err := kc.getPrecision(p.Kda)
 		if err != nil {
@@ -63,13 +46,27 @@ func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []m
 
 		packItems := make([]models.PackItemRequest, 0)
 		for _, pItem := range p.Packs {
-			parsedItemAmount := pItem.Amount * math.Pow10(int(kda.Precision))
+			parsedItemAmount := pItem.Amount * math.Pow10(int(precision))
 			parsedItemPrice := pItem.Price * math.Pow10(int(packPrecision))
 
 			packItems = append(packItems, models.PackItemRequest{Amount: int64(parsedItemAmount), Price: int64(parsedItemPrice)})
 		}
 
 		packInfo[p.Kda] = models.PackInfoRequest{Packs: packItems}
+	}
+
+	return packInfo, nil
+}
+
+func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error) {
+	kda, err := kc.GetAsset(kdaID)
+	if err != nil {
+		return nil, err
+	}
+
+	packInfo, err := kc.createPackInfo(kda.Precision, packs)
+	if err != nil {
+		return nil, err
 	}
 
 	setITOPrices := models.SetITOPricesTXRequest{
