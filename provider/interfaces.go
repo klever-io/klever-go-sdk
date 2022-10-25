@@ -2,6 +2,7 @@ package provider
 
 import (
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
 	"github.com/klever-io/klever-go-sdk/provider/tools/marshal"
 )
@@ -10,41 +11,41 @@ type KleverChain interface {
 	// Query Account data
 	GetAccount(address string) (*models.Account, error)
 	GetAccountAllowance(address string, kda string) (*models.AccountAllowance, error)
-	GetAsset(assetID string) (*models.KDAData, error)
+	GetAsset(assetID string) (*proto.KDAData, error)
 	// Transaction helpers
-	Decode(tx *models.Transaction) (*models.TransactionAPI, error)
+	Decode(tx *proto.Transaction) (*models.TransactionAPI, error)
 	GetTransaction(hash string) (*models.TransactionAPI, error)
 	GetHasher() hasher.Hasher
 	GetMarshalizer() marshal.Marshalizer
 	// Transfer actions
-	Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error)
-	MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error)
+	Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*proto.Transaction, error)
+	MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*proto.Transaction, error)
 	// Asset Actions
-	CreateKDA(base *models.BaseTX, kdaType models.KDAData_EnumAssetType, op *models.KDAOptions) (*models.Transaction, error)
-	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*models.Transaction, error)
+	CreateKDA(base *models.BaseTX, kdaType proto.KDAData_EnumAssetType, op *models.KDAOptions) (*proto.Transaction, error)
+	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*proto.Transaction, error)
 	// Acctount Actions
-	SetAccountName(base *models.BaseTX, name string) (*models.Transaction, error)
-	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*models.Transaction, error)
+	SetAccountName(base *models.BaseTX, name string) (*proto.Transaction, error)
+	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*proto.Transaction, error)
 	// Governance Actions
-	Proposal(base *models.BaseTX, description string, parameters map[int32]string, duration uint32) (*models.Transaction, error)
-	Vote(base *models.BaseTX, proposalID uint64, amount float64, voteType uint64) (*models.Transaction, error)
+	Proposal(base *models.BaseTX, description string, parameters map[int32]string, duration uint32) (*proto.Transaction, error)
+	Vote(base *models.BaseTX, proposalID uint64, amount float64, voteType uint64) (*proto.Transaction, error)
 	// Market&ITO Actions
-	ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*models.Transaction, error)
-	SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*models.Transaction, error)
-	CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*models.Transaction, error)
-	ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*models.Transaction, error)
-	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*models.Transaction, error)
-	SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*models.Transaction, error)
-	CancelMarketOrder(base *models.BaseTX, orderID string) (*models.Transaction, error)
-	Withdraw(base *models.BaseTX, kda string) (*models.Transaction, error)
+	ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*proto.Transaction, error)
+	SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error)
+	CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
+	ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
+	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error)
+	SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*proto.Transaction, error)
+	CancelMarketOrder(base *models.BaseTX, orderID string) (*proto.Transaction, error)
+	Withdraw(base *models.BaseTX, kda string) (*proto.Transaction, error)
 	// Staking Action
-	Freeze(base *models.BaseTX, amount float64, kda string) (*models.Transaction, error)
-	Unfreeze(base *models.BaseTX, bucketId, kda string) (*models.Transaction, error)
-	Delegate(base *models.BaseTX, toAddr, bucketId string) (*models.Transaction, error)
-	Undelegate(base *models.BaseTX, toAddr, bucketId string) (*models.Transaction, error)
+	Freeze(base *models.BaseTX, amount float64, kda string) (*proto.Transaction, error)
+	Unfreeze(base *models.BaseTX, bucketId, kda string) (*proto.Transaction, error)
+	Delegate(base *models.BaseTX, toAddr, bucketId string) (*proto.Transaction, error)
+	Undelegate(base *models.BaseTX, toAddr, bucketId string) (*proto.Transaction, error)
 	// Validator Actions
-	Unjail(base *models.BaseTX) (*models.Transaction, error)
-	Claim(base *models.BaseTX, id string, claimType int32) (*models.Transaction, error)
+	Unjail(base *models.BaseTX) (*proto.Transaction, error)
+	Claim(base *models.BaseTX, id string, claimType int32) (*proto.Transaction, error)
 	// Network Broadcast
-	BroadcastTransaction(tx *models.Transaction) (string, error)
+	BroadcastTransaction(tx *proto.Transaction) (string, error)
 }

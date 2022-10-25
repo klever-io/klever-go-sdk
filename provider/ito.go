@@ -4,9 +4,10 @@ import (
 	"math"
 
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*models.Transaction, error) {
+func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*proto.Transaction, error) {
 	kda, err := kc.GetAsset(kdaID)
 	if err != nil {
 		return nil, err
@@ -39,7 +40,7 @@ func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress str
 		PackInfo:        packInfo,
 	}
 
-	data, err := kc.buildRequest(models.TXContract_ConfigITOContractType, base, []interface{}{configITO})
+	data, err := kc.buildRequest(proto.TXContract_ConfigITOContractType, base, []interface{}{configITO})
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func (kc *kleverChain) ConfigITO(base *models.BaseTX, kdaID, receiverAddress str
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*models.Transaction, error) {
+func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error) {
 	kda, err := kc.GetAsset(kdaID)
 	if err != nil {
 		return nil, err
@@ -76,7 +77,7 @@ func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []m
 		PackInfo: packInfo,
 	}
 
-	data, err := kc.buildRequest(models.TXContract_SetITOPricesContractType, base, []interface{}{setITOPrices})
+	data, err := kc.buildRequest(proto.TXContract_SetITOPricesContractType, base, []interface{}{setITOPrices})
 	if err != nil {
 		return nil, err
 	}

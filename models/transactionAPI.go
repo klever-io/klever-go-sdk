@@ -3,6 +3,8 @@ package models
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
 type ToAmount struct {
@@ -32,7 +34,7 @@ type TransactionAPI struct {
 	Signature    []string                 `json:"signature,omitempty"`
 	SearchOrder  uint32                   `json:"searchOrder"`
 	Receipts     []map[string]interface{} `json:"receipts"`
-	Contracts    []*TXContract            `json:"contract"`
+	Contracts    []*proto.TXContract      `json:"contract"`
 }
 
 func (t *TransactionAPI) String() string {
@@ -45,9 +47,9 @@ func (t *TransactionAPI) String() string {
 }
 
 type TXContractAPI struct {
-	Type       TXContract_ContractType `json:"type"`
-	TypeString string                  `json:"typeString"`
-	Parameter  interface{}             `json:"parameter,omitempty"`
+	Type       proto.TXContract_ContractType `json:"type"`
+	TypeString string                        `json:"typeString"`
+	Parameter  interface{}                   `json:"parameter,omitempty"`
 }
 
 //-- TransferContract

@@ -8,9 +8,10 @@ import (
 
 	"github.com/klever-io/klever-go-sdk/core"
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) Decode(tx *models.Transaction) (*models.TransactionAPI, error) {
+func (kc *kleverChain) Decode(tx *proto.Transaction) (*models.TransactionAPI, error) {
 
 	result := struct {
 		Data struct {
@@ -48,13 +49,13 @@ func (kc *kleverChain) getPrecision(kda string) (uint32, error) {
 	return precision, nil
 }
 
-func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*models.Transaction, error) {
+func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*proto.Transaction, error) {
 	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount}}
 
 	return kc.MultiTransfer(base, kda, values)
 }
 
-func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*models.Transaction, error) {
+func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*proto.Transaction, error) {
 	precision, err := kc.getPrecision(kda)
 	if err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []m
 		})
 	}
 
-	data, err := kc.buildRequest(models.TXContract_TransferContractType, base, contracts)
+	data, err := kc.buildRequest(proto.TXContract_TransferContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +79,7 @@ func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []m
 }
 
 func (kc *kleverChain) buildRequest(
-	txType models.TXContract_ContractType,
+	txType proto.TXContract_ContractType,
 	base *models.BaseTX,
 	contracts []interface{},
 ) (*models.SendTXRequest, error) {
@@ -108,14 +109,14 @@ func (kc *kleverChain) buildRequest(
 	}, nil
 }
 
-func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*models.Transaction, error) {
+func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*proto.Transaction, error) {
 	result := struct {
 		Data struct {
-			Transaction *models.Transaction `json:"result"`
+			Transaction *proto.Transaction `json:"result"`
 		} `json:"data"`
 	}{}
 
-	result.Data.Transaction = &models.Transaction{}
+	result.Data.Transaction = &proto.Transaction{}
 
 	body, err := json.Marshal(request)
 	if err != nil {
@@ -161,9 +162,9 @@ func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, erro
 	return result.Data.Transaction, err
 }
 
-func (kc *kleverChain) BroadcastTransaction(tx *models.Transaction) (string, error) {
+func (kc *kleverChain) BroadcastTransaction(tx *proto.Transaction) (string, error) {
 	toBroadcast := struct {
-		TX *models.Transaction `json:"tx"`
+		TX *proto.Transaction `json:"tx"`
 	}{
 		TX: tx,
 	}

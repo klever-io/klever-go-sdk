@@ -1,6 +1,10 @@
 package models
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/klever-io/klever-go-sdk/models/proto"
+)
 
 type Bucket struct {
 	ID            string `json:"id"`
@@ -14,22 +18,22 @@ type Bucket struct {
 
 // AccountKDA is a structure that holds information about a kda account
 type AccountKDA struct {
-	AccountAddress  string                `json:"address"`
-	AssetID         string                `json:"assetId"`
-	Collection      string                `json:"collection,omitempty"`
-	NFTNonce        uint64                `json:"nftNonce,omitempty"`
-	AssetName       string                `json:"assetName"`
-	AssetType       KDAData_EnumAssetType `json:"assetType"`
-	Balance         int64                 `json:"balance"`
-	Precision       uint32                `json:"precision"`
-	FrozenBalance   int64                 `json:"frozenBalance"`
-	UnfrozenBalance int64                 `json:"unfrozenBalance"`
-	LastClaim       UserKDALastClaim      `json:"lastClaim"`
-	Buckets         []UserKDABucket       `json:"buckets"`
-	Metadata        string                `json:"metadata,omitempty"`
-	MIME            string                `json:"mime,omitempty"`
-	MarketplaceID   string                `json:"marketplaceId,omitempty"`
-	OrderID         string                `json:"orderId,omitempty"`
+	AccountAddress  string                      `json:"address"`
+	AssetID         string                      `json:"assetId"`
+	Collection      string                      `json:"collection,omitempty"`
+	NFTNonce        uint64                      `json:"nftNonce,omitempty"`
+	AssetName       string                      `json:"assetName"`
+	AssetType       proto.KDAData_EnumAssetType `json:"assetType"`
+	Balance         int64                       `json:"balance"`
+	Precision       uint32                      `json:"precision"`
+	FrozenBalance   int64                       `json:"frozenBalance"`
+	UnfrozenBalance int64                       `json:"unfrozenBalance"`
+	LastClaim       UserKDALastClaim            `json:"lastClaim"`
+	Buckets         []UserKDABucket             `json:"buckets"`
+	Metadata        string                      `json:"metadata,omitempty"`
+	MIME            string                      `json:"mime,omitempty"`
+	MarketplaceID   string                      `json:"marketplaceId,omitempty"`
+	OrderID         string                      `json:"orderId,omitempty"`
 }
 
 // UserKDABucket is a structure that holds information about a kda user buckets

@@ -4,9 +4,10 @@ import (
 	"math"
 
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*models.Transaction, error) {
+func (kc *kleverChain) CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*proto.Transaction, error) {
 	parsedReferralPercent := referralPercent * math.Pow10(2)
 
 	createMarketplace := models.CreateMarketplaceTXRequest{
@@ -15,7 +16,7 @@ func (kc *kleverChain) CreateMarketplace(base *models.BaseTX, name, referralAddr
 		ReferralPercentage: uint32(parsedReferralPercent),
 	}
 
-	data, err := kc.buildRequest(models.TXContract_CreateMarketplaceContractType, base, []interface{}{createMarketplace})
+	data, err := kc.buildRequest(proto.TXContract_CreateMarketplaceContractType, base, []interface{}{createMarketplace})
 	if err != nil {
 		return nil, err
 	}
@@ -23,7 +24,7 @@ func (kc *kleverChain) CreateMarketplace(base *models.BaseTX, name, referralAddr
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*models.Transaction, error) {
+func (kc *kleverChain) ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*proto.Transaction, error) {
 	parsedReferralPercent := referralPercent * math.Pow10(2)
 
 	configMarketplace := models.ConfigMarketplaceTXRequest{
@@ -33,7 +34,7 @@ func (kc *kleverChain) ConfigMarketplace(base *models.BaseTX, id, name, referral
 		ReferralPercentage: uint32(parsedReferralPercent),
 	}
 
-	data, err := kc.buildRequest(models.TXContract_ConfigMarketplaceContractType, base, []interface{}{configMarketplace})
+	data, err := kc.buildRequest(proto.TXContract_ConfigMarketplaceContractType, base, []interface{}{configMarketplace})
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +42,7 @@ func (kc *kleverChain) ConfigMarketplace(base *models.BaseTX, id, name, referral
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*models.Transaction, error) {
+func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error) {
 	parsedAmount := amount
 
 	precision, err := kc.getPrecision(id)
@@ -58,7 +59,7 @@ func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount
 		Amount:     int64(parsedAmount),
 	}
 
-	data, err := kc.buildRequest(models.TXContract_BuyContractType, base, []interface{}{buyOrder})
+	data, err := kc.buildRequest(proto.TXContract_BuyContractType, base, []interface{}{buyOrder})
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +67,7 @@ func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*models.Transaction, error) {
+func (kc *kleverChain) SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*proto.Transaction, error) {
 	precision, err := kc.getPrecision(currency)
 	if err != nil {
 		return nil, err
@@ -85,7 +86,7 @@ func (kc *kleverChain) SellOrder(base *models.BaseTX, kdaID, currency, mktID str
 		EndTime:       endTime,
 	}
 
-	data, err := kc.buildRequest(models.TXContract_SellContractType, base, []interface{}{sellOrder})
+	data, err := kc.buildRequest(proto.TXContract_SellContractType, base, []interface{}{sellOrder})
 	if err != nil {
 		return nil, err
 	}
@@ -93,12 +94,12 @@ func (kc *kleverChain) SellOrder(base *models.BaseTX, kdaID, currency, mktID str
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) CancelMarketOrder(base *models.BaseTX, orderID string) (*models.Transaction, error) {
+func (kc *kleverChain) CancelMarketOrder(base *models.BaseTX, orderID string) (*proto.Transaction, error) {
 	cancelMarketOrder := models.CancelMarketOrderTXRequest{
 		OrderID: orderID,
 	}
 
-	data, err := kc.buildRequest(models.TXContract_CancelMarketOrderContractType, base, []interface{}{cancelMarketOrder})
+	data, err := kc.buildRequest(proto.TXContract_CancelMarketOrderContractType, base, []interface{}{cancelMarketOrder})
 	if err != nil {
 		return nil, err
 	}

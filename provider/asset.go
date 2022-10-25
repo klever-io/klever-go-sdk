@@ -7,12 +7,13 @@ import (
 	"strings"
 
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) GetAsset(assetID string) (*models.KDAData, error) {
+func (kc *kleverChain) GetAsset(assetID string) (*proto.KDAData, error) {
 	result := struct {
 		Data struct {
-			Asset *models.KDAData `json:"asset"`
+			Asset *proto.KDAData `json:"asset"`
 		} `json:"data"`
 	}{}
 
@@ -47,7 +48,7 @@ func (kc *kleverChain) AssetTrigger(
 	kdaID string,
 	triggerType AssetTriggerType,
 	op *models.AssetTriggerOptions,
-) (*models.Transaction, error) {
+) (*proto.Transaction, error) {
 	// check if is NFT
 	kda := strings.Split(kdaID, "/")
 	if len(kda) > 2 {
@@ -61,7 +62,7 @@ func (kc *kleverChain) AssetTrigger(
 
 	parsedAmount := op.Amount
 
-	if asset.AssetType == models.KDAData_Fungible {
+	if asset.AssetType == proto.KDAData_Fungible {
 		parsedAmount = parsedAmount * math.Pow10(int(asset.Precision))
 	}
 
@@ -131,7 +132,7 @@ func (kc *kleverChain) AssetTrigger(
 		Staking:     stakingInfo,
 	})
 
-	data, err := kc.buildRequest(models.TXContract_AssetTriggerContractType, base, contracts)
+	data, err := kc.buildRequest(proto.TXContract_AssetTriggerContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}
@@ -140,9 +141,9 @@ func (kc *kleverChain) AssetTrigger(
 
 func (kc *kleverChain) CreateKDA(
 	base *models.BaseTX,
-	kdaType models.KDAData_EnumAssetType,
+	kdaType proto.KDAData_EnumAssetType,
 	op *models.KDAOptions,
-) (*models.Transaction, error) {
+) (*proto.Transaction, error) {
 	if !IsNameValid(op.Name) {
 		return nil, fmt.Errorf("invalid KDA name")
 	}
@@ -186,7 +187,7 @@ func (kc *kleverChain) CreateKDA(
 		Roles:         op.Roles,
 	})
 
-	data, err := kc.buildRequest(models.TXContract_CreateAssetContractType, base, contracts)
+	data, err := kc.buildRequest(proto.TXContract_CreateAssetContractType, base, contracts)
 	if err != nil {
 		return nil, err
 	}

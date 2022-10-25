@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -23,7 +24,7 @@ type SignableMessage interface {
 	SetSignature([]byte)
 
 	Verify() bool
-	Sign(Signer) error
+	Sign(proto.Signer) error
 
 	ToJSON() string
 	LoadJSON(string) error
@@ -98,7 +99,7 @@ func (sm *signableMessage) Verify() bool {
 	return ed25519.Verify(sm.Address.Bytes(), hash, sm.Signature)
 }
 
-func (sm *signableMessage) Sign(wallet Signer) error {
+func (sm *signableMessage) Sign(wallet proto.Signer) error {
 	data := sm.serializeForSigning()
 	siganture, err := wallet.Sign(data)
 	if err != nil {
