@@ -24,6 +24,9 @@ endif
 ldflags := -X 'main.appVersion=${VERSION}'
 
 GOCMD=go
+GOIMPORT=goimports
+GOINSTALL=$(GOCMD) install
+GOTEST=$(GOCMD) test
 GORUN=$(GOCMD) run -ldflags="$(ldflags)" 
 GOBUILD=$(GOCMD) build -ldflags="$(ldflags)" 
 
@@ -31,7 +34,37 @@ GOBUILD=$(GOCMD) build -ldflags="$(ldflags)"
 ############################
 ###        DEMO APP      ###
 ############################
-.PHONY: demo-getAccount demo-transfer demo-createAsset
 demo.%: DEMO=$*
 demo.%: 
 	$(GORUN) ./cmd/demo/$(DEMO)
+
+############################
+###    TESTS/COVERAGE    ###
+############################
+.PHONY: dependencies vet test test_coverage
+
+dependencies:
+	$(GOINSTALL) github.com/nikolaydubina/go-cover-treemap@latest
+	$(GOINSTALL) golang.org/x/tools/cmd/goimports@latest
+
+vet:
+	$(GOCMD) vet ./...
+
+imports:
+	$(eval CHECKFILES = $(shell find . -type f -name '*.go' -not -name '*.pb.go' -not -name '*_setter.go' -not -path './vendor/*'))
+	$(GOCMD) mod tidy
+	$(GOIMPORT) -d -w $(CHECKFILES)
+
+test:
+	$(GOCMD) clean -testcache
+	$(GOTEST) ./...
+
+test_coverage:
+	$(eval PACKAGES = $(shell go list ./... | grep -v '/proto/'))
+	$(GOTEST) -coverprofile cover.out $(PACKAGES)
+	go-cover-treemap -coverprofile cover.out > out.svg
+
+test_coveragehtml:
+	$(eval PACKAGES = $(shell go list ./... | grep -v '/proto/'))
+	$(GOTEST) -coverprofile cover.out $(PACKAGES)
+	$(GOCMD) tool cover -html=cover.out

@@ -1,4 +1,4 @@
-package models
+package proto
 
 import (
 	reflect "reflect"

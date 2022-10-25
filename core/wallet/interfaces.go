@@ -7,4 +7,5 @@ type Wallet interface {
 	PublicKey() []byte
 	GetAccount() (account.Account, error)
 	Sign(msg []byte) ([]byte, error)
+	SignHex(msg string) ([]byte, error)
 }

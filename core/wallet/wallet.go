@@ -172,7 +172,7 @@ func NewWalletFroHex(privateHex string) (Wallet, error) {
 }
 
 func (w *wallet) PrivateKey() []byte {
-	return append([]byte{}, w.privateKey...)
+	return w.privateKey[:32]
 }
 
 func (w *wallet) PublicKey() []byte {

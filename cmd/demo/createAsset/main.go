@@ -5,6 +5,7 @@ import (
 
 	"github.com/klever-io/klever-go-sdk/cmd/demo"
 	"github.com/klever-io/klever-go-sdk/models"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 	base := accounts[0].NewBaseTX()
 	tx, err := kc.CreateKDA(
 		base,
-		models.KDAData_Fungible,
+		proto.KDAData_Fungible,
 		&models.KDAOptions{
 			Name:          "KleverTest",
 			Ticker:        "TST",

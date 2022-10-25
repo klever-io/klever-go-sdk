@@ -1,4 +1,4 @@
-package models
+package proto
 
 func (x *Transaction) AddSignature(s []byte) {
 	if x.Signature == nil {
