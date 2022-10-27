@@ -91,8 +91,9 @@ func (kc *kleverChain) AssetTrigger(
 		return nil, fmt.Errorf("can only add one roler per trigger")
 	}
 
-	stakingInfo := &models.StakingInfo{}
+	var stakingInfo *models.StakingInfo
 	if len(op.Staking) > 0 {
+		stakingInfo = &models.StakingInfo{}
 		apr, err := strconv.ParseFloat(op.Staking["apr"], 64)
 		if err != nil {
 			return nil, fmt.Errorf("invalid apr %s: %w", op.Staking["apr"], err)
