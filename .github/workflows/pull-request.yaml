@@ -13,6 +13,8 @@ on:
 jobs:
   ensure-code:
     uses: klever-io/workflow-calls/.github/workflows/go-ci.yaml@master
+    with:
+      sonar_check_gate_active: false
     secrets:
       sonar_host_url: ${{ secrets.SONAR_HOST_URL }}
       sonar_token: ${{ secrets.SONAR_TOKEN }}
