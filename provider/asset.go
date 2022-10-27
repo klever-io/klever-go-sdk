@@ -17,7 +17,7 @@ func (kc *kleverChain) GetAsset(assetID string) (*proto.KDAData, error) {
 		} `json:"data"`
 	}{}
 
-	err := kc.httpClient.Get(fmt.Sprintf("%s/assets/%s", kc.networkConfig.GetAPIUri(), assetID), &result)
+	err := kc.httpClient.Get(fmt.Sprintf("%s/assets/%s", kc.networkConfig.GetNodeUri(), assetID), &result)
 
 	return result.Data.Asset, err
 }
