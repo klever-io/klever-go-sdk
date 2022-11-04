@@ -34,7 +34,7 @@ type TransactionAPI struct {
 	Signature    []string                 `json:"signature,omitempty"`
 	SearchOrder  uint32                   `json:"searchOrder"`
 	Receipts     []map[string]interface{} `json:"receipts"`
-	Contracts    []*proto.TXContract      `json:"contract"`
+	Contracts    []*TXContractAPI         `json:"contract"`
 }
 
 func (t *TransactionAPI) String() string {
