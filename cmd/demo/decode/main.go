@@ -5,7 +5,6 @@ import (
 
 	"github.com/klever-io/klever-go-sdk/cmd/demo"
 	"github.com/klever-io/klever-go-sdk/models"
-	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
 func main() {
@@ -16,21 +15,13 @@ func main() {
 	}
 
 	base := accounts[0].NewBaseTX()
-	tx, err := kc.CreateKDA(
+	tx, err := kc.MultiTransfer(
 		base,
-		proto.KDAData_Fungible,
-		&models.KDAOptions{
-			Name:          "KleverTest",
-			Ticker:        "TST",
-			Precision:     4,
-			MaxSupply:     1000,
-			InitialSupply: 10,
-			AddRolesMint:  []string{accounts[0].Address().Bech32(), accounts[1].Address().Bech32()},
-			Properties: models.PropertiesInfo{
-				CanMint: true, CanBurn: true,
-			},
-			URIs: map[string]string{"explorer": "testnet.kleverscan.org"},
-		})
+		"KLV",
+		[]models.ToAmount{{
+			ToAddress: accounts[1].Address().Bech32(),
+			Amount:    1000,
+		}})
 	if err != nil {
 		panic(err)
 	}
