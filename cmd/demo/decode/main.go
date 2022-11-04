@@ -31,7 +31,10 @@ func main() {
 		panic(err)
 	}
 
-	decodedTx, _ := kc.Decode(tx)
+	decodedTx, err := kc.Decode(tx)
+	if err != nil {
+		panic(err)
+	}
 
 	fmt.Println("\n\n\nEncodedTX: ", tx)
 	fmt.Println("\n\n\nDecodedTX: ", decodedTx)
