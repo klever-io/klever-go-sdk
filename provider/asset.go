@@ -3,7 +3,6 @@ package provider
 import (
 	"fmt"
 	"math"
-	"strconv"
 	"strings"
 
 	"github.com/klever-io/klever-go-sdk/models"
@@ -41,6 +40,8 @@ const (
 	UpdateStaking
 	UpdateRoyalties
 	UpdateKDAFeePool
+	StopRoyaltiesChange
+	StopNFTMetadataChange
 )
 
 func (kc *kleverChain) AssetTrigger(
@@ -91,35 +92,6 @@ func (kc *kleverChain) AssetTrigger(
 		return nil, fmt.Errorf("can only add one roler per trigger")
 	}
 
-	var stakingInfo *models.StakingInfo
-	if len(op.Staking) > 0 {
-		stakingInfo = &models.StakingInfo{}
-		apr, err := strconv.ParseFloat(op.Staking["apr"], 64)
-		if err != nil {
-			return nil, fmt.Errorf("invalid apr %s: %w", op.Staking["apr"], err)
-		}
-
-		claim, err := strconv.ParseUint(op.Staking["claim"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("invalid claim min epochs %s: %w", op.Staking["claim"], err)
-		}
-
-		unstake, err := strconv.ParseUint(op.Staking["unstake"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("invalid unstake min epochs %s: %w", op.Staking["unstake"], err)
-		}
-
-		withdraw, err := strconv.ParseUint(op.Staking["withdraw"], 10, 32)
-		if err != nil {
-			return nil, fmt.Errorf("invalid withdraw min epochs %s: %w", op.Staking["withdraw"], err)
-		}
-
-		stakingInfo.APR = uint32(apr * math.Pow10(2))
-		stakingInfo.MinEpochsToClaim = uint32(claim)
-		stakingInfo.MinEpochsToUnstake = uint32(unstake)
-		stakingInfo.MinEpochsToWithdraw = uint32(withdraw)
-	}
-
 	contracts := make([]interface{}, 0)
 	contracts = append(contracts, models.AssetTriggerTXRequest{
 		TriggerType: uint32(triggerType),
@@ -130,7 +102,9 @@ func (kc *kleverChain) AssetTrigger(
 		Logo:        op.Logo,
 		URIs:        op.URIs,
 		Role:        role,
-		Staking:     stakingInfo,
+		Staking:     op.Staking,
+		Royalties:   op.Royalties,
+		KDAPool:     op.KDAPool,
 	})
 
 	data, err := kc.buildRequest(proto.TXContract_AssetTriggerContractType, base, contracts)

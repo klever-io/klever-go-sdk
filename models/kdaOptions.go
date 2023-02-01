@@ -23,11 +23,13 @@ type AssetTriggerOptions struct {
 	Amount               float64
 	AddRolesMint         []string
 	AddRolesSetITOPrices []string
-	Staking              map[string]string
+	Staking              *StakingInfo
 	Receiver             string
 	Mime                 string
 	Logo                 string
 	URIs                 map[string]string
+	Royalties            *RoyaltiesInfo
+	KDAPool              *KDAPoolInfo
 }
 
 type ITOTriggerOptions struct {
