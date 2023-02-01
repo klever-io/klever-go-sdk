@@ -29,3 +29,17 @@ type AssetTriggerOptions struct {
 	Logo                 string
 	URIs                 map[string]string
 }
+
+type ITOTriggerOptions struct {
+	ReceiverAddress        string
+	Status                 int32
+	MaxAmount              float64
+	PackInfo               map[string]PackInfoRequest
+	DefaultLimitPerAddress int64
+	WhitelistStatus        int32
+	WhitelistInfo          map[string]WhitelistInfoRequest
+	WhitelistStartTime     int64
+	WhitelistEndTime       int64
+	StartTime              int64
+	EndTime                int64
+}

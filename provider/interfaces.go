@@ -32,6 +32,7 @@ type KleverChain interface {
 	// Market&ITO Actions
 	ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*proto.Transaction, error)
 	SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error)
+	ITOTrigger(base *models.BaseTX, kdaID string, triggerType ITOTriggerType, op *models.ITOTriggerOptions) (*proto.Transaction, error)
 	CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
 	ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
 	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error)

@@ -82,38 +82,9 @@ type CreateAssetContract struct {
 	Roles             []*RolesInfo    `json:"roles"`
 }
 
-type RolesInfo struct {
-	Address             string `json:"address"`
-	HasRoleMint         bool   `json:"hasRoleMint"`
-	HasRoleSetITOPrices bool   `json:"hasRoleSetITOPrices"`
-}
-
-type RoyaltiesInfo struct {
-	Address            string             `json:"address,omitempty"`
-	TransferPercentage []*RoyaltyDataInfo `json:"transferPercentage,omitempty"`
-	TransferFixed      int64              `json:"transferFixed,omitempty"`
-	MarketPercentage   uint32             `json:"marketPercentage,omitempty"`
-	MarketFixed        int64              `json:"marketFixed,omitempty"`
-}
-
 type RoyaltyDataInfo struct {
 	Amount     int64  `json:"amount,omitempty"`
 	Percentage uint32 `json:"percentage,omitempty"`
-}
-
-type PropertiesInfo struct {
-	CanFreeze      bool `json:"canFreeze"`
-	CanWipe        bool `json:"canWipe"`
-	CanPause       bool `json:"canPause"`
-	CanMint        bool `json:"canMint"`
-	CanBurn        bool `json:"canBurn"`
-	CanChangeOwner bool `json:"canChangeOwner"`
-	CanAddRoles    bool `json:"canAddRoles"`
-}
-
-type AttributesInfo struct {
-	IsPaused         bool `json:"isPaused"`
-	IsNFTMintStopped bool `json:"isNFTMintStopped"`
 }
 
 type Staking struct {

@@ -21,7 +21,7 @@ func InitWallets() (
 
 	wallets = make([]wallet.Wallet, 0)
 
-	net := network.NewNetworkConfig(network.TestNet)
+	net := network.NewNetworkConfig(network.DevNet)
 	httpClient := utils.NewHttpClient(10 * time.Second)
 	kc, err = provider.NewKleverChain(net, httpClient)
 	if err != nil {
@@ -46,7 +46,11 @@ func InitWallets() (
 		if err != nil {
 			return
 		}
+
 		err = acc.Sync(kc)
+		if err != nil {
+			return
+		}
 
 		accounts = append(accounts, acc)
 	}
