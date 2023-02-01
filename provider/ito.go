@@ -61,27 +61,7 @@ func (kc *kleverChain) createPackInfo(precision uint32, packs []models.ParsedPac
 }
 
 func (kc *kleverChain) SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error) {
-	kda, err := kc.GetAsset(kdaID)
-	if err != nil {
-		return nil, err
-	}
-
-	packInfo, err := kc.createPackInfo(kda.Precision, packs)
-	if err != nil {
-		return nil, err
-	}
-
-	setITOPrices := models.SetITOPricesTXRequest{
-		KDA:      kdaID,
-		PackInfo: packInfo,
-	}
-
-	data, err := kc.buildRequest(proto.TXContract_SetITOPricesContractType, base, []interface{}{setITOPrices})
-	if err != nil {
-		return nil, err
-	}
-
-	return kc.PrepareTransaction(data)
+	return nil, fmt.Errorf("deprecated contract, please use ITOTrigger with Type: SetITOPrices(0)")
 }
 
 type ITOTriggerType uint32
