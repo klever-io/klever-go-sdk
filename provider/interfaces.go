@@ -23,6 +23,7 @@ type KleverChain interface {
 	// Asset Actions
 	CreateKDA(base *models.BaseTX, kdaType proto.KDAData_EnumAssetType, op *models.KDAOptions) (*proto.Transaction, error)
 	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*proto.Transaction, error)
+	Deposit(base *models.BaseTX, op *models.DepositOptions) (*proto.Transaction, error)
 	// Acctount Actions
 	SetAccountName(base *models.BaseTX, name string) (*proto.Transaction, error)
 	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*proto.Transaction, error)

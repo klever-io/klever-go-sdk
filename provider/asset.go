@@ -195,6 +195,43 @@ func (kc *kleverChain) CreateKDA(
 	return kc.PrepareTransaction(data)
 }
 
+func (kc *kleverChain) Deposit(
+	base *models.BaseTX,
+	op *models.DepositOptions,
+) (*proto.Transaction, error) {
+
+	// check if it's not a NFT
+	currency := strings.Split(op.CurrencyID, "/")
+	if len(currency) > 1 {
+		return nil, fmt.Errorf("invalid KDA ID")
+	}
+
+	currencyAsset, err := kc.GetAsset(currency[0])
+	if err != nil {
+		return nil, err
+	}
+
+	parsedAmount := op.Amount
+
+	if currencyAsset.AssetType == proto.KDAData_Fungible {
+		parsedAmount = parsedAmount * math.Pow10(int(currencyAsset.Precision))
+	}
+
+	contracts := []interface{}{models.DepositTXRequest{
+		DepositType: int32(op.DepositType),
+		KDA:         op.KDAID,
+		CurrencyID:  op.CurrencyID,
+		Amount:      int64(parsedAmount),
+	}}
+
+	data, err := kc.buildRequest(proto.TXContract_DepositContractType, base, contracts)
+	if err != nil {
+		return nil, err
+	}
+
+	return kc.PrepareTransaction(data)
+}
+
 func IsNameValid(name string) bool {
 	if len(name) < 1 ||
 		len(name) > 32 ||

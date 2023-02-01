@@ -18,7 +18,7 @@ func main() {
 	base := accounts[0].NewBaseTX()
 	tx, err := kc.ITOTrigger(
 		base,
-		"ITOT-VUG5",
+		"KDA",
 		provider.ITOTriggerType(3),
 		&models.ITOTriggerOptions{
 			MaxAmount: 60,

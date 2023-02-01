@@ -43,3 +43,17 @@ type ITOTriggerOptions struct {
 	StartTime              int64
 	EndTime                int64
 }
+
+type DepositType int32
+
+const (
+	FPRDeposit DepositType = iota
+	KDAPool
+)
+
+type DepositOptions struct {
+	DepositType DepositType
+	KDAID       string
+	CurrencyID  string
+	Amount      float64
+}
