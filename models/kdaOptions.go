@@ -48,7 +48,7 @@ type DepositType int32
 
 const (
 	FPRDeposit DepositType = iota
-	KDAPool
+	KDAPoolDeposit
 )
 
 type DepositOptions struct {
@@ -56,4 +56,18 @@ type DepositOptions struct {
 	KDAID       string
 	CurrencyID  string
 	Amount      float64
+}
+
+type WithdrawType int32
+
+const (
+	StakingWithdraw WithdrawType = iota
+	KDAPoolWithdraw
+)
+
+type WithdrawOptions struct {
+	KDA          string
+	WithdrawType WithdrawType
+	Amount       float64
+	CurrencyID   string
 }

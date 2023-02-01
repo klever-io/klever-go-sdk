@@ -65,18 +65,6 @@ func (kc *kleverChain) Undelegate(base *models.BaseTX, toAddr, bucketId string) 
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) Withdraw(base *models.BaseTX, kda string) (*proto.Transaction, error) {
-	contracts := []interface{}{models.WithdrawTXRequest{
-		KDA: kda,
-	}}
-
-	data, err := kc.buildRequest(proto.TXContract_WithdrawContractType, base, contracts)
-	if err != nil {
-		return nil, err
-	}
-	return kc.PrepareTransaction(data)
-}
-
 func (kc *kleverChain) Claim(base *models.BaseTX, id string, claimType int32) (*proto.Transaction, error) {
 	contracts := []interface{}{models.ClaimTXRequest{
 		ClaimType: claimType,

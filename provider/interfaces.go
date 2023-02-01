@@ -24,6 +24,7 @@ type KleverChain interface {
 	CreateKDA(base *models.BaseTX, kdaType proto.KDAData_EnumAssetType, op *models.KDAOptions) (*proto.Transaction, error)
 	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*proto.Transaction, error)
 	Deposit(base *models.BaseTX, op *models.DepositOptions) (*proto.Transaction, error)
+	Withdraw(base *models.BaseTX, op *models.WithdrawOptions) (*proto.Transaction, error)
 	// Acctount Actions
 	SetAccountName(base *models.BaseTX, name string) (*proto.Transaction, error)
 	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*proto.Transaction, error)
@@ -39,7 +40,6 @@ type KleverChain interface {
 	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error)
 	SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*proto.Transaction, error)
 	CancelMarketOrder(base *models.BaseTX, orderID string) (*proto.Transaction, error)
-	Withdraw(base *models.BaseTX, kda string) (*proto.Transaction, error)
 	// Staking Action
 	Freeze(base *models.BaseTX, amount float64, kda string) (*proto.Transaction, error)
 	Unfreeze(base *models.BaseTX, bucketId, kda string) (*proto.Transaction, error)

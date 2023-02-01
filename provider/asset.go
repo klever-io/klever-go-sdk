@@ -232,6 +232,55 @@ func (kc *kleverChain) Deposit(
 	return kc.PrepareTransaction(data)
 }
 
+func (kc *kleverChain) Withdraw(base *models.BaseTX, op *models.WithdrawOptions) (*proto.Transaction, error) {
+
+	var withdrawTX models.WithdrawTXRequest
+
+	switch op.WithdrawType {
+	case models.StakingWithdraw:
+		withdrawTX = models.WithdrawTXRequest{
+			WithdrawType: int32(op.WithdrawType),
+			KDA:          op.KDA,
+		}
+
+	case models.KDAPoolWithdraw:
+		currency := strings.Split(op.CurrencyID, "/")
+		if len(currency) > 1 {
+			return nil, fmt.Errorf("invalid KDA ID")
+		}
+
+		currencyAsset, err := kc.GetAsset(currency[0])
+		if err != nil {
+			return nil, err
+		}
+
+		parsedAmount := op.Amount
+
+		if currencyAsset.AssetType == proto.KDAData_Fungible {
+			parsedAmount = parsedAmount * math.Pow10(int(currencyAsset.Precision))
+		}
+
+		withdrawTX = models.WithdrawTXRequest{
+			WithdrawType: int32(op.WithdrawType),
+			KDA:          op.KDA,
+			Amount:       int64(parsedAmount),
+			CurrencyID:   op.CurrencyID,
+		}
+	default:
+		return nil, fmt.Errorf("invalid withdraw type")
+	}
+
+	contracts := []interface{}{
+		withdrawTX,
+	}
+
+	data, err := kc.buildRequest(proto.TXContract_WithdrawContractType, base, contracts)
+	if err != nil {
+		return nil, err
+	}
+	return kc.PrepareTransaction(data)
+}
+
 func IsNameValid(name string) bool {
 	if len(name) < 1 ||
 		len(name) > 32 ||
