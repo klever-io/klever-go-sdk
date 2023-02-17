@@ -6,9 +6,7 @@ import (
 	"github.com/klever-io/klever-go-sdk/cmd/demo"
 )
 
-
-
-func main(){
+func main() {
 
 	// To pay fees with kda, you need to have a KDA with Fee Pool Active.
 	accounts, wallets, kc, err := demo.InitWallets()
