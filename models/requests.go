@@ -5,6 +5,7 @@ type BaseTX struct {
 	Nonce       uint64
 	PermID      int32
 	Message     []string
+	KdaFee		string
 }
 
 // SendTXRequest -
