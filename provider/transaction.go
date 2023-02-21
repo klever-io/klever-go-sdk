@@ -106,6 +106,7 @@ func (kc *kleverChain) buildRequest(
 		Data:      parsedMessage,
 		Contract:  contract,
 		Contracts: contracts,
+		KDAFee:    base.KdaFee,
 	}, nil
 }
 
