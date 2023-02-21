@@ -1,4 +1,4 @@
-package payfeeswithkda
+package main
 
 import (
 	"fmt"
