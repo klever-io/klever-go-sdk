@@ -23,6 +23,8 @@ type KleverChain interface {
 	// Asset Actions
 	CreateKDA(base *models.BaseTX, kdaType proto.KDAData_EnumAssetType, op *models.KDAOptions) (*proto.Transaction, error)
 	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*proto.Transaction, error)
+	Deposit(base *models.BaseTX, op *models.DepositOptions) (*proto.Transaction, error)
+	Withdraw(base *models.BaseTX, op *models.WithdrawOptions) (*proto.Transaction, error)
 	// Acctount Actions
 	SetAccountName(base *models.BaseTX, name string) (*proto.Transaction, error)
 	SetPermission(base *models.BaseTX, permissions []models.PermissionTXRequest) (*proto.Transaction, error)
@@ -32,12 +34,12 @@ type KleverChain interface {
 	// Market&ITO Actions
 	ConfigITO(base *models.BaseTX, kdaID, receiverAddress string, status int32, maxAmount float64, packs []models.ParsedPack) (*proto.Transaction, error)
 	SetITOPrices(base *models.BaseTX, kdaID string, packs []models.ParsedPack) (*proto.Transaction, error)
+	ITOTrigger(base *models.BaseTX, kdaID string, triggerType ITOTriggerType, op *models.ITOTriggerOptions) (*proto.Transaction, error)
 	CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
 	ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
 	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error)
 	SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*proto.Transaction, error)
 	CancelMarketOrder(base *models.BaseTX, orderID string) (*proto.Transaction, error)
-	Withdraw(base *models.BaseTX, kda string) (*proto.Transaction, error)
 	// Staking Action
 	Freeze(base *models.BaseTX, amount float64, kda string) (*proto.Transaction, error)
 	Unfreeze(base *models.BaseTX, bucketId, kda string) (*proto.Transaction, error)

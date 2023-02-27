@@ -46,7 +46,11 @@ func InitWallets() (
 		if err != nil {
 			return
 		}
+
 		err = acc.Sync(kc)
+		if err != nil {
+			return
+		}
 
 		accounts = append(accounts, acc)
 	}

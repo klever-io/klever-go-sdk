@@ -5,6 +5,7 @@ type BaseTX struct {
 	Nonce       uint64
 	PermID      int32
 	Message     []string
+	KdaFee      string
 }
 
 // SendTXRequest -
@@ -16,6 +17,7 @@ type SendTXRequest struct {
 	Data      [][]byte      `form:"data" json:"data"`
 	Contract  interface{}   `form:"contract" json:"contract"`
 	Contracts []interface{} `form:"contracts" json:"contracts"`
+	KDAFee    string        `form:"kdaFee" json:"kdaFee"`
 }
 
 // TransferTXRequest -
@@ -43,18 +45,81 @@ type CreateAssetTXRequest struct {
 	Roles         []*RolesInfo      `form:"roles" json:"roles"`
 }
 
+// RoyaltiesInfo -
+type RoyaltiesInfo struct {
+	Address            string                       `form:"address" json:"address"`
+	TransferPercentage []*RoyaltyData               `form:"transferPercentage" json:"transferPercentage"`
+	TransferFixed      int64                        `form:"transferFixed" json:"transferFixed"`
+	MarketPercentage   uint32                       `form:"marketPercentage" json:"marketPercentage"`
+	MarketFixed        int64                        `form:"marketFixed" json:"marketFixed"`
+	ITOPercentage      uint32                       `form:"itoPercentage" json:"itoPercentage"`
+	ITOFixed           int64                        `form:"itoFixed" json:"itoFixed"`
+	SplitRoyalties     map[string]*RoyaltySplitInfo `form:"splitRoyalties" json:"splitRoyalties"`
+}
+
+// RoyaltySplitInfo
+type RoyaltySplitInfo struct {
+	PercentTransferPercentage uint32 `json:"percentTransferPercentage,omitempty"`
+	PercentTransferFixed      uint32 `json:"percentTransferFixed,omitempty"`
+	PercentMarketPercentage   uint32 `json:"percentMarketPercentage,omitempty"`
+	PercentMarketFixed        uint32 `json:"percentMarketFixed,omitempty"`
+	PercentITOPercentage      uint32 `json:"percentITOPercentage,omitempty"`
+	PercentITOFixed           uint32 `json:"percentITOFixed,omitempty"`
+}
+
+// RoyaltyData -
+type RoyaltyData struct {
+	Amount     int64  `form:"amount" json:"amount"`
+	Percentage uint32 `form:"percentage" json:"percentage"`
+}
+
 // RoyaltyDataTX -
 type RoyaltyDataTX struct {
 	Amount     float64 `form:"amount" json:"amount"`
 	Percentage float64 `form:"percentage" json:"percentage"`
 }
 
+// PropertiesInfo -
+type PropertiesInfo struct {
+	CanFreeze      bool `form:"canFreeze" json:"canFreeze"`
+	CanWipe        bool `form:"canWipe" json:"canWipe"`
+	CanPause       bool `form:"canPause" json:"canPause"`
+	CanMint        bool `form:"canMint" json:"canMint"`
+	CanBurn        bool `form:"canBurn" json:"canBurn"`
+	CanChangeOwner bool `form:"canChangeOwner" json:"canChangeOwner"`
+	CanAddRoles    bool `form:"canAddRoles" json:"canAddRoles"`
+}
+
+// AttributesInfo -
+type AttributesInfo struct {
+	IsPaused                   bool `form:"isPaused" json:"isPaused"`
+	IsNFTMintStopped           bool `form:"isNFTMintStopped" json:"isNFTMintStopped"`
+	IsRoyaltiesChangeStopped   bool `form:"isRoyaltiesChangeStopped" json:"isRoyaltiesChangeStopped"`
+	IsNFTMetadataChangeStopped bool `form:"isNFTMetadataChangeStopped" json:"isNFTMetadataChangeStopped"`
+}
+
 // StakingInfo -
 type StakingInfo struct {
+	InterestType        uint32 `form:"interestType" json:"interestType"`
 	APR                 uint32 `form:"apr" json:"apr"`
 	MinEpochsToClaim    uint32 `form:"minEpochsToClaim" json:"minEpochsToClaim"`
 	MinEpochsToUnstake  uint32 `form:"minEpochsToUnstake" json:"minEpochsToUnstake"`
 	MinEpochsToWithdraw uint32 `form:"minEpochsToWithdraw" json:"minEpochsToWithdraw"`
+}
+
+// RolesInfo -
+type RolesInfo struct {
+	Address             string `form:"address" json:"address"`
+	HasRoleMint         bool   `form:"hasRoleMint" json:"hasRoleMint"`
+	HasRoleSetITOPrices bool   `form:"hasRoleSetITOPrices" json:"hasRoleSetITOPrices"`
+}
+
+// KDAPoolInfo -
+type KDAPoolInfo struct {
+	Active       bool   `form:"active" json:"active"`
+	AdminAddress string `form:"adminAddress" json:"adminAddress"`
+	FRatioKLV    int64  `form:"fRatioKLV" json:"fRatioKLV"`
+	FRatioKDA    int64  `form:"fRatioKDA" json:"fRatioKDA"`
 }
 
 // AssetTriggerTXRequest -
@@ -68,6 +133,8 @@ type AssetTriggerTXRequest struct {
 	URIs        map[string]string `form:"uris" json:"uris"`
 	Role        *RolesInfo        `form:"role" json:"role"`
 	Staking     *StakingInfo      `form:"staking" json:"staking"`
+	Royalties   *RoyaltiesInfo    `form:"royalties" json:"royalties"`
+	KDAPool     *KDAPoolInfo      `form:"kdaPool" json:"kdaPool"`
 }
 
 // CreateValidatorTXRequest -
@@ -120,7 +187,10 @@ type UndelegateTXRequest struct {
 
 // WithdrawTXRequest -
 type WithdrawTXRequest struct {
-	KDA string `form:"kda" json:"kda"`
+	KDA          string `form:"kda" json:"kda"`
+	WithdrawType int32  `form:"withdrawType" json:"withdrawType"`
+	Amount       int64  `form:"amount" json:"amount"`
+	CurrencyID   string `form:"currencyID" json:"currencyID"`
 }
 
 // ClaimTXRequest -
@@ -153,11 +223,40 @@ type VoteTXRequest struct {
 
 // ConfigITOTXRequest -
 type ConfigITOTXRequest struct {
-	KDA             string                     `form:"kda" json:"kda"`
-	ReceiverAddress string                     `form:"receiverAddress" json:"receiverAddress"`
-	Status          int32                      `form:"status" json:"status"`
-	MaxAmount       int64                      `form:"maxAmount" json:"maxAmount"`
-	PackInfo        map[string]PackInfoRequest `form:"packInfo" json:"packInfo"`
+	KDA                    string                          `form:"kda" json:"kda"`
+	ReceiverAddress        string                          `form:"receiverAddress" json:"receiverAddress"`
+	Status                 int32                           `form:"status" json:"status"`
+	MaxAmount              int64                           `form:"maxAmount" json:"maxAmount"`
+	PackInfo               map[string]PackInfoRequest      `form:"packInfo" json:"packInfo"`
+	DefaultLimitPerAddress int64                           `form:"defaultLimitPerAddress" json:"defaultLimitPerAddress"`
+	WhitelistStatus        int32                           `form:"whitelistStatus" json:"whitelistStatus"`
+	WhitelistInfo          map[string]WhitelistInfoRequest `form:"whitelistInfo" json:"whitelistInfo"`
+	WhitelistStartTime     int64                           `form:"whitelistStartTime" json:"whitelistStartTime"`
+	WhitelistEndTime       int64                           `form:"whitelistEndTime" json:"whitelistEndTime"`
+	StartTime              int64                           `form:"startTime" json:"startTime"`
+	EndTime                int64                           `form:"endTime" json:"endTime"`
+}
+
+// ITOTriggerTXRequest -
+type ITOTriggerTXRequest struct {
+	TriggerType            uint32                          `form:"triggerType" json:"triggerType"`
+	KDA                    string                          `form:"kda" json:"kda"`
+	ReceiverAddress        string                          `form:"receiverAddress" json:"receiverAddress"`
+	Status                 int32                           `form:"status" json:"status"`
+	MaxAmount              int64                           `form:"maxAmount" json:"maxAmount"`
+	PackInfo               map[string]PackInfoRequest      `form:"packInfo" json:"packInfo"`
+	DefaultLimitPerAddress int64                           `form:"defaultLimitPerAddress" json:"defaultLimitPerAddress"`
+	WhitelistStatus        int32                           `form:"whitelistStatus" json:"whitelistStatus"`
+	WhitelistInfo          map[string]WhitelistInfoRequest `form:"whitelistInfo" json:"whitelistInfo"`
+	WhitelistStartTime     int64                           `form:"whitelistStartTime" json:"whitelistStartTime"`
+	WhitelistEndTime       int64                           `form:"whitelistEndTime" json:"whitelistEndTime"`
+	StartTime              int64                           `form:"startTime" json:"startTime"`
+	EndTime                int64                           `form:"endTime" json:"endTime"`
+}
+
+// WhitelistInfoRequest -
+type WhitelistInfoRequest struct {
+	Limit int64 `form:"limit" json:"limit"`
 }
 
 type SetITOPricesTXRequest struct {
@@ -235,4 +334,12 @@ type PermissionTXRequest struct {
 // UpdateAccountPermissionTXRequest -
 type UpdateAccountPermissionTXRequest struct {
 	Permissions []PermissionTXRequest `form:"permissions" json:"permissions"`
+}
+
+// DepositTXRequest -
+type DepositTXRequest struct {
+	DepositType int32  `form:"depositType" json:"depositType"`
+	KDA         string `form:"kda" json:"kda"`
+	CurrencyID  string `form:"currencyId" json:"currencyId"`
+	Amount      int64  `form:"amount" json:"amount"`
 }

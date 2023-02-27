@@ -16,16 +16,17 @@ func main() {
 	}
 
 	base := accounts[0].NewBaseTX()
+
 	tx, err := kc.CreateKDA(
 		base,
-		proto.KDAData_Fungible,
+		proto.KDAData_Fungible, // Type NFT ot Fungible Token
 		&models.KDAOptions{
 			Name:          "KleverTest",
 			Ticker:        "TST",
 			Precision:     4,
-			MaxSupply:     1000,
-			InitialSupply: 10,
-			AddRolesMint:  []string{accounts[0].Address().Bech32(), accounts[1].Address().Bech32()},
+			MaxSupply:     0,
+			InitialSupply: 0,
+
 			Properties: models.PropertiesInfo{
 				CanMint: true, CanBurn: true,
 			},
