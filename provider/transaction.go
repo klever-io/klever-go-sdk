@@ -55,6 +55,26 @@ func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, 
 	return kc.MultiTransfer(base, kda, values)
 }
 
+func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts ...models.AnyContractRequest) (*proto.Transaction, error) {
+	var contractsParsed []interface{}
+
+	for _, contract := range contracts {
+		c, err := contract.PrepareToSend()
+		if err != nil {
+			return nil, err
+		}
+
+		contractsParsed = append(contractsParsed, c)
+	}
+
+	data, err := kc.buildRequest(0, base, contractsParsed)
+	if err != nil {
+		return nil, err
+	}
+
+	return kc.PrepareTransaction(data)
+}
+
 func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*proto.Transaction, error) {
 	precision, err := kc.getPrecision(kda)
 	if err != nil {
