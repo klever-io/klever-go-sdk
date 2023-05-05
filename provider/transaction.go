@@ -214,3 +214,35 @@ func (kc *kleverChain) BroadcastTransaction(tx *proto.Transaction) (string, erro
 
 	return result.Data.TXHash, err
 }
+
+func (kc *kleverChain) BroadcastTransactions(txs ...*proto.Transaction) ([]string, error) {
+	toBroadcast := struct {
+		TXs []*proto.Transaction `json:"txs"`
+	}{
+		TXs: txs,
+	}
+
+	data, err := json.Marshal(toBroadcast)
+	if err != nil {
+		return nil, err
+	}
+
+	result := struct {
+		Data struct {
+			TxsHashes []string `json:"txsHashes"`
+		} `json:"data"`
+		Error string `json:"error"`
+		Code  string `json:"code"`
+	}{}
+
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result.Error) != 0 {
+		return nil, fmt.Errorf("error broadcasting transcations: %s", result.Error)
+	}
+
+	return result.Data.TxsHashes, nil
+}

@@ -52,4 +52,5 @@ type KleverChain interface {
 	MultiSend(base *models.BaseTX, contracts ...models.AnyContractRequest) (*proto.Transaction, error)
 	// Network Broadcast
 	BroadcastTransaction(tx *proto.Transaction) (string, error)
+	BroadcastTransactions(txs ...*proto.Transaction) ([]string, error)
 }
