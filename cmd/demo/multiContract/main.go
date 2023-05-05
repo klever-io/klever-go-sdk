@@ -32,7 +32,7 @@ func main() {
 		},
 	}
 
-	tx, err := kc.MultiSend(base, sendContract, freezeContract)
+	tx, err := kc.MultiSend(base, []models.AnyContractRequest{sendContract, freezeContract})
 	if err != nil {
 		panic(err)
 	}

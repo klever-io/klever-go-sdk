@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/klever-io/klever-go-sdk/cmd/demo"
+	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
 func main() {
@@ -35,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	hashes, err := kc.BroadcastTransactions(tx, tx2)
+	hashes, err := kc.BroadcastTransactions([]*proto.Transaction{tx, tx2})
 	if err != nil {
 		panic(err)
 	}

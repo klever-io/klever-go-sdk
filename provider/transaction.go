@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -55,8 +56,12 @@ func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, 
 	return kc.MultiTransfer(base, values)
 }
 
-func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts ...models.AnyContractRequest) (*proto.Transaction, error) {
+func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts []models.AnyContractRequest) (*proto.Transaction, error) {
 	var contractsParsed []interface{}
+
+	if len(contracts) > 20 {
+		return nil, errors.New("max contracts reached")
+	}
 
 	for _, contract := range contracts {
 		c, err := contract.PrepareToSend()
@@ -215,7 +220,7 @@ func (kc *kleverChain) BroadcastTransaction(tx *proto.Transaction) (string, erro
 	return result.Data.TXHash, err
 }
 
-func (kc *kleverChain) BroadcastTransactions(txs ...*proto.Transaction) ([]string, error) {
+func (kc *kleverChain) BroadcastTransactions(txs []*proto.Transaction) ([]string, error) {
 	toBroadcast := struct {
 		TXs []*proto.Transaction `json:"txs"`
 	}{
