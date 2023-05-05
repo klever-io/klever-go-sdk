@@ -10,6 +10,7 @@ import (
 type ToAmount struct {
 	ToAddress string
 	Amount    float64
+	KDA       string
 }
 
 type URI struct {

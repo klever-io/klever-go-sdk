@@ -50,9 +50,9 @@ func (kc *kleverChain) getPrecision(kda string) (uint32, error) {
 }
 
 func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*proto.Transaction, error) {
-	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount}}
+	values := []models.ToAmount{{ToAddress: toAddr, Amount: amount, KDA: kda}}
 
-	return kc.MultiTransfer(base, kda, values)
+	return kc.MultiTransfer(base, values)
 }
 
 func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts ...models.AnyContractRequest) (*proto.Transaction, error) {
@@ -75,19 +75,19 @@ func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts ...models.AnyCon
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*proto.Transaction, error) {
-	precision, err := kc.getPrecision(kda)
-	if err != nil {
-		return nil, err
-	}
-
+func (kc *kleverChain) MultiTransfer(base *models.BaseTX, values []models.ToAmount) (*proto.Transaction, error) {
 	contracts := make([]interface{}, 0)
 	for _, to := range values {
+		precision, err := kc.getPrecision(to.KDA)
+		if err != nil {
+			return nil, err
+		}
+
 		parsedAmount := to.Amount * math.Pow10(int(precision))
 		contracts = append(contracts, models.TransferTXRequest{
 			Receiver: to.ToAddress,
 			Amount:   int64(parsedAmount),
-			KDA:      kda,
+			KDA:      to.KDA,
 		})
 	}
 
@@ -103,7 +103,6 @@ func (kc *kleverChain) buildRequest(
 	base *models.BaseTX,
 	contracts []interface{},
 ) (*models.SendTXRequest, error) {
-
 	if len(contracts) == 0 || len(contracts) > core.MaxLenghtOfContracts {
 		return nil, fmt.Errorf("invalid len of contracts to build request: %d", len(contracts))
 	}
