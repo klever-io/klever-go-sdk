@@ -17,10 +17,10 @@ func main() {
 	base := accounts[0].NewBaseTX()
 	tx, err := kc.MultiTransfer(
 		base,
-		"KLV",
 		[]models.ToAmount{{
 			ToAddress: accounts[1].Address().Bech32(),
 			Amount:    1000,
+			KDA:       "KLV",
 		}})
 	if err != nil {
 		panic(err)

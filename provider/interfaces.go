@@ -19,7 +19,7 @@ type KleverChain interface {
 	GetMarshalizer() marshal.Marshalizer
 	// Transfer actions
 	Send(base *models.BaseTX, toAddr string, amount float64, kda string) (*proto.Transaction, error)
-	MultiTransfer(base *models.BaseTX, kda string, values []models.ToAmount) (*proto.Transaction, error)
+	MultiTransfer(base *models.BaseTX, values []models.ToAmount) (*proto.Transaction, error)
 	// Asset Actions
 	CreateKDA(base *models.BaseTX, kdaType proto.KDAData_EnumAssetType, op *models.KDAOptions) (*proto.Transaction, error)
 	AssetTrigger(base *models.BaseTX, kdaID string, triggerType AssetTriggerType, op *models.AssetTriggerOptions) (*proto.Transaction, error)
