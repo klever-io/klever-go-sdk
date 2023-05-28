@@ -2,6 +2,7 @@ package provider
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"strings"
@@ -55,6 +56,30 @@ func (kc *kleverChain) Send(base *models.BaseTX, toAddr string, amount float64, 
 	return kc.MultiTransfer(base, values)
 }
 
+func (kc *kleverChain) MultiSend(base *models.BaseTX, contracts []models.AnyContractRequest) (*proto.Transaction, error) {
+	var contractsParsed []interface{}
+
+	if len(contracts) > 20 {
+		return nil, errors.New("max contracts reached")
+	}
+
+	for _, contract := range contracts {
+		c, err := contract.PrepareToSend()
+		if err != nil {
+			return nil, err
+		}
+
+		contractsParsed = append(contractsParsed, c)
+	}
+
+	data, err := kc.buildRequest(0, base, contractsParsed)
+	if err != nil {
+		return nil, err
+	}
+
+	return kc.PrepareTransaction(data)
+}
+
 func (kc *kleverChain) MultiTransfer(base *models.BaseTX, values []models.ToAmount) (*proto.Transaction, error) {
 	contracts := make([]interface{}, 0)
 	for _, to := range values {
@@ -83,7 +108,6 @@ func (kc *kleverChain) buildRequest(
 	base *models.BaseTX,
 	contracts []interface{},
 ) (*models.SendTXRequest, error) {
-
 	if len(contracts) == 0 || len(contracts) > core.MaxLenghtOfContracts {
 		return nil, fmt.Errorf("invalid len of contracts to build request: %d", len(contracts))
 	}
@@ -194,4 +218,36 @@ func (kc *kleverChain) BroadcastTransaction(tx *proto.Transaction) (string, erro
 	}
 
 	return result.Data.TXHash, err
+}
+
+func (kc *kleverChain) BroadcastTransactions(txs []*proto.Transaction) ([]string, error) {
+	toBroadcast := struct {
+		TXs []*proto.Transaction `json:"txs"`
+	}{
+		TXs: txs,
+	}
+
+	data, err := json.Marshal(toBroadcast)
+	if err != nil {
+		return nil, err
+	}
+
+	result := struct {
+		Data struct {
+			TxsHashes []string `json:"txsHashes"`
+		} `json:"data"`
+		Error string `json:"error"`
+		Code  string `json:"code"`
+	}{}
+
+	err = kc.httpClient.Post(fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(result.Error) != 0 {
+		return nil, fmt.Errorf("error broadcasting transcations: %s", result.Error)
+	}
+
+	return result.Data.TxsHashes, nil
 }

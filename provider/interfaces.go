@@ -48,6 +48,9 @@ type KleverChain interface {
 	// Validator Actions
 	Unjail(base *models.BaseTX) (*proto.Transaction, error)
 	Claim(base *models.BaseTX, id string, claimType int32) (*proto.Transaction, error)
+	// Multi contract Action
+	MultiSend(base *models.BaseTX, contracts []models.AnyContractRequest) (*proto.Transaction, error)
 	// Network Broadcast
 	BroadcastTransaction(tx *proto.Transaction) (string, error)
+	BroadcastTransactions(txs []*proto.Transaction) ([]string, error)
 }

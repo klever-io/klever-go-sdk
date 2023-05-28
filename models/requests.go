@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type BaseTX struct {
 	FromAddress string
 	Nonce       uint64
@@ -342,4 +344,26 @@ type DepositTXRequest struct {
 	KDA         string `form:"kda" json:"kda"`
 	CurrencyID  string `form:"currencyId" json:"currencyId"`
 	Amount      int64  `form:"amount" json:"amount"`
+}
+
+// AnyContractRequest - is used on MultiSend to add different contracts on a single transaction
+type AnyContractRequest struct {
+	ContractType uint32 `json:"contractType"`
+	Contract     any
+}
+
+func (a AnyContractRequest) PrepareToSend() (map[string]interface{}, error) {
+	var m map[string]interface{}
+	b, err := json.Marshal(a.Contract)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := json.Unmarshal(b, &m); err != nil {
+		return nil, err
+	}
+
+	m["contractType"] = a.ContractType
+
+	return m, nil
 }
