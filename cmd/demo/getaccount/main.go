@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"time"
@@ -19,7 +20,7 @@ func main() {
 		panic(err)
 	}
 
-	acc, err := kc.GetAccount("klv1mt8yw657z6nk9002pccmwql8w90k0ac6340cjqkvm9e7lu0z2wjqudt69s")
+	acc, err := kc.GetAccount(context.Background(), "klv1mt8yw657z6nk9002pccmwql8w90k0ac6340cjqkvm9e7lu0z2wjqudt69s")
 	if err != nil {
 		panic(err)
 	}

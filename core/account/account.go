@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"time"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
@@ -45,7 +46,7 @@ func (a *account) IncrementNonce() {
 }
 
 func (a *account) Sync(p provider.KleverChain) error {
-	acc, err := p.GetAccount(a.address.Bech32())
+	acc, err := p.GetAccount(context.Background(), a.address.Bech32())
 	if err != nil {
 		return err
 	}

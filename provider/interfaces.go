@@ -1,6 +1,8 @@
 package provider
 
 import (
+	"context"
+
 	"github.com/klever-io/klever-go-sdk/models"
 	"github.com/klever-io/klever-go-sdk/models/proto"
 	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
@@ -9,7 +11,7 @@ import (
 
 type KleverChain interface {
 	// Query Account data
-	GetAccount(address string) (*models.Account, error)
+	GetAccount(ctx context.Context, address string) (*models.Account, error)
 	GetAccountAllowance(address string, kda string) (*models.AccountAllowance, error)
 	GetAsset(assetID string) (*proto.KDAData, error)
 	// Transaction helpers
@@ -51,6 +53,6 @@ type KleverChain interface {
 	// Multi contract Action
 	MultiSend(base *models.BaseTX, contracts []models.AnyContractRequest) (*proto.Transaction, error)
 	// Network Broadcast
-	BroadcastTransaction(tx *proto.Transaction) (string, error)
+	BroadcastTransaction(ctx context.Context, tx *proto.Transaction) (string, error)
 	BroadcastTransactions(txs []*proto.Transaction) ([]string, error)
 }

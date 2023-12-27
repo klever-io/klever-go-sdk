@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -38,8 +39,8 @@ func newFromError(errMessage []byte) error {
 }
 
 // GetURL provides json result decode to struct
-func (h *httpClient) Get(url string, target interface{}, options ...http_options.IOptions) error {
-	req, err := http.NewRequest(http.MethodGet, url, nil)
+func (h *httpClient) Get(ctx context.Context, url string, target interface{}, options ...http_options.IOptions) error {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return err
 	}
@@ -75,9 +76,9 @@ func (h *httpClient) Get(url string, target interface{}, options ...http_options
 }
 
 // Post provides a post using a json string
-func (h *httpClient) Post(url string, body string, headers []string, target interface{}, options ...http_options.IOptions) error {
+func (h *httpClient) Post(ctx context.Context, url string, body string, headers []string, target interface{}, options ...http_options.IOptions) error {
 	reqBody := strings.NewReader(body)
-	req, errNewReq := http.NewRequest(http.MethodPost, url, reqBody)
+	req, errNewReq := http.NewRequestWithContext(ctx, http.MethodPost, url, reqBody)
 	if errNewReq != nil {
 		return errNewReq
 	}
