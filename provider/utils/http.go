@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
 
 	"github.com/klever-io/klever-go-sdk/provider/utils/http_options"
 )
@@ -17,8 +16,8 @@ type httpClient struct {
 
 const defaultUserAgent = "kleversdk/1.0"
 
-func NewHttpClient(timeout time.Duration) HttpClient {
-	return &httpClient{http.Client{Timeout: timeout}}
+func NewHttpClient(client http.Client) HttpClient {
+	return &httpClient{client}
 }
 
 func newFromError(errMessage []byte) error {
