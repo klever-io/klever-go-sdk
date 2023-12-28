@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"time"
 
 	"github.com/klever-io/klever-go-sdk/provider"
@@ -13,7 +12,7 @@ import (
 func main() {
 
 	net := network.NewNetworkConfig(network.TestNet)
-	httpClient := utils.NewHttpClient(http.Client{Timeout: 10 * time.Second})
+	httpClient := utils.NewHttpClient(10 * time.Second)
 	kc, err := provider.NewKleverChain(net, httpClient)
 	if err != nil {
 		panic(err)
