@@ -13,7 +13,7 @@ import (
 	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) Decode(tx *proto.Transaction) (*models.TransactionAPI, error) {
+func (kc *kleverChain) DecodeWithContext(ctx context.Context, tx *proto.Transaction) (*models.TransactionAPI, error) {
 
 	result := struct {
 		Data struct {
@@ -27,9 +27,13 @@ func (kc *kleverChain) Decode(tx *proto.Transaction) (*models.TransactionAPI, er
 		return result.Data.Transaction, nil
 	}
 
-	err = kc.httpClient.Post(context.Background(), fmt.Sprintf("%s/transaction/decode", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
+	err = kc.httpClient.Post(ctx, fmt.Sprintf("%s/transaction/decode", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
 
 	return result.Data.Transaction, err
+}
+
+func (kc *kleverChain) Decode(tx *proto.Transaction) (*models.TransactionAPI, error) {
+	return kc.DecodeWithContext(context.Background(), tx)
 }
 
 func (kc *kleverChain) getPrecision(kda string) (uint32, error) {
@@ -136,6 +140,10 @@ func (kc *kleverChain) buildRequest(
 }
 
 func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*proto.Transaction, error) {
+	return kc.PrepareTransactionWithContext(context.Background(), request)
+}
+
+func (kc *kleverChain) PrepareTransactionWithContext(ctx context.Context, request *models.SendTXRequest) (*proto.Transaction, error) {
 	result := struct {
 		Data struct {
 			Transaction *proto.Transaction `json:"result"`
@@ -149,7 +157,7 @@ func (kc *kleverChain) PrepareTransaction(request *models.SendTXRequest) (*proto
 		return nil, err
 	}
 
-	err = kc.httpClient.Post(context.Background(), fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
+	err = kc.httpClient.Post(ctx, fmt.Sprintf("%s/transaction/send", kc.networkConfig.GetNodeUri()), string(body), nil, &result)
 	if err == nil {
 		hash, err := kc.CalculateHash(result.Data.Transaction.RawData)
 		if err == nil {
@@ -174,7 +182,7 @@ func (kc *kleverChain) CalculateHash(
 	return hash, nil
 }
 
-func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, error) {
+func (kc *kleverChain) GetTransactionWithContext(ctx context.Context, hash string) (*models.TransactionAPI, error) {
 	result := struct {
 		Data struct {
 			Transaction *models.TransactionAPI `json:"transaction"`
@@ -183,12 +191,16 @@ func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, erro
 
 	result.Data.Transaction = &models.TransactionAPI{}
 
-	err := kc.httpClient.Get(context.Background(), fmt.Sprintf("%s/transaction/%s", kc.networkConfig.GetAPIUri(), hash), &result)
+	err := kc.httpClient.Get(ctx, fmt.Sprintf("%s/transaction/%s", kc.networkConfig.GetAPIUri(), hash), &result)
 
 	return result.Data.Transaction, err
 }
 
-func (kc *kleverChain) BroadcastTransaction(ctx context.Context, tx *proto.Transaction) (string, error) {
+func (kc *kleverChain) GetTransaction(hash string) (*models.TransactionAPI, error) {
+	return kc.GetTransactionWithContext(context.Background(), hash)
+}
+
+func (kc *kleverChain) BroadcastTransactionWithContext(ctx context.Context, tx *proto.Transaction) (string, error) {
 	toBroadcast := struct {
 		TX *proto.Transaction `json:"tx"`
 	}{
@@ -209,7 +221,7 @@ func (kc *kleverChain) BroadcastTransaction(ctx context.Context, tx *proto.Trans
 		Code  string `json:"code"`
 	}{}
 
-	err = kc.httpClient.Post(context.Background(), fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
+	err = kc.httpClient.Post(ctx, fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
 	if err != nil {
 		return "", err
 	}
@@ -221,7 +233,15 @@ func (kc *kleverChain) BroadcastTransaction(ctx context.Context, tx *proto.Trans
 	return result.Data.TXHash, err
 }
 
+func (kc *kleverChain) BroadcastTransaction(tx *proto.Transaction) (string, error) {
+	return kc.BroadcastTransactionWithContext(context.Background(), tx)
+}
+
 func (kc *kleverChain) BroadcastTransactions(txs []*proto.Transaction) ([]string, error) {
+	return kc.BroadcastTransactionsWithContext(context.Background(), txs)
+}
+
+func (kc *kleverChain) BroadcastTransactionsWithContext(ctx context.Context, txs []*proto.Transaction) ([]string, error) {
 	toBroadcast := struct {
 		TXs []*proto.Transaction `json:"txs"`
 	}{
@@ -241,7 +261,7 @@ func (kc *kleverChain) BroadcastTransactions(txs []*proto.Transaction) ([]string
 		Code  string `json:"code"`
 	}{}
 
-	err = kc.httpClient.Post(context.Background(), fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
+	err = kc.httpClient.Post(ctx, fmt.Sprintf("%s/transaction/broadcast", kc.networkConfig.GetNodeUri()), string(data), nil, &result)
 	if err != nil {
 		return nil, err
 	}

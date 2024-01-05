@@ -15,7 +15,8 @@ type Signer interface {
 }
 
 type Broadcaster interface {
-	BroadcastTransaction(context.Context, *Transaction) (string, error)
+	BroadcastTransaction(*Transaction) (string, error)
+	BroadcastTransactionWithContext(context.Context, *Transaction) (string, error)
 }
 
 func (x *Transaction) Sign(signer Signer) error {
@@ -29,6 +30,10 @@ func (x *Transaction) Sign(signer Signer) error {
 	return nil
 }
 
+func (x *Transaction) BroadcastWithContext(ctx context.Context, provider Broadcaster) (string, error) {
+	return provider.BroadcastTransactionWithContext(ctx, x)
+}
+
 func (x *Transaction) Broadcast(provider Broadcaster) (string, error) {
-	return provider.BroadcastTransaction(context.Background(), x)
+	return x.BroadcastWithContext(context.Background(), provider)
 }

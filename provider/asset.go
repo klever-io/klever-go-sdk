@@ -10,16 +10,20 @@ import (
 	"github.com/klever-io/klever-go-sdk/models/proto"
 )
 
-func (kc *kleverChain) GetAsset(assetID string) (*proto.KDAData, error) {
+func (kc *kleverChain) GetAssetWithContext(ctx context.Context, assetID string) (*proto.KDAData, error) {
 	result := struct {
 		Data struct {
 			Asset *proto.KDAData `json:"asset"`
 		} `json:"data"`
 	}{}
 
-	err := kc.httpClient.Get(context.Background(), fmt.Sprintf("%s/asset/%s", kc.networkConfig.GetNodeUri(), assetID), &result)
+	err := kc.httpClient.Get(ctx, fmt.Sprintf("%s/asset/%s", kc.networkConfig.GetNodeUri(), assetID), &result)
 
 	return result.Data.Asset, err
+}
+
+func (kc *kleverChain) GetAsset(assetID string) (*proto.KDAData, error) {
+	return kc.GetAssetWithContext(context.Background(), assetID)
 }
 
 type AssetTriggerType uint32

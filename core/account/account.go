@@ -45,8 +45,8 @@ func (a *account) IncrementNonce() {
 	a.info.Nonce += 1
 }
 
-func (a *account) Sync(p provider.KleverChain) error {
-	acc, err := p.GetAccount(context.Background(), a.address.Bech32())
+func (a *account) SyncWithContext(ctx context.Context, p provider.KleverChain) error {
+	acc, err := p.GetAccountWithContext(ctx, a.address.Bech32())
 	if err != nil {
 		return err
 	}
@@ -55,6 +55,10 @@ func (a *account) Sync(p provider.KleverChain) error {
 	a.lastUpdate = time.Now()
 
 	return nil
+}
+
+func (a *account) Sync(p provider.KleverChain) error {
+	return a.SyncWithContext(context.Background(), p)
 }
 
 func (a *account) LastUpdate() time.Time {

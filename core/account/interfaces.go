@@ -1,6 +1,7 @@
 package account
 
 import (
+	"context"
 	"time"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
@@ -14,6 +15,7 @@ type Account interface {
 	Nonce() uint64
 	IncrementNonce()
 	Sync(provider.KleverChain) error
+	SyncWithContext(context.Context, provider.KleverChain) error
 	LastUpdate() time.Time
 	GetInfo() *models.Account
 	NewBaseTX() *models.BaseTX
