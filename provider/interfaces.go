@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"context"
 	"github.com/klever-io/klever-go-sdk/models"
 	"github.com/klever-io/klever-go-sdk/models/proto"
 	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
@@ -8,6 +9,15 @@ import (
 )
 
 type KleverChain interface {
+	//Context Requests
+	GetTransactionWithContext(ctx context.Context, hash string) (*models.TransactionAPI, error)
+	GetAccountWithContext(ctx context.Context, address string) (*models.Account, error)
+	GetAccountAllowanceWithContext(ctx context.Context, address string, kda string) (*models.AccountAllowance, error)
+	GetAssetWithContext(ctx context.Context, assetID string) (*proto.KDAData, error)
+	BroadcastTransactionWithContext(ctx context.Context, tx *proto.Transaction) (string, error)
+	BroadcastTransactionsWithContext(ctx context.Context, txs []*proto.Transaction) ([]string, error)
+	DecodeWithContext(ctx context.Context, tx *proto.Transaction) (*models.TransactionAPI, error)
+	PrepareTransactionWithContext(ctx context.Context, request *models.SendTXRequest) (*proto.Transaction, error)
 	// Query Account data
 	GetAccount(address string) (*models.Account, error)
 	GetAccountAllowance(address string, kda string) (*models.AccountAllowance, error)

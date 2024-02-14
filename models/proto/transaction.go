@@ -1,5 +1,7 @@
 package proto
 
+import "context"
+
 func (x *Transaction) AddSignature(s []byte) {
 	if x.Signature == nil {
 		x.Signature = make([][]byte, 0)
@@ -14,6 +16,7 @@ type Signer interface {
 
 type Broadcaster interface {
 	BroadcastTransaction(*Transaction) (string, error)
+	BroadcastTransactionWithContext(context.Context, *Transaction) (string, error)
 }
 
 func (x *Transaction) Sign(signer Signer) error {
@@ -27,6 +30,10 @@ func (x *Transaction) Sign(signer Signer) error {
 	return nil
 }
 
+func (x *Transaction) BroadcastWithContext(ctx context.Context, provider Broadcaster) (string, error) {
+	return provider.BroadcastTransactionWithContext(ctx, x)
+}
+
 func (x *Transaction) Broadcast(provider Broadcaster) (string, error) {
-	return provider.BroadcastTransaction(x)
+	return x.BroadcastWithContext(context.Background(), provider)
 }
