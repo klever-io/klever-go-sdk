@@ -252,7 +252,7 @@ func (kc *kleverChain) InvokeSmartContract(
 		return nil, err
 	}
 
-	base.Message[0] += functionToCall
+	base.Message = append(base.Message, functionToCall)
 
 	return kc.HandleSmartContracts(
 		base,
