@@ -2,6 +2,7 @@ package provider
 
 import (
 	"context"
+
 	"github.com/klever-io/klever-go-sdk/models"
 	"github.com/klever-io/klever-go-sdk/models/proto"
 	"github.com/klever-io/klever-go-sdk/provider/tools/hasher"
@@ -60,6 +61,9 @@ type KleverChain interface {
 	Claim(base *models.BaseTX, id string, claimType int32) (*proto.Transaction, error)
 	// Multi contract Action
 	MultiSend(base *models.BaseTX, contracts []models.AnyContractRequest) (*proto.Transaction, error)
+	// Smart Contract
+	DeploySmartContract(base *models.BaseTX, wasmPath string, payable, payableBySC, upgradeable, readable bool, vmType string, arguments ...string) (*proto.Transaction, error)
+	InvokeSmartContract(base *models.BaseTX, scAddress string, functionToCall string, callValue map[string]int64, arguments ...string) (*proto.Transaction, error)
 	// Network Broadcast
 	BroadcastTransaction(tx *proto.Transaction) (string, error)
 	BroadcastTransactions(txs []*proto.Transaction) ([]string, error)
