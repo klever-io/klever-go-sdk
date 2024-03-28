@@ -346,6 +346,13 @@ type DepositTXRequest struct {
 	Amount      int64  `form:"amount" json:"amount"`
 }
 
+// SmartContractRequest -
+type SmartContractRequest struct {
+	SCType    int32            `form:"scType" json:"scType"`
+	Address   string           `form:"address" json:"address"`
+	CallValue map[string]int64 `form:"callValue" json:"callValue"`
+}
+
 // AnyContractRequest - is used on MultiSend to add different contracts on a single transaction
 type AnyContractRequest struct {
 	ContractType uint32 `json:"contractType"`
