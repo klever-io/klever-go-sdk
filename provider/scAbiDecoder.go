@@ -264,12 +264,12 @@ func (a *abiData) decodeInt32(hexString string) (*int32, error) {
 func (a *abiData) decodeInt64(hexString string) (*int64, error) {
 	const BitSize = 64
 
-	parsedValue, err := strconv.ParseInt(hexString, BaseHex, BitSize)
-	if err != nil {
-		return nil, err
+	bigValue, ok := new(big.Int).SetString(hexString, BaseHex)
+	if !ok {
+		return nil, fmt.Errorf("invalid hex string")
 	}
 
-	if uint64(parsedValue) > math.MaxInt64 {
+	if bigValue.Uint64() > math.MaxInt64 {
 		ptrtTrgetValue, err := a.fixIntOverflow(hexString, BitSize)
 		if err != nil {
 			return nil, err
@@ -279,7 +279,7 @@ func (a *abiData) decodeInt64(hexString string) (*int64, error) {
 		return &targetValue, nil
 	}
 
-	targetValue := int64(parsedValue)
+	targetValue := bigValue.Int64()
 	return &targetValue, nil
 }
 
