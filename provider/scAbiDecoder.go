@@ -133,6 +133,8 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		return a.decodeUint32(hexValue)
 	case "u64":
 		return a.decodeUint64(hexValue)
+	case "BigInt":
+		return a.decodeBigInt(hexValue)
 	case "bool":
 		return hexValue == "01", nil
 	case
@@ -147,9 +149,9 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		return a.decodeString(hexValue)
 	case "Address":
 		return a.decodeAddress(hexValue)
+	default:
+		return nil, fmt.Errorf("invalid type %s", vType)
 	}
-
-	return nil, fmt.Errorf("Please implement me T-T")
 }
 
 func (a *abiData) decodeAddress(hexValue string) (*string, error) {
