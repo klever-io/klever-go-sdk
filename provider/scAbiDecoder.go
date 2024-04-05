@@ -4,10 +4,18 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"os"
 	"strconv"
 	"strings"
+)
+
+const (
+	U64HexLength int = 16
+	U32HexLength int = 8
+	U16HexLength int = 4
+	U8HexLength  int = 2
 )
 
 type output struct {
@@ -106,13 +114,6 @@ func (a *abiData) selectDecoder(hexValue *string, endpointIndex int) (interface{
 }
 
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
-	const (
-		U64HexLength int = 16
-		U32HexLength int = 8
-		U16HexLength int = 4
-		U8HexLength  int = 2
-	)
-
 	switch vType {
 	case "u64":
 		return a.decodeUint(hexValue)
@@ -161,21 +162,30 @@ func (a *abiData) decodeString(hexValue string) (*string, error) {
 	return &convertedString, nil
 }
 
-// WIP: it will change
 func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
-	data, ok := new(big.Int).SetString(hexString, 16)
+	if len(hexString) >= U64HexLength { // it will be a string representing a decimal number
+		targetString, err := a.decodeString(hexString)
+		if err != nil {
+			return nil, err
+		}
+
+		targetBig, ok := new(big.Int).SetString(*targetString, 10)
+		if !ok {
+			return nil, fmt.Errorf("invalid hex string")
+		}
+
+		return targetBig, nil
+	}
+
+	targetBig, ok := new(big.Int).SetString(hexString, 16)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string")
 	}
 
-	// Define the maximum value for a 64-bit integer, subtracting 1 for the sign bit
-	maxValue := new(big.Int).Sub(new(big.Int).Lsh(big.NewInt(1), 63), big.NewInt(1))
-
-	// Check if the data exceeds the maximum value for a 63-bit integer
-	if data.Cmp(maxValue) > 0 {
-		// Adjust data for overflow
-		data.Sub(data, new(big.Int).Lsh(big.NewInt(1), 64))
+	maxInt64big := big.NewInt(math.MaxInt64)
+	if targetBig.Cmp(maxInt64big) > 0 {
+		targetBig.Sub(targetBig, new(big.Int).Lsh(big.NewInt(1), 64))
 	}
 
-	return data, nil
+	return targetBig, nil
 }
