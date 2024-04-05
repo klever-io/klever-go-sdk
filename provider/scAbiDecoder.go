@@ -9,6 +9,8 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/klever-io/klever-go-sdk/core/address"
 )
 
 const (
@@ -143,8 +145,21 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		"Vec<u8>",
 		"&[u8]":
 		return a.decodeString(hexValue)
+	case "Address":
+		return a.decodeAddress(hexValue)
 	}
+
 	return nil, fmt.Errorf("Please implement me T-T")
+}
+
+func (a *abiData) decodeAddress(hexValue string) (*string, error) {
+	decodedAddress, err := address.NewAddressFromHex(hexValue)
+	if err != nil {
+		return nil, err
+	}
+
+	addressString := decodedAddress.Bech32()
+	return &addressString, nil
 }
 
 func (a *abiData) decodeString(hexValue string) (*string, error) {
