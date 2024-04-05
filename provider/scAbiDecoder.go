@@ -131,6 +131,8 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		return a.decodeUint32(hexValue)
 	case "u64":
 		return a.decodeUint64(hexValue)
+	case "bool":
+		return hexValue == "01", nil
 	case
 		"ManagedBuffer",
 		"TokenIdentifier",
