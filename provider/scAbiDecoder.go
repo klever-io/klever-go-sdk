@@ -116,13 +116,13 @@ func (a *abiData) selectDecoder(hexValue *string, endpointIndex int) (interface{
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
 	switch vType {
 	case "u64":
-		return a.decodeUint(hexValue)
+		return a.decodeUint64(hexValue)
 	case "u32":
-		return a.decodeUint(hexValue)
+		return a.decodeUint32(hexValue)
 	case "u16":
-		return a.decodeUint(hexValue)
+		return a.decodeUint16(hexValue)
 	case "u8":
-		return a.decodeUint(hexValue)
+		return a.decodeUint8(hexValue)
 	case
 		"ManagedBuffer",
 		"TokenIdentifier",
@@ -148,6 +148,31 @@ func (a *abiData) decodeUint(hexValue string) (*uint64, error) {
 	}
 
 	return &uintValue, nil
+}
+
+func (a *abiData) decodeUint8(hexValue string) (*uint8, error) {
+	targetValue, err := a.decodeUint(hexValue)
+	uint8Decoded := uint8(*targetValue)
+
+	return &uint8Decoded, err
+}
+
+func (a *abiData) decodeUint16(hexValue string) (*uint16, error) {
+	targetValue, err := a.decodeUint(hexValue)
+	uint16Decoded := uint16(*targetValue)
+
+	return &uint16Decoded, err
+}
+
+func (a *abiData) decodeUint32(hexValue string) (*uint32, error) {
+	targetValue, err := a.decodeUint(hexValue)
+	uint32Decoded := uint32(*targetValue)
+
+	return &uint32Decoded, err
+}
+
+func (a *abiData) decodeUint64(hexValue string) (*uint64, error) {
+	return a.decodeUint(hexValue)
 }
 
 func (a *abiData) decodeString(hexValue string) (*string, error) {
