@@ -135,6 +135,8 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		return a.decodeUint64(hexValue)
 	case "BigInt":
 		return a.decodeBigInt(hexValue)
+	case "BigUint":
+		return a.decodeBigUint(hexValue)
 	case "bool":
 		return hexValue == "01", nil
 	case
@@ -212,6 +214,19 @@ func (a *abiData) decodeUint32(hexValue string) (*uint32, error) {
 
 func (a *abiData) decodeUint64(hexValue string) (*uint64, error) {
 	return a.decodeUint(hexValue)
+}
+
+func (a *abiData) decodeBigUint(hexValue string) (*big.Int, error) {
+	if len(hexValue) > BaseHex {
+		return a.decodeStringBigNumber(hexValue)
+	}
+
+	targetValue, ok := new(big.Int).SetString(hexValue, BaseHex)
+	if !ok {
+		return nil, fmt.Errorf("invalid hex string to decode to uint64")
+	}
+
+	return targetValue, nil
 }
 
 func (a *abiData) decodeInt8(hexString string) (*int8, error) {
@@ -330,18 +345,22 @@ func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
 		return big.NewInt(int64(*decoded)), nil
 	// any length bigger than U64HexLength, 16, and/or non-power of base 2 it will be a decimal value represented by a string
 	default:
-		targetString, err := a.decodeString(hexString)
-		if err != nil {
-			return nil, err
-		}
-
-		targetValue, ok := new(big.Int).SetString(*targetString, 10)
-		if !ok {
-			return nil, fmt.Errorf("invalid hex string")
-		}
-
-		return targetValue, nil
+		return a.decodeStringBigNumber(hexString)
 	}
+}
+
+func (a *abiData) decodeStringBigNumber(hexString string) (*big.Int, error) {
+	targetString, err := a.decodeString(hexString)
+	if err != nil {
+		return nil, err
+	}
+
+	targetValue, ok := new(big.Int).SetString(*targetString, 10)
+	if !ok {
+		return nil, fmt.Errorf("invalid hex string")
+	}
+
+	return targetValue, nil
 }
 
 func (a *abiData) fixIntOverflow(hexString string, bitSize int) (*int64, error) {
