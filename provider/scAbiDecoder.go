@@ -16,6 +16,8 @@ const (
 	U32HexLength int = 8
 	U16HexLength int = 4
 	U8HexLength  int = 2
+
+	BaseHex int = 16
 )
 
 type output struct {
@@ -109,20 +111,26 @@ func (a *abiData) selectDecoder(hexValue *string, endpointIndex int) (interface{
 	default:
 		return a.decodeSingleValue(*hexValue, vType)
 	}
-
-	// return nil, nil
 }
 
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
 	switch vType {
-	case "u64":
-		return a.decodeUint64(hexValue)
-	case "u32":
-		return a.decodeUint32(hexValue)
-	case "u16":
-		return a.decodeUint16(hexValue)
+	case "i8":
+		return a.decodeInt8(hexValue)
+	case "i16":
+		return a.decodeInt16(hexValue)
+	case "i32":
+		return a.decodeInt32(hexValue)
+	case "i64":
+		return a.decodeInt64(hexValue)
 	case "u8":
 		return a.decodeUint8(hexValue)
+	case "u16":
+		return a.decodeUint16(hexValue)
+	case "u32":
+		return a.decodeUint32(hexValue)
+	case "u64":
+		return a.decodeUint64(hexValue)
 	case
 		"ManagedBuffer",
 		"TokenIdentifier",
@@ -137,12 +145,24 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 	return nil, fmt.Errorf("Please implement me T-T")
 }
 
+func (a *abiData) decodeString(hexValue string) (*string, error) {
+	bytes, err := hex.DecodeString(hexValue)
+
+	if err != nil {
+		return nil, err
+	}
+
+	convertedString := string(bytes)
+
+	return &convertedString, nil
+}
+
 func (a *abiData) decodeUint(hexValue string) (*uint64, error) {
 	// decode List/Option/tuple/variadic will "cut" the original string
 	// value := (*hex)[:length]
 	// *hex = (*hex)[length:]
 
-	uintValue, err := strconv.ParseUint(hexValue, 16, 64)
+	uintValue, err := strconv.ParseUint(hexValue, BaseHex, 64)
 	if err != nil {
 		return nil, err
 	}
@@ -175,42 +195,145 @@ func (a *abiData) decodeUint64(hexValue string) (*uint64, error) {
 	return a.decodeUint(hexValue)
 }
 
-func (a *abiData) decodeString(hexValue string) (*string, error) {
-	bytes, err := hex.DecodeString(hexValue)
+func (a *abiData) decodeInt8(hexString string) (*int8, error) {
+	const BitSize = 8
 
+	parsedValue, err := strconv.ParseInt(hexString, BaseHex, BitSize)
 	if err != nil {
 		return nil, err
 	}
 
-	convertedString := string(bytes)
+	if uint8(parsedValue) > math.MaxInt8 {
+		ptrtTrgetValue, err := a.fixIntOverflow(hexString, BitSize)
+		if err != nil {
+			return nil, err
+		}
 
-	return &convertedString, nil
+		targetValue := int8(*ptrtTrgetValue)
+		return &targetValue, nil
+	}
+
+	targetValue := int8(parsedValue)
+	return &targetValue, nil
+}
+
+func (a *abiData) decodeInt16(hexString string) (*int16, error) {
+	const BitSize = 16
+
+	parsedValue, err := strconv.ParseInt(hexString, BaseHex, BitSize)
+	if err != nil {
+		return nil, err
+	}
+
+	if uint16(parsedValue) > math.MaxInt16 {
+		ptrtTrgetValue, err := a.fixIntOverflow(hexString, BitSize)
+		if err != nil {
+			return nil, err
+		}
+
+		targetValue := int16(*ptrtTrgetValue)
+		return &targetValue, nil
+	}
+
+	targetValue := int16(parsedValue)
+	return &targetValue, nil
+}
+
+func (a *abiData) decodeInt32(hexString string) (*int32, error) {
+	const BitSize = 32
+
+	parsedValue, err := strconv.ParseInt(hexString, BaseHex, BitSize)
+	if err != nil {
+		return nil, err
+	}
+
+	if uint32(parsedValue) > math.MaxInt32 {
+		ptrtTrgetValue, err := a.fixIntOverflow(hexString, BitSize)
+		if err != nil {
+			return nil, err
+		}
+
+		targetValue := int32(*ptrtTrgetValue)
+		return &targetValue, nil
+	}
+
+	targetValue := int32(parsedValue)
+	return &targetValue, nil
+}
+
+func (a *abiData) decodeInt64(hexString string) (*int64, error) {
+	const BitSize = 64
+
+	parsedValue, err := strconv.ParseInt(hexString, BaseHex, BitSize)
+	if err != nil {
+		return nil, err
+	}
+
+	if uint64(parsedValue) > math.MaxInt64 {
+		ptrtTrgetValue, err := a.fixIntOverflow(hexString, BitSize)
+		if err != nil {
+			return nil, err
+		}
+
+		targetValue := int64(*ptrtTrgetValue)
+		return &targetValue, nil
+	}
+
+	targetValue := int64(parsedValue)
+	return &targetValue, nil
 }
 
 func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
-	if len(hexString) >= U64HexLength { // it will be a string representing a decimal number
+	switch len(hexString) {
+	case U8HexLength:
+		decoded, err := a.decodeInt8(hexString)
+		if err != nil {
+			return nil, err
+		}
+		return big.NewInt(int64(*decoded)), nil
+	case U16HexLength:
+		decoded, err := a.decodeInt16(hexString)
+		if err != nil {
+			return nil, err
+		}
+		return big.NewInt(int64(*decoded)), nil
+	case U32HexLength:
+		decoded, err := a.decodeInt32(hexString)
+		if err != nil {
+			return nil, err
+		}
+		return big.NewInt(int64(*decoded)), nil
+	case U64HexLength:
+		decoded, err := a.decodeInt64(hexString)
+		if err != nil {
+			return nil, err
+		}
+		return big.NewInt(int64(*decoded)), nil
+	// any length bigger than U64HexLength, 16, and/or non-power of base 2 it will be a decimal value represented by a string
+	default:
 		targetString, err := a.decodeString(hexString)
 		if err != nil {
 			return nil, err
 		}
 
-		targetBig, ok := new(big.Int).SetString(*targetString, 10)
+		targetValue, ok := new(big.Int).SetString(*targetString, 10)
 		if !ok {
 			return nil, fmt.Errorf("invalid hex string")
 		}
 
-		return targetBig, nil
+		return targetValue, nil
 	}
+}
 
-	targetBig, ok := new(big.Int).SetString(hexString, 16)
+func (a *abiData) fixIntOverflow(hexString string, bitSize int) (*int64, error) {
+	targetValue, ok := new(big.Int).SetString(hexString, BaseHex)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string")
+		return nil, fmt.Errorf("invalid hex string to represent int value")
 	}
 
-	maxInt64big := big.NewInt(math.MaxInt64)
-	if targetBig.Cmp(maxInt64big) > 0 {
-		targetBig.Sub(targetBig, new(big.Int).Lsh(big.NewInt(1), 64))
-	}
+	targetValue.Sub(targetValue, new(big.Int).Lsh(big.NewInt(1), uint(bitSize)))
 
-	return targetBig, nil
+	targetValueInt64 := targetValue.Int64()
+
+	return &targetValueInt64, nil
 }
