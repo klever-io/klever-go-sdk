@@ -49,6 +49,7 @@ type abiData struct {
 
 type AbiData interface {
 	Decode(abi io.Reader, endpoint, hex string) (interface{}, error)
+	LoadAbi(r io.Reader) error
 }
 
 func NewSCAbiHandler() AbiData {
