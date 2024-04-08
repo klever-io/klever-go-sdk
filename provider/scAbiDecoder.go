@@ -165,14 +165,14 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 	}
 }
 
-func (a *abiData) decodeAddress(hexValue string) (*string, error) {
+func (a *abiData) decodeAddress(hexValue string) (string, error) {
 	decodedAddress, err := address.NewAddressFromHex(hexValue)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	addressString := decodedAddress.Bech32()
-	return &addressString, nil
+	return addressString, nil
 }
 
 func (a *abiData) decodeString(hexValue string) (string, error) {
