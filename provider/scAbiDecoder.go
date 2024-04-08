@@ -318,6 +318,12 @@ func (a *abiData) decodeInt64(hexString string) (*int64, error) {
 }
 
 func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
+	targetValue, err := a.decodeStringBigNumber(hexString)
+	// if that function suceeds, then it was a string representin a decimal number
+	if err == nil {
+		return targetValue, nil
+	}
+
 	switch len(hexString) {
 	case U8HexLength:
 		decoded, err := a.decodeInt8(hexString)
@@ -343,9 +349,8 @@ func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
 			return nil, err
 		}
 		return big.NewInt(int64(*decoded)), nil
-	// any length bigger than U64HexLength, 16, and/or non-power of base 2 it will be a decimal value represented by a string
 	default:
-		return a.decodeStringBigNumber(hexString)
+		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
 	}
 }
 
