@@ -44,15 +44,20 @@ type typeInfos struct {
 type abiData struct {
 	Endpoints []endpoint           `json:"endpoints"`
 	Types     map[string]typeInfos `json:"types"`
+	AbiLoaded bool
 }
 
-type SCOutputDecoder interface {
-	Decode(abiPath, endpointName, hexValue string) (interface{}, error)
+type AbiData interface {
+	Decode(abi io.Reader, endpoint, hex string) (interface{}, error)
+}
+
+func NewSCAbiHandler() AbiData {
+	return &abiData{}
 }
 
 func (a *abiData) Decode(abi io.Reader, endpoint, hex string) (interface{}, error) {
-	if err := a.loadAbi(abi); err != nil {
-		return nil, err
+	if !a.AbiLoaded {
+		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
 	}
 
 	endpointIndex, err := a.findEndpoint(endpoint)
@@ -60,13 +65,15 @@ func (a *abiData) Decode(abi io.Reader, endpoint, hex string) (interface{}, erro
 		return nil, err
 	}
 
-	a.selectDecoder(&hex, *endpointIndex)
+	parsedValue, err := a.selectDecoder(&hex, *endpointIndex)
+	if err != nil {
+		return nil, err
+	}
 
-	// TODO: To implement
-	return nil, fmt.Errorf("Please implement me T-T")
+	return parsedValue, nil
 }
 
-func (a *abiData) loadAbi(r io.Reader) error {
+func (a *abiData) LoadAbi(r io.Reader) error {
 	jsonBytes, err := io.ReadAll(r)
 	if err != nil {
 		return err
@@ -75,6 +82,8 @@ func (a *abiData) loadAbi(r io.Reader) error {
 	if err := json.Unmarshal(jsonBytes, a); err != nil {
 		return err
 	}
+
+	a.AbiLoaded = true
 
 	return nil
 }
