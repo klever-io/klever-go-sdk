@@ -364,14 +364,18 @@ func (a *abiData) decodeStringBigNumber(hexString string) (*big.Int, error) {
 }
 
 func (a *abiData) fixIntOverflow(hexString string, bitSize int) (*int64, error) {
-	targetValue, ok := new(big.Int).SetString(hexString, BaseHex)
-	if !ok {
-		return nil, fmt.Errorf("invalid hex string to represent int value")
+	if bitSize > 64 {
+		return nil, fmt.Errorf("bitSize too large for uint64")
 	}
 
-	targetValue.Sub(targetValue, new(big.Int).Lsh(big.NewInt(1), uint(bitSize)))
+	targetValue, err := strconv.ParseUint(hexString, 16, 64)
+	if err != nil {
+		return nil, fmt.Errorf("invalid hex string %s: %v", hexString, err)
+	}
 
-	targetValueInt64 := targetValue.Int64()
+	targetValue -= 1 << bitSize
+
+	targetValueInt64 := int64(targetValue)
 
 	return &targetValueInt64, nil
 }
