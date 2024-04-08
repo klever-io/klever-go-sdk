@@ -165,16 +165,16 @@ func (a *abiData) decodeAddress(hexValue string) (*string, error) {
 	return &addressString, nil
 }
 
-func (a *abiData) decodeString(hexValue string) (*string, error) {
+func (a *abiData) decodeString(hexValue string) (string, error) {
 	bytes, err := hex.DecodeString(hexValue)
 
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	convertedString := string(bytes)
 
-	return &convertedString, nil
+	return convertedString, nil
 }
 
 func (a *abiData) decodeInt(hexValue string, bitSize int) (*uint, error) {
@@ -195,32 +195,32 @@ func (a *abiData) decodeUint(hexValue string, bitSize int) (*uint64, error) {
 	return &uintValue, nil
 }
 
-func (a *abiData) decodeUint8(hexValue string) (*uint8, error) {
+func (a *abiData) decodeUint8(hexValue string) (uint8, error) {
 	targetValue, err := a.decodeUint(hexValue, 8)
 	uint8Decoded := uint8(*targetValue)
 
-	return &uint8Decoded, err
+	return uint8Decoded, err
 }
 
-func (a *abiData) decodeUint16(hexValue string) (*uint16, error) {
+func (a *abiData) decodeUint16(hexValue string) (uint16, error) {
 	targetValue, err := a.decodeUint(hexValue, 16)
 	uint16Decoded := uint16(*targetValue)
 
-	return &uint16Decoded, err
+	return uint16Decoded, err
 }
 
-func (a *abiData) decodeUint32(hexValue string) (*uint32, error) {
+func (a *abiData) decodeUint32(hexValue string) (uint32, error) {
 	targetValue, err := a.decodeUint(hexValue, 32)
 	uint32Decoded := uint32(*targetValue)
 
-	return &uint32Decoded, err
+	return uint32Decoded, err
 }
 
-func (a *abiData) decodeUint64(hexValue string) (*uint64, error) {
+func (a *abiData) decodeUint64(hexValue string) (uint64, error) {
 	targetValue, err := a.decodeUint(hexValue, 64)
 	uint64Decoded := uint64(*targetValue)
 
-	return &uint64Decoded, err
+	return uint64Decoded, err
 }
 
 func (a *abiData) decodeBigUint(hexString string) (*big.Int, error) {
@@ -238,52 +238,52 @@ func (a *abiData) decodeBigUint(hexString string) (*big.Int, error) {
 	return targetValue, nil
 }
 
-func (a *abiData) decodeInt8(hexString string) (*int8, error) {
+func (a *abiData) decodeInt8(hexString string) (int8, error) {
 	const BitSize = 8
 
 	targetValue, err := a.decodeInt(hexString, BitSize)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	targetValueI8 := int8(*targetValue)
-	return &targetValueI8, nil
+	return targetValueI8, nil
 }
 
-func (a *abiData) decodeInt16(hexString string) (*int16, error) {
+func (a *abiData) decodeInt16(hexString string) (int16, error) {
 	const BitSize = 16
 
 	targetValue, err := a.decodeInt(hexString, BitSize)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
-	targetValueI32 := int16(*targetValue)
-	return &targetValueI32, nil
+	targetValueI16 := int16(*targetValue)
+	return targetValueI16, nil
 }
 
-func (a *abiData) decodeInt32(hexString string) (*int32, error) {
+func (a *abiData) decodeInt32(hexString string) (int32, error) {
 	const BitSize = 32
 
 	targetValue, err := a.decodeInt(hexString, BitSize)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	targetValueI32 := int32(*targetValue)
-	return &targetValueI32, nil
+	return targetValueI32, nil
 }
 
-func (a *abiData) decodeInt64(hexString string) (*int64, error) {
+func (a *abiData) decodeInt64(hexString string) (int64, error) {
 	const BitSize = 64
 
 	targetValue, err := a.decodeInt(hexString, BitSize)
 	if err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	targetValueI64 := int64(*targetValue)
-	return &targetValueI64, nil
+	return targetValueI64, nil
 }
 
 func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
@@ -299,25 +299,25 @@ func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
 		if err != nil {
 			return nil, err
 		}
-		return big.NewInt(int64(*decoded)), nil
+		return big.NewInt(int64(decoded)), nil
 	case U16HexLength:
 		decoded, err := a.decodeInt16(hexString)
 		if err != nil {
 			return nil, err
 		}
-		return big.NewInt(int64(*decoded)), nil
+		return big.NewInt(int64(decoded)), nil
 	case U32HexLength:
 		decoded, err := a.decodeInt32(hexString)
 		if err != nil {
 			return nil, err
 		}
-		return big.NewInt(int64(*decoded)), nil
+		return big.NewInt(int64(decoded)), nil
 	case U64HexLength:
 		decoded, err := a.decodeInt64(hexString)
 		if err != nil {
 			return nil, err
 		}
-		return big.NewInt(int64(*decoded)), nil
+		return big.NewInt(int64(decoded)), nil
 	default:
 		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
 	}
@@ -329,7 +329,7 @@ func (a *abiData) decodeStringBigNumber(hexString string) (*big.Int, error) {
 		return nil, err
 	}
 
-	targetValue, ok := new(big.Int).SetString(*targetString, 10)
+	targetValue, ok := new(big.Int).SetString(targetString, 10)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string")
 	}
