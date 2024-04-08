@@ -48,7 +48,7 @@ type abiData struct {
 }
 
 type AbiData interface {
-	Decode(abi io.Reader, endpoint, hex string) (interface{}, error)
+	Decode(endpoint, hex string) (interface{}, error)
 	LoadAbi(r io.Reader) error
 }
 
@@ -56,7 +56,7 @@ func NewSCAbiHandler() AbiData {
 	return &abiData{}
 }
 
-func (a *abiData) Decode(abi io.Reader, endpoint, hex string) (interface{}, error) {
+func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
 	if !a.AbiLoaded {
 		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
 	}
