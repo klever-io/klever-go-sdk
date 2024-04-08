@@ -4,8 +4,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io"
 	"math/big"
-	"os"
 	"strconv"
 	"strings"
 
@@ -50,8 +50,8 @@ type SCOutputDecoder interface {
 	Decode(abiPath, endpointName, hexValue string) (interface{}, error)
 }
 
-func (a *abiData) Decode(abiPath, endpoint, hex string) (interface{}, error) {
-	if err := a.loadAbi(abiPath); err != nil {
+func (a *abiData) Decode(abi io.Reader, endpoint, hex string) (interface{}, error) {
+	if err := a.loadAbi(abi); err != nil {
 		return nil, err
 	}
 
@@ -66,8 +66,8 @@ func (a *abiData) Decode(abiPath, endpoint, hex string) (interface{}, error) {
 	return nil, fmt.Errorf("Please implement me T-T")
 }
 
-func (a *abiData) loadAbi(abiPath string) error {
-	jsonBytes, err := os.ReadFile(abiPath)
+func (a *abiData) loadAbi(r io.Reader) error {
+	jsonBytes, err := io.ReadAll(r)
 	if err != nil {
 		return err
 	}
