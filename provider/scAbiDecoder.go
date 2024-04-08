@@ -368,7 +368,7 @@ func (a *abiData) fixIntOverflow(hexString string, bitSize int) (*int64, error) 
 		return nil, fmt.Errorf("bitSize too large for uint64")
 	}
 
-	targetValue, err := strconv.ParseUint(hexString, 16, 64)
+	targetValue, err := strconv.ParseUint(hexString, BaseHex, 64)
 	if err != nil {
 		return nil, fmt.Errorf("invalid hex string %s: %v", hexString, err)
 	}
