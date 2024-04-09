@@ -189,12 +189,13 @@ func (a *abiData) decodeString(hexValue string) (string, error) {
 }
 
 func (a *abiData) decodeInt(hexValue string, bitSize int) (*uint, error) {
-	uintValue, err := strconv.ParseUint(hexValue, BaseHex, bitSize)
+	uint64Value, err := strconv.ParseUint(hexValue, BaseHex, bitSize)
 	if err != nil {
 		return nil, err
 	}
 
-	return a.fixSignedIntOverflow(&uintValue, len(hexValue))
+	uintValue := uint(uint64Value)
+	return &uintValue, nil
 }
 
 func (a *abiData) decodeUint(hexValue string, bitSize int) (*uint64, error) {
@@ -351,27 +352,6 @@ func (a *abiData) decodeStringBigNumber(hexString string) (*big.Int, error) {
 	}
 
 	return targetValue, nil
-}
-
-func (a *abiData) fixSignedIntOverflow(rawValue *uint64, hexLength int) (*uint, error) {
-	var parsedValue uint
-
-	switch hexLength {
-	case U8HexLength:
-		parsedValue = uint(int8(*rawValue))
-		return &parsedValue, nil
-	case U16HexLength:
-		parsedValue = uint(int16(*rawValue))
-		return &parsedValue, nil
-	case U32HexLength:
-		parsedValue = uint(int32(*rawValue))
-		return &parsedValue, nil
-	case U64HexLength:
-		parsedValue = uint(int64(*rawValue))
-		return &parsedValue, nil
-	default:
-		return nil, fmt.Errorf("invalid hex length %v", hexLength)
-	}
 }
 
 func (a *abiData) handleBigInt128(hexString string) (*big.Int, error) {
