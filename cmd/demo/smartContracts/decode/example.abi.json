@@ -1,0 +1,397 @@
+{
+  "buildInfo": {
+    "rustc": {
+      "version": "1.79.0-nightly",
+      "commitHash": "4fd4797c2654977f545c9a91e2aa4e6cdbb38919",
+      "commitDate": "2024-04-03",
+      "channel": "Nightly",
+      "short": "rustc 1.79.0-nightly (4fd4797c2 2024-04-03)"
+    },
+    "contractCrate": {
+      "name": "outputs",
+      "version": "0.0.0"
+    },
+    "framework": {
+      "name": "klever-sc",
+      "version": "0.43.3"
+    }
+  },
+  "name": "Outputs",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "managed_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "token_identifier",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "TokenIdentifier"
+        }
+      ]
+    },
+    {
+      "name": "usize_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "isize_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "isize_minus_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "bool_false",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "bool_true",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "owner_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Address"
+        }
+      ]
+    },
+    {
+      "name": "big_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_u_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_u_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_u_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u128",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "number_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i8"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i8"
+        }
+      ]
+    },
+    {
+      "name": "number_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i16"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i16"
+        }
+      ]
+    },
+    {
+      "name": "number_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "number_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i64"
+        }
+      ]
+    }
+  ],
+  "types": {}
+}
