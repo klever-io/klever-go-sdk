@@ -277,3 +277,37 @@ func Test_Decode_Single_Value(t *testing.T) {
 		})
 	}
 }
+
+func Test_Decode_List(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "Token_identifiers",
+			endpoint: "list_token_identifier",
+			hex:      "000000034b4c56000000034b4649000000034b494400000003445842000000054348495053",
+			expected: []string{"KLV", "KFI", "KID", "DXB", "CHIPS"},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.Equal(t, testCase.expected, result)
+		})
+	}
+}

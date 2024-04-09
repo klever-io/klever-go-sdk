@@ -2,10 +2,10 @@
   "buildInfo": {
     "rustc": {
       "version": "1.79.0-nightly",
-      "commitHash": "4fd4797c2654977f545c9a91e2aa4e6cdbb38919",
-      "commitDate": "2024-04-03",
+      "commitHash": "ab5bda1aa70f707014e2e691e43bc37a8819252a",
+      "commitDate": "2024-04-08",
       "channel": "Nightly",
-      "short": "rustc 1.79.0-nightly (4fd4797c2 2024-04-03)"
+      "short": "rustc 1.79.0-nightly (ab5bda1aa 2024-04-08)"
     },
     "contractCrate": {
       "name": "outputs",
@@ -389,6 +389,16 @@
       "outputs": [
         {
           "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "list_token_identifier",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<TokenIdentifier>"
         }
       ]
     }
