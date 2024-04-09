@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"math/big"
 	"strconv"
 	"strings"
@@ -297,10 +298,15 @@ func (a *abiData) decodeInt64(hexString string) (int64, error) {
 }
 
 func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
-	targetValue, err := a.decodeStringBigNumber(hexString)
+	targetValueFromString, err := a.decodeStringBigNumber(hexString)
 	// if that function suceeds, then it was a string representing a decimal number
 	if err == nil {
-		return targetValue, nil
+		return targetValueFromString, nil
+	}
+
+	targetValueFromInt128, err := a.handleBigInt128(hexString)
+	if err == nil {
+		return targetValueFromInt128, nil
 	}
 
 	switch len(hexString) {
@@ -366,4 +372,30 @@ func (a *abiData) fixSignedIntOverflow(rawValue *uint64, hexLength int) (*uint, 
 	default:
 		return nil, fmt.Errorf("invalid hex length %v", hexLength)
 	}
+}
+
+func (a *abiData) handleBigInt128(hexString string) (*big.Int, error) {
+	rawValue, ok := new(big.Int).SetString(hexString, BaseHex)
+	if !ok {
+		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
+	}
+
+	valueBits := len(hexString) * 4
+
+	two := big.NewInt(2)
+	twoToTheNth := new(big.Int).Exp(two, big.NewInt(int64(valueBits-1)), nil) // 2^valueBits
+	one := big.NewInt(1)
+
+	MaxIntNBits := new(big.Int).Sub(twoToTheNth, one)
+
+	if rawValue.Cmp(new(big.Int).SetUint64(math.MaxUint64)) == 1 && rawValue.Cmp(MaxIntNBits) == -1 {
+		return rawValue, nil
+	}
+
+	if rawValue.Cmp(MaxIntNBits) == 1 {
+		parsedValue := rawValue.Sub(rawValue, new(big.Int).Lsh(one, uint(valueBits)))
+		return parsedValue, nil
+	}
+
+	return nil, fmt.Errorf("value range is lower range than 128 bits")
 }
