@@ -1,7 +1,6 @@
 package provider_test
 
 import (
-	"fmt"
 	"math/big"
 	"os"
 	"testing"
@@ -12,19 +11,14 @@ import (
 )
 
 func Test_Decode_Single_Value(t *testing.T) {
-	jsonAbi, err := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
-	if err != nil {
-		fmt.Println("error opening abi", err)
-		return
-	}
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
 	defer jsonAbi.Close()
 
 	abiHandler := provider.NewSCAbiHandler()
 
-	if err := abiHandler.LoadAbi(jsonAbi); err != nil {
-		fmt.Println("error loading abi reader", err)
-		return
-	}
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
 
 	testCases := []struct {
 		name     string
