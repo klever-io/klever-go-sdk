@@ -401,6 +401,16 @@
           "type": "List<TokenIdentifier>"
         }
       ]
+    },
+    {
+      "name": "list_of_lists_tokens",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<TokenIdentifier>>"
+        }
+      ]
     }
   ],
   "types": {}

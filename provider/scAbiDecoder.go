@@ -71,7 +71,7 @@ func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
 		return nil, err
 	}
 
-	parsedValue, err := a.doDecode(&hex, *endpointIndex)
+	parsedValue, err := a.doDecode(&hex, a.Endpoints[*endpointIndex].Outputs[0].Type)
 	if err != nil {
 		return nil, err
 	}
@@ -111,14 +111,28 @@ func (a *abiData) findEndpoint(endpointName string) (*int, error) {
 	return endpointIndex, nil
 }
 
-func (a *abiData) doDecode(hexValue *string, endpointIndex int) (interface{}, error) {
-	vType := a.Endpoints[endpointIndex].Outputs[0].Type
-	typeWrapper := strings.Split(vType, "<")
-	fmt.Println(typeWrapper[0])
+func (a *abiData) doDecode(hexValue *string, valueType string) (interface{}, error) {
+	splitedTypes := strings.Split(valueType, "<")
 
-	switch typeWrapper[0] {
+	var typeWrapper string
+	var typeToDecode string
+	if len(splitedTypes) > 1 {
+		typeWrapper = splitedTypes[0]
+		typeToDecode = splitedTypes[1][:len(splitedTypes[1])-1]
+
+		return a.selectDecoder(hexValue, typeWrapper, typeToDecode)
+	}
+
+	typeToDecode = valueType
+	typeWrapper = ""
+
+	return a.selectDecoder(hexValue, typeWrapper, typeToDecode)
+}
+
+func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string) (interface{}, error) {
+	switch typeWrapper {
 	case "List":
-		decodedList, err := a.decodeList(*hexValue, vType[5:len(vType)-1])
+		decodedList, err := a.decodeList(*hexValue, valueType)
 		if err != nil {
 			return nil, err
 		}
@@ -130,26 +144,26 @@ func (a *abiData) doDecode(hexValue *string, endpointIndex int) (interface{}, er
 	case "variadic":
 		return nil, fmt.Errorf("variadic")
 	default:
-		return a.decodeSingleValue(*hexValue, vType)
+		return a.decodeSingleValue(*hexValue, valueType)
 	}
 }
 
-func (a *abiData) decodeList(hexValue string, vType string) (interface{}, error) {
-	var result []any
+func (a *abiData) decodeList(hexValue, valueType string) (interface{}, error) {
+	var result []interface{}
 
-	toDecodeHex := hexValue
-	for len(toDecodeHex) > 0 {
-		hexLength, err := a.decodeInt(toDecodeHex[:LengthHexSizer], LengthHexSizer*BitsByHexDigit)
+	for len(hexValue) > 0 {
+		hexLength, err := a.decodeInt(hexValue[:LengthHexSizer], LengthHexSizer*BitsByHexDigit)
 		if err != nil {
 			return nil, err
 		}
 
 		lengthToCut := LengthHexSizer + 2*int(*hexLength)
 
-		cuttedHex := toDecodeHex[:lengthToCut]
-		toDecodeHex = toDecodeHex[lengthToCut:]
+		sliceHexToDecode := hexValue[LengthHexSizer:lengthToCut]
 
-		targetValue, err := a.decodeSingleValue(cuttedHex[LengthHexSizer:], vType)
+		hexValue = hexValue[lengthToCut:]
+
+		targetValue, err := a.doDecode(&sliceHexToDecode, valueType)
 		if err != nil {
 			return nil, err
 		}

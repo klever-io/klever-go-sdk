@@ -297,8 +297,14 @@ func Test_Decode_List(t *testing.T) {
 		{
 			name:     "Token_identifiers",
 			endpoint: "list_token_identifier",
-			hex:      "000000034b4c56000000034b4649000000034b494400000003445842000000054348495053",
-			expected: []interface{}{"KLV", "KFI", "KID", "DXB", "CHIPS"},
+			hex:      "000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941",
+			expected: []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
+		},
+		{
+			name:     "Nested_list_token_identifiers",
+			endpoint: "list_of_lists_tokens",
+			hex:      "00000003000000034b4c56000000034b4649000000084b49442d3847394100000003000000084458422d483838470000000a43484950532d4e383941000000084646542d32424836",
+			expected: []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
 		},
 	}
 
