@@ -20,6 +20,10 @@ const (
 	U8HexLength  int = 2
 
 	BaseHex int = 16
+
+	LengthHexSizer int = 8
+
+	BitsByHexDigit int = 4
 )
 
 type output struct {
@@ -67,7 +71,7 @@ func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
 		return nil, err
 	}
 
-	parsedValue, err := a.selectDecoder(&hex, *endpointIndex)
+	parsedValue, err := a.doDecode(&hex, *endpointIndex)
 	if err != nil {
 		return nil, err
 	}
@@ -107,13 +111,18 @@ func (a *abiData) findEndpoint(endpointName string) (*int, error) {
 	return endpointIndex, nil
 }
 
-func (a *abiData) selectDecoder(hexValue *string, endpointIndex int) (interface{}, error) {
+func (a *abiData) doDecode(hexValue *string, endpointIndex int) (interface{}, error) {
 	vType := a.Endpoints[endpointIndex].Outputs[0].Type
 	typeWrapper := strings.Split(vType, "<")
+	fmt.Println(typeWrapper[0])
 
 	switch typeWrapper[0] {
 	case "List":
-		return nil, fmt.Errorf("List")
+		decodedList, err := a.decodeList(*hexValue, vType[5:len(vType)-1])
+		if err != nil {
+			return nil, err
+		}
+		return decodedList, nil
 	case "Option":
 		return nil, fmt.Errorf("Option")
 	case "tuple":
@@ -123,6 +132,32 @@ func (a *abiData) selectDecoder(hexValue *string, endpointIndex int) (interface{
 	default:
 		return a.decodeSingleValue(*hexValue, vType)
 	}
+}
+
+func (a *abiData) decodeList(hexValue string, vType string) (interface{}, error) {
+	var result []any
+
+	toDecodeHex := hexValue
+	for len(toDecodeHex) > 0 {
+		hexLength, err := a.decodeInt(toDecodeHex[:LengthHexSizer], LengthHexSizer*BitsByHexDigit)
+		if err != nil {
+			return nil, err
+		}
+
+		lengthToCut := LengthHexSizer + 2*int(*hexLength)
+
+		cuttedHex := toDecodeHex[:lengthToCut]
+		toDecodeHex = toDecodeHex[lengthToCut:]
+
+		targetValue, err := a.decodeSingleValue(cuttedHex[LengthHexSizer:], vType)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, targetValue)
+	}
+
+	return result, nil
 }
 
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
@@ -360,7 +395,7 @@ func (a *abiData) handleBigInt128(hexString string) (*big.Int, error) {
 		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
 	}
 
-	valueBits := len(hexString) * 4
+	valueBits := len(hexString) * BitsByHexDigit
 
 	two := big.NewInt(2)
 	twoToTheNth := new(big.Int).Exp(two, big.NewInt(int64(valueBits-1)), nil) // 2^valueBits

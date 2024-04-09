@@ -298,7 +298,7 @@ func Test_Decode_List(t *testing.T) {
 			name:     "Token_identifiers",
 			endpoint: "list_token_identifier",
 			hex:      "000000034b4c56000000034b4649000000034b494400000003445842000000054348495053",
-			expected: []string{"KLV", "KFI", "KID", "DXB", "CHIPS"},
+			expected: []interface{}{"KLV", "KFI", "KID", "DXB", "CHIPS"},
 		},
 	}
 
