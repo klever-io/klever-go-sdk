@@ -152,6 +152,120 @@ func Test_Decode_Single_Value(t *testing.T) {
 				return bigInt128
 			}(),
 		},
+		{
+			name:     "BigInt_from_random_string",
+			endpoint: "big_s_number",
+			hex:      "393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
+			expected: func() *big.Int {
+				bigIntRandomString, _ := new(big.Int).SetString("983475937456892479678890176981908567895769078512986798257", 10)
+				return bigIntRandomString
+			}(),
+		},
+		{
+			name:     "BigInt_from_random_negative_string",
+			endpoint: "big_minus_s_number",
+			hex:      "2d393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
+			expected: func() *big.Int {
+				bigIntRandomString, _ := new(big.Int).SetString("-983475937456892479678890176981908567895769078512986798257", 10)
+				return bigIntRandomString
+			}(),
+		},
+		{
+			name:     "BigUint_from_string_10",
+			endpoint: "big_u_s_10",
+			hex:      "3130",
+			expected: big.NewInt(10),
+		},
+		{
+			name:     "BigUint_from_random_string",
+			endpoint: "big_u_s_number",
+			hex:      "3832373432383733363433343735393733353933343736393733393637393337363938333435373836393833393035363938393739373839373839",
+			expected: func() *big.Int {
+				bigUintRandomString, _ := new(big.Int).SetString("82742873643475973593476973967937698345786983905698979789789", 10)
+				return bigUintRandomString
+			}(),
+		},
+		{
+			name:     "BigUint_from_u8",
+			endpoint: "big_u8",
+			hex:      "52",
+			expected: big.NewInt(82),
+		},
+		{
+			name:     "BigUint_from_u16",
+			endpoint: "big_u16",
+			hex:      "2122",
+			expected: big.NewInt(8482),
+		},
+		{
+			name:     "BigUint_from_u32",
+			endpoint: "big_u32",
+			hex:      "19605d7c",
+			expected: big.NewInt(425745788),
+		},
+		{
+			name:     "BigUint_from_u64",
+			endpoint: "big_u64",
+			hex:      "36eece5eb03dc254",
+			expected: big.NewInt(3958328028584329812),
+		},
+		{
+			name:     "BigUint_from_u128",
+			endpoint: "big_u128",
+			hex:      "1dc7766516260b32b52ff11612d5710e",
+			expected: func() *big.Int {
+				bigUintFromU128, _ := new(big.Int).SetString("39583280285843298128735477835272384782", 10)
+				return bigUintFromU128
+			}(),
+		},
+		{
+			name:     "Int8_positive",
+			endpoint: "number_i8",
+			hex:      "52",
+			expected: int8(82),
+		},
+		{
+			name:     "Int8_negative",
+			endpoint: "number_minus_i8",
+			hex:      "ae",
+			expected: int8(-82),
+		},
+		{
+			name:     "Int16_positive",
+			endpoint: "number_i16",
+			hex:      "2122",
+			expected: int16(8482),
+		},
+		{
+			name:     "Int16_negative",
+			endpoint: "number_minus_i16",
+			hex:      "dede",
+			expected: int16(-8482),
+		},
+		{
+			name:     "Int32_positive",
+			endpoint: "number_i32",
+			hex:      "19605d7c",
+			expected: int32(425745788),
+		},
+		{
+			name:     "Int32_negative",
+			endpoint: "number_minus_i32",
+			hex:      "e69fa284",
+			expected: int32(-425745788),
+		},
+		{
+			name:     "Int64_positive",
+			endpoint: "number_i64",
+			hex:      "36eece5eb03dc254",
+			expected: int64(3958328028584329812),
+		},
+		{
+			name:     "Int64_negative",
+			endpoint: "number_minus_i64",
+			hex:      "c91131a14fc23dac",
+			expected: int64(-3958328028584329812),
+		},
 	}
 
 	for _, testCase := range testCases {
