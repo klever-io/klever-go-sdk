@@ -318,7 +318,6 @@ func Test_Decode_List(t *testing.T) {
 		t.Run(testCase.name, func(t *testing.T) {
 			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
 
-			fmt.Println(result)
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
 		})
