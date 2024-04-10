@@ -324,6 +324,34 @@ func Test_Decode_List(t *testing.T) {
 		})
 	}
 }
+
+func Test_Decode_Option(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "null",
+			endpoint: "option_bytes_null",
+			hex:      "00",
+			expected: nil,
+		},
+		{
+			name:     "bytes",
+			endpoint: "option_bytes",
+			hex:      "0154657374",
+			expected: "Test",
 		},
 	}
 

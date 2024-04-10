@@ -411,6 +411,27 @@
           "type": "List<List<TokenIdentifier>>"
         }
       ]
+    },
+    {
+      "name": "option_bytes_null",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<bytes>"
+        }
+      ]
+    },
+    {
+      "name": "option_bytes",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<bytes>"
+        }
+      ]
+    },
     {
       "name": "list_int32",
       "mutability": "readonly",

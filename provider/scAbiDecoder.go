@@ -138,7 +138,11 @@ func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string)
 		}
 		return decodedList, nil
 	case "Option":
-		return nil, fmt.Errorf("Option")
+		decodedOption, err := a.decodeOption(*hexValue, valueType)
+		if err != nil {
+			return nil, err
+		}
+		return decodedOption, nil
 	case "tuple":
 		return nil, fmt.Errorf("tuple")
 	case "variadic":
@@ -228,6 +232,17 @@ func (a *abiData) decodeListFixedSize(hexValue, valueType string) (interface{}, 
 
 	return result, nil
 }
+
+func (a *abiData) decodeOption(hexValue, valueType string) (interface{}, error) {
+	isOption := hexValue[:2]
+	if isOption == "00" {
+		return nil, nil
+	}
+
+	hexValue = hexValue[2:]
+	return a.doDecode(&hexValue, valueType)
+}
+
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
 	switch vType {
 	case "i8":
