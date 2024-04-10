@@ -14,18 +14,43 @@ import (
 )
 
 const (
+	// Hex length
 	U64HexLength int = 16
 	U32HexLength int = 8
 	U16HexLength int = 4
 	U8HexLength  int = 2
 
+	// Bits count
 	Bits8  int = 8
 	Bits16 int = 16
 	Bits32 int = 32
 	Bits64 int = 64
 
+	// Numerical bases
 	BaseHex     int = 16
 	BaseDecimal int = 10
+
+	// Possible Types
+	Int8            string = "i8"
+	Uint8           string = "u8"
+	Int16           string = "i16"
+	Uint16          string = "u16"
+	Int32           string = "i32"
+	Uint32          string = "u32"
+	Int64           string = "i64"
+	Uint64          string = "u64"
+	BigInt          string = "BigInt"
+	BigUint         string = "BigUint"
+	Address         string = "Address"
+	Boolean         string = "bool"
+	ManagedBuffer   string = "ManagedBuffer"
+	TokenIdentifier string = "TokenIdentifier"
+	Bytes           string = "bytes"
+	BoxedBytes      string = "BoxedBytes"
+	String          string = "String"
+	StrRef          string = "&str"
+	VecU8           string = "Vec<u8>"
+	SliceU8         string = "&[u8]"
 
 	LengthHexSizer int = 8
 
@@ -162,19 +187,19 @@ func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string)
 
 func (a *abiData) selectListDecoder(hexValue, valueType string) (interface{}, error) {
 	switch valueType {
-	case "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64", "Address":
+	case Int8, Uint8, Int16, Uint16, Int32, Uint32, Int64, Uint64, Address:
 		return a.decodeListFixedSize(hexValue, valueType)
 	case
-		"ManagedBuffer",
-		"TokenIdentifier",
-		"bytes",
-		"BoxedBytes",
-		"String",
-		"&str",
-		"Vec<u8>",
-		"&[u8]",
-		"BigInt",
-		"BigUint":
+		ManagedBuffer,
+		TokenIdentifier,
+		Bytes,
+		BoxedBytes,
+		String,
+		StrRef,
+		VecU8,
+		SliceU8,
+		BigInt,
+		BigUint:
 		return a.decodeListDynamicSize(hexValue, valueType)
 	}
 
@@ -211,15 +236,15 @@ func (a *abiData) decodeListFixedSize(hexValue, valueType string) (interface{}, 
 
 	var typeHexLength int
 	switch valueType {
-	case "i8", "u8":
+	case Int8, Uint8:
 		typeHexLength = U8HexLength
-	case "i16", "u16":
+	case Int16, Uint16:
 		typeHexLength = U16HexLength
-	case "i32", "u32":
+	case Int32, Uint32:
 		typeHexLength = U32HexLength
-	case "i64", "u64":
+	case Int64, Uint64:
 		typeHexLength = U64HexLength
-	case "Address":
+	case Address:
 		typeHexLength = AddressHexSize
 	}
 
@@ -253,39 +278,39 @@ func (a *abiData) decodeOption(hexValue, valueType string) (interface{}, error) 
 
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
 	switch vType {
-	case "i8":
+	case Int8:
 		return a.decodeInt8(hexValue)
-	case "i16":
+	case Int16:
 		return a.decodeInt16(hexValue)
-	case "i32":
+	case Int32:
 		return a.decodeInt32(hexValue)
-	case "i64":
+	case Int64:
 		return a.decodeInt64(hexValue)
-	case "u8":
+	case Uint8:
 		return a.decodeUint8(hexValue)
-	case "u16":
+	case Uint16:
 		return a.decodeUint16(hexValue)
-	case "u32":
+	case Uint32:
 		return a.decodeUint32(hexValue)
-	case "u64":
+	case Uint64:
 		return a.decodeUint64(hexValue)
-	case "BigInt":
+	case BigInt:
 		return a.decodeBigInt(hexValue)
-	case "BigUint":
+	case BigUint:
 		return a.decodeBigUint(hexValue)
-	case "bool":
+	case Boolean:
 		return hexValue == "01", nil
 	case
-		"ManagedBuffer",
-		"TokenIdentifier",
-		"bytes",
-		"BoxedBytes",
-		"String",
-		"&str",
-		"Vec<u8>",
-		"&[u8]":
+		ManagedBuffer,
+		TokenIdentifier,
+		Bytes,
+		BoxedBytes,
+		String,
+		StrRef,
+		VecU8,
+		SliceU8:
 		return a.decodeString(hexValue)
-	case "Address":
+	case Address:
 		return a.decodeAddress(hexValue)
 	default:
 		return nil, fmt.Errorf("invalid type %s", vType)
