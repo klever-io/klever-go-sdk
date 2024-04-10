@@ -411,6 +411,25 @@
           "type": "List<List<TokenIdentifier>>"
         }
       ]
+    {
+      "name": "list_int32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<i32>"
+        }
+      ]
+    },
+    {
+      "name": "list_bign",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<BigInt>"
+        }
+      ]
     }
   ],
   "types": {}

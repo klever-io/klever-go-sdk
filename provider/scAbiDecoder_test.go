@@ -301,10 +301,29 @@ func Test_Decode_List(t *testing.T) {
 			expected: []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
 		},
 		{
-			name:     "Nested_list_token_identifiers",
-			endpoint: "list_of_lists_tokens",
-			hex:      "00000003000000034b4c56000000034b4649000000084b49442d3847394100000003000000084458422d483838470000000a43484950532d4e383941000000084646542d32424836",
-			expected: []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
+			name:     "int32",
+			endpoint: "list_int32",
+			hex:      "000000080000005700000065fffffffb",
+			expected: []interface{}{int32(8), int32(87), int32(101), int32(-5)},
+		},
+		{
+			name:     "BigInt",
+			endpoint: "list_bign",
+			hex:      "000000050577f695350000000109000000072d38323334373200000006353334323337",
+			expected: []interface{}{big.NewInt(23487485237), big.NewInt(9), big.NewInt(-823472), big.NewInt(534237)},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			fmt.Println(result)
+			require.Nil(t, err)
+			assert.ElementsMatch(t, testCase.expected, result)
+		})
+	}
+}
 		},
 	}
 

@@ -132,7 +132,7 @@ func (a *abiData) doDecode(hexValue *string, valueType string) (interface{}, err
 func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string) (interface{}, error) {
 	switch typeWrapper {
 	case "List":
-		decodedList, err := a.decodeList(*hexValue, valueType)
+		decodedList, err := a.selectListDecoder(*hexValue, valueType)
 		if err != nil {
 			return nil, err
 		}
@@ -148,7 +148,28 @@ func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string)
 	}
 }
 
-func (a *abiData) decodeList(hexValue, valueType string) (interface{}, error) {
+func (a *abiData) selectListDecoder(hexValue, valueType string) (interface{}, error) {
+	switch valueType {
+	case "i8", "u8", "i16", "u16", "i32", "u32", "i64", "u64", "Address":
+		return a.decodeListFixedSize(hexValue, valueType)
+	case
+		"ManagedBuffer",
+		"TokenIdentifier",
+		"bytes",
+		"BoxedBytes",
+		"String",
+		"&str",
+		"Vec<u8>",
+		"&[u8]",
+		"BigInt",
+		"BigUint":
+		return a.decodeListDynamicSize(hexValue, valueType)
+	}
+
+	return nil, fmt.Errorf("invalid type: %s", valueType)
+}
+
+func (a *abiData) decodeListDynamicSize(hexValue, valueType string) (interface{}, error) {
 	var result []interface{}
 
 	for len(hexValue) > 0 {
@@ -174,6 +195,39 @@ func (a *abiData) decodeList(hexValue, valueType string) (interface{}, error) {
 	return result, nil
 }
 
+func (a *abiData) decodeListFixedSize(hexValue, valueType string) (interface{}, error) {
+
+	var typeHexLength int
+	switch valueType {
+	case "i8", "u8":
+		typeHexLength = U8HexLength
+	case "i16", "u16":
+		typeHexLength = U16HexLength
+	case "i32", "u32":
+		typeHexLength = U32HexLength
+	case "i64", "u64":
+		typeHexLength = U64HexLength
+	case "Address":
+		typeHexLength = AddressHexSize
+	}
+
+	var result []interface{}
+	iterations := len(hexValue) / typeHexLength
+	for i := 0; i < iterations; i++ {
+		toDecode := hexValue[:typeHexLength]
+
+		hexValue = hexValue[typeHexLength:]
+
+		parsedValue, err := a.doDecode(&toDecode, valueType)
+		if err != nil {
+			return nil, err
+		}
+
+		result = append(result, parsedValue)
+	}
+
+	return result, nil
+}
 func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
 	switch vType {
 	case "i8":
