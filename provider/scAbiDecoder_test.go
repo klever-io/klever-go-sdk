@@ -298,19 +298,79 @@ func Test_Decode_List(t *testing.T) {
 			name:     "Token_identifiers",
 			endpoint: "list_token_identifier",
 			hex:      "000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941",
-			expected: []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
+			expected: []string{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
 		},
 		{
 			name:     "int32",
 			endpoint: "list_int32",
 			hex:      "000000080000005700000065fffffffb",
-			expected: []interface{}{int32(8), int32(87), int32(101), int32(-5)},
+			expected: []int32{int32(8), int32(87), int32(101), int32(-5)},
+		},
+		{
+			name:     "int64",
+			endpoint: "list_int64",
+			hex:      "000000000000000200000000000000570e09174747d3c452fffffffffffffffbe51dd01a95946e83",
+			expected: []int64{int64(2), int64(87), int64(1011365186236564562), int64(-5), int64(-1937163452102185341)},
+		},
+		{
+			name:     "uint16",
+			endpoint: "list_u16",
+			hex:      "3fd600a7000203f3",
+			expected: []uint16{uint16(16342), uint16(167), uint16(2), uint16(1011)},
+		},
+		{
+			name:     "uint32",
+			endpoint: "list_u32",
+			hex:      "00000003000f880ccc61aa59003ab9b8",
+			expected: []uint32{uint32(3), uint32(1017868), uint32(3428952665), uint32(3848632)},
+		},
+		{
+			name:     "uint64",
+			endpoint: "list_u64",
+			hex:      "00000000053532bd0002ac5552d00e95000000000000000255868c6974ec6a9b",
+			expected: []uint64{uint64(87372477), uint64(752432414985877), uint64(2), uint64(6162767524664208027)},
 		},
 		{
 			name:     "BigInt",
 			endpoint: "list_bign",
-			hex:      "000000050577f695350000000109000000072d38323334373200000006353334323337",
-			expected: []interface{}{big.NewInt(23487485237), big.NewInt(9), big.NewInt(-823472), big.NewInt(534237)},
+			hex:      "000000050577f695350000000109000000072d383233343732000000063533343233370000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72",
+			expected: func() []*big.Int {
+				bigInt128pos, _ := new(big.Int).SetString("299843598872398459348567275690758798", 10)
+				bigInt128neg, _ := new(big.Int).SetString("-299843598872398459348567275690758798", 10)
+
+				return []*big.Int{
+					big.NewInt(23487485237),
+					big.NewInt(9),
+					big.NewInt(-823472),
+					big.NewInt(534237),
+					bigInt128pos,
+					bigInt128neg,
+				}
+			}(),
+		},
+		{
+			name:     "BigUint",
+			endpoint: "list_bigun",
+			hex:      "00000001ea00000002266a000000043a9e8554000000087864b47dcf08ef8c0000004438323732333637353235343337363537363738363334373234333635383236333538363832333536383236383931323733363435373637383639383637373838373635370000000f0864a6c0c92180ec36795616644d36",
+			expected: func() []*big.Int {
+				bigUintString, _ := new(big.Int).SetString("82723675254376576786347243658263586823568268912736457678698677887657", 10)
+				bigUint128, _ := new(big.Int).SetString("43579827367895347689574268789869878", 10)
+
+				return []*big.Int{
+					big.NewInt(234),
+					big.NewInt(9834),
+					big.NewInt(983467348),
+					big.NewInt(8675257234659798924),
+					bigUintString,
+					bigUint128,
+				}
+			}(),
+		},
+		{
+			name:     "Address",
+			endpoint: "list_address",
+			hex:      "667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e",
+			expected: []string{"klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5", "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5"},
 		},
 	}
 

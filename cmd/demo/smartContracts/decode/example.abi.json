@@ -443,12 +443,82 @@
       ]
     },
     {
+      "name": "list_int64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<i64>"
+        }
+      ]
+    },
+    {
+      "name": "list_uint8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "list_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u16>"
+        }
+      ]
+    },
+    {
+      "name": "list_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u32>"
+        }
+      ]
+    },
+    {
+      "name": "list_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u64>"
+        }
+      ]
+    },
+    {
+      "name": "list_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<Address>"
+        }
+      ]
+    },
+    {
       "name": "list_bign",
       "mutability": "readonly",
       "inputs": [],
       "outputs": [
         {
           "type": "List<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "list_bigun",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<BigUint>"
         }
       ]
     }
