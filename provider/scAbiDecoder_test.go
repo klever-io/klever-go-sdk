@@ -372,6 +372,24 @@ func Test_Decode_List(t *testing.T) {
 			hex:      "667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e",
 			expected: []string{"klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5", "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5"},
 		},
+		{
+			name:     "Nested_list_int64",
+			endpoint: "list_list_i64",
+			hex:      "0000000319ffee93a36dc12a000000000000001cd7e571502441e18400000003fffffffffffffffe000000000001e308fffffffff1b3cfdc",
+			expected: [][]interface{}{
+				{int64(1873478287878897962), int64(28), int64(-2889778996868685436)},
+				{int64(-2), int64(123656), int64(-239874084)},
+			},
+		},
+		{
+			name:     "Nested_list_tokens_identifiers",
+			endpoint: "list_list_tokens",
+			hex:      "00000003000000034b4c56000000034b4649000000084b49442d3847394100000003000000084458422d483838470000000a43484950532d4e383941000000084646542d32424836",
+			expected: [][]interface{}{
+				{"KLV", "KFI", "KID-8G9A"},
+				{"DXB-H88G", "CHIPS-N89A", "FFT-2BH6"},
+			},
+		},
 	}
 
 	for _, testCase := range testCases {

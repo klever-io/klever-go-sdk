@@ -521,6 +521,27 @@
           "type": "List<BigUint>"
         }
       ]
+    },
+    {
+      "name": "list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<i64>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_tokens",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<TokenIdentifier>>"
+        }
+      ]
+    },
     }
   ],
   "types": {}
