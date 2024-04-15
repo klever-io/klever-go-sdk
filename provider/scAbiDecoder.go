@@ -488,7 +488,7 @@ func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, err
 				return nil, err
 			}
 
-			parsedValue, err := a.decodeListTillLimit(hexRef, innerType, trim, isDynamicLengthType)
+			parsedValue, err := a.processListDecoding(hexRef, innerType, trim, isDynamicLengthType, true)
 			if err != nil {
 				return nil, err
 			}
@@ -515,13 +515,16 @@ func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, err
 		return result, nil
 	}
 
-	return a.decodeListTillEndOfHex(hexRef, innerType, isDynamicLengthType)
+	return a.processListDecoding(hexRef, innerType, 0, isDynamicLengthType, false)
 }
 
-func (a *abiData) decodeListTillLimit(hexRef *string, valueType string, limit int, isDynamicLength bool) (interface{}, error) {
+func (a *abiData) processListDecoding(
+	hexRef *string, valueType string, limit int, isDynamicLength, decodeFixed bool,
+) (interface{}, error) {
 	var result []interface{}
+	var count int = 0
 
-	for i := 0; i < limit; i++ {
+	for decodeFixed && count < limit || !decodeFixed && len(*hexRef) > 0 {
 		var trim int
 		if isDynamicLength {
 			calculatedTrim, err := a.getListTrim(hexRef)
@@ -536,29 +539,7 @@ func (a *abiData) decodeListTillLimit(hexRef *string, valueType string, limit in
 			return nil, err
 		}
 		result = append(result, valueParsed)
-	}
-
-	return result, nil
-}
-
-func (a *abiData) decodeListTillEndOfHex(hexRef *string, valueType string, isDynamicLength bool) (interface{}, error) {
-	var result []interface{}
-
-	for len(*hexRef) > 0 {
-		var trim int
-		if isDynamicLength {
-			calculatedTrim, err := a.getListTrim(hexRef)
-			if err != nil {
-				return nil, err
-			}
-			trim = calculatedTrim
-		}
-
-		valueParsed, err := a.doDecode(hexRef, valueType, trim)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, valueParsed)
+		count++
 	}
 
 	return result, nil
