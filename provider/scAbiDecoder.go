@@ -15,10 +15,10 @@ import (
 
 const (
 	// Hex length
-	U64HexLength int = 16
-	U32HexLength int = 8
-	U16HexLength int = 4
-	U8HexLength  int = 2
+	HexLength8Bits  int = 2
+	HexLength16Bits int = 4
+	HexLength32Bits int = 8
+	HexLength64Bits int = 16
 
 	// Bits count
 	Bits8  int = 8
@@ -29,6 +29,12 @@ const (
 	// Numerical bases
 	BaseHex     int = 16
 	BaseDecimal int = 10
+
+	// Types wrappers
+	List     string = "List"
+	Option   string = "Option"
+	Tuple    string = "tuple"
+	Variadic string = "variadic"
 
 	// Possible Types
 	Int8            string = "i8"
@@ -56,7 +62,7 @@ const (
 
 	BitsByHexDigit int = 4
 
-	AddressHexSize int = 64
+	AddressHexLen int = 64
 )
 
 type output struct {
@@ -75,7 +81,7 @@ type field struct {
 }
 
 type typeInfos struct {
-	Type   string  `json:"type"` // struct, tuple, variadic, List
+	Type   string  `json:"type"` // struct, tuple, variadic, List, Option
 	Fields []field `json:"fields"`
 }
 
@@ -94,24 +100,6 @@ func NewSCAbiHandler() AbiData {
 	return &abiData{}
 }
 
-func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
-	if !a.AbiLoaded {
-		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
-	}
-
-	endpointIndex, err := a.findEndpoint(endpoint)
-	if err != nil {
-		return nil, err
-	}
-
-	parsedValue, err := a.doDecode(&hex, a.Endpoints[*endpointIndex].Outputs[0].Type)
-	if err != nil {
-		return nil, err
-	}
-
-	return parsedValue, nil
-}
-
 func (a *abiData) LoadAbi(r io.Reader) error {
 	jsonBytes, err := io.ReadAll(r)
 	if err != nil {
@@ -125,6 +113,19 @@ func (a *abiData) LoadAbi(r io.Reader) error {
 	a.AbiLoaded = true
 
 	return nil
+}
+
+func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
+	if !a.AbiLoaded {
+		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
+	}
+
+	endpointIndex, err := a.findEndpoint(endpoint)
+	if err != nil {
+		return nil, err
+	}
+
+	return a.doDecode(&hex, a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
 }
 
 func (a *abiData) findEndpoint(endpointName string) (*int, error) {
@@ -144,162 +145,83 @@ func (a *abiData) findEndpoint(endpointName string) (*int, error) {
 	return endpointIndex, nil
 }
 
-func (a *abiData) doDecode(hexValue *string, valueType string) (interface{}, error) {
-	splitedTypes := strings.Split(valueType, "<")
-
-	var typeWrapper string
-	var typeToDecode string
-	if len(splitedTypes) > 1 {
-		typeWrapper = splitedTypes[0]
-		typeToDecode = splitedTypes[1][:len(splitedTypes[1])-1]
-
-		return a.selectDecoder(hexValue, typeWrapper, typeToDecode)
+func (a *abiData) splitTypes(fullType string) (string, string) {
+	index := strings.Index(fullType, "<")
+	if index == -1 {
+		return "", fullType
 	}
 
-	typeToDecode = valueType
-	typeWrapper = ""
+	wrapperType := fullType[:index]
+	valueType := fullType[index+1:]
+	valueType = valueType[:len(valueType)-1]
 
-	return a.selectDecoder(hexValue, typeWrapper, typeToDecode)
+	return wrapperType, valueType
 }
 
-func (a *abiData) selectDecoder(hexValue *string, typeWrapper, valueType string) (interface{}, error) {
+func (a *abiData) doDecode(hexRef *string, fullType string, trim int) (interface{}, error) {
+	wrapperType, valueType := a.splitTypes(fullType)
+
+	return a.selectDecoder(hexRef, wrapperType, valueType, trim)
+}
+
+func (a *abiData) handleTrim(hexRef *string, trim int) string {
+	hexToDecode := (*hexRef)[:trim]
+
+	if trim == 0 {
+		hexToDecode = *hexRef
+	}
+
+	*hexRef = (*hexRef)[trim:]
+
+	return hexToDecode
+}
+
+func (a *abiData) selectDecoder(
+	hexRef *string,
+	typeWrapper, valueType string,
+	trim int,
+) (interface{}, error) {
 	switch typeWrapper {
-	case "List":
-		decodedList, err := a.selectListDecoder(*hexValue, valueType)
-		if err != nil {
-			return nil, err
-		}
-		return decodedList, nil
-	case "Option":
-		decodedOption, err := a.decodeOption(*hexValue, valueType)
-		if err != nil {
-			return nil, err
-		}
-		return decodedOption, nil
-	case "tuple":
+	case List:
+		return a.decodeList(hexRef, valueType)
+	case Option:
+		decodedOption, err := a.decodeOption(hexRef, valueType)
+		return decodedOption, err
+	case Tuple:
 		return nil, fmt.Errorf("tuple")
-	case "variadic":
+	case Variadic:
 		return nil, fmt.Errorf("variadic")
 	default:
-		return a.decodeSingleValue(*hexValue, valueType)
+		return a.decodeSingleValue(hexRef, valueType, trim)
 	}
 }
 
-func (a *abiData) selectListDecoder(hexValue, valueType string) (interface{}, error) {
+func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) (interface{}, error) {
 	switch valueType {
-	case Int8, Uint8, Int16, Uint16, Int32, Uint32, Int64, Uint64, Address:
-		return a.decodeListFixedSize(hexValue, valueType)
-	case
-		ManagedBuffer,
-		TokenIdentifier,
-		Bytes,
-		BoxedBytes,
-		String,
-		StrRef,
-		VecU8,
-		SliceU8,
-		BigInt,
-		BigUint:
-		return a.decodeListDynamicSize(hexValue, valueType)
-	}
-
-	return nil, fmt.Errorf("invalid type: %s", valueType)
-}
-
-func (a *abiData) decodeListDynamicSize(hexValue, valueType string) (interface{}, error) {
-	var result []interface{}
-
-	for len(hexValue) > 0 {
-		hexLength, err := a.decodeInt(hexValue[:LengthHexSizer], LengthHexSizer*BitsByHexDigit)
-		if err != nil {
-			return nil, err
-		}
-
-		lengthToCut := LengthHexSizer + 2*int(*hexLength)
-
-		sliceHexToDecode := hexValue[LengthHexSizer:lengthToCut]
-
-		hexValue = hexValue[lengthToCut:]
-
-		targetValue, err := a.doDecode(&sliceHexToDecode, valueType)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, targetValue)
-	}
-
-	return result, nil
-}
-
-func (a *abiData) decodeListFixedSize(hexValue, valueType string) (interface{}, error) {
-
-	var typeHexLength int
-	switch valueType {
-	case Int8, Uint8:
-		typeHexLength = U8HexLength
-	case Int16, Uint16:
-		typeHexLength = U16HexLength
-	case Int32, Uint32:
-		typeHexLength = U32HexLength
-	case Int64, Uint64:
-		typeHexLength = U64HexLength
-	case Address:
-		typeHexLength = AddressHexSize
-	}
-
-	var result []interface{}
-	iterations := len(hexValue) / typeHexLength
-	for i := 0; i < iterations; i++ {
-		toDecode := hexValue[:typeHexLength]
-
-		hexValue = hexValue[typeHexLength:]
-
-		parsedValue, err := a.doDecode(&toDecode, valueType)
-		if err != nil {
-			return nil, err
-		}
-
-		result = append(result, parsedValue)
-	}
-
-	return result, nil
-}
-
-func (a *abiData) decodeOption(hexValue, valueType string) (interface{}, error) {
-	isOption := hexValue[:2]
-	if isOption == "00" {
-		return nil, nil
-	}
-
-	hexValue = hexValue[2:]
-	return a.doDecode(&hexValue, valueType)
-}
-
-func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{}, error) {
-	switch vType {
 	case Int8:
-		return a.decodeInt8(hexValue)
+		return a.decodeInt8(hexRef)
 	case Int16:
-		return a.decodeInt16(hexValue)
+		return a.decodeInt16(hexRef)
 	case Int32:
-		return a.decodeInt32(hexValue)
+		return a.decodeInt32(hexRef)
 	case Int64:
-		return a.decodeInt64(hexValue)
+		return a.decodeInt64(hexRef)
 	case Uint8:
-		return a.decodeUint8(hexValue)
+		return a.decodeUint8(hexRef)
 	case Uint16:
-		return a.decodeUint16(hexValue)
+		return a.decodeUint16(hexRef)
 	case Uint32:
-		return a.decodeUint32(hexValue)
+		return a.decodeUint32(hexRef)
 	case Uint64:
-		return a.decodeUint64(hexValue)
+		return a.decodeUint64(hexRef)
+	case Address:
+		return a.decodeAddress(hexRef)
 	case BigInt:
-		return a.decodeBigInt(hexValue)
-	case BigUint:
-		return a.decodeBigUint(hexValue)
+		return a.decodeBigInt(hexRef, trim)
 	case Boolean:
-		return hexValue == "01", nil
+		return (*hexRef) == "01", nil
+	case BigUint:
+		return a.decodeBigUint(hexRef, trim)
 	case
 		ManagedBuffer,
 		TokenIdentifier,
@@ -309,201 +231,184 @@ func (a *abiData) decodeSingleValue(hexValue string, vType string) (interface{},
 		StrRef,
 		VecU8,
 		SliceU8:
-		return a.decodeString(hexValue)
-	case Address:
-		return a.decodeAddress(hexValue)
+		return a.decodeString(hexRef, trim)
 	default:
-		return nil, fmt.Errorf("invalid type %s", vType)
+		return nil, fmt.Errorf("invalid type %s", valueType)
 	}
 }
 
-func (a *abiData) decodeAddress(hexValue string) (string, error) {
-	decodedAddress, err := address.NewAddressFromHex(hexValue)
-	if err != nil {
-		return "", err
+func (a *abiData) decodeString(hexRef *string, trim int) (string, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
+
+	bytes, err := hex.DecodeString(hexToDecode)
+
+	return string(bytes), err
+}
+
+func (a *abiData) decodeAddress(hexRef *string) (string, error) {
+	hexToDecode := (*hexRef)[:AddressHexLen]
+	*hexRef = (*hexRef)[AddressHexLen:]
+
+	decodedAddress, err := address.NewAddressFromHex(hexToDecode)
+
+	return decodedAddress.Bech32(), err
+}
+
+func (a *abiData) decodeInt(hexRef *string, bitSize int) (*uint64, error) {
+	uintValue, err := strconv.ParseUint(*hexRef, BaseHex, bitSize)
+
+	return &uintValue, err
+}
+
+func (a *abiData) handleIntsTrim(hexRef *string, bitSize int) string {
+	var hexToDecode string
+
+	if len(*hexRef) > bitSize {
+		hexToDecode = a.handleTrim(hexRef, bitSize)
+
+		return hexToDecode
 	}
 
-	addressString := decodedAddress.Bech32()
-	return addressString, nil
+	hexToDecode = *hexRef
+	*hexRef = ""
+
+	return hexToDecode
 }
 
-func (a *abiData) decodeString(hexValue string) (string, error) {
-	bytes, err := hex.DecodeString(hexValue)
+func (a *abiData) decodeUint8(hexRef *string) (uint8, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength8Bits)
 
-	if err != nil {
-		return "", err
-	}
+	targetValue, err := a.decodeInt(&hexToDecode, Bits8)
 
-	convertedString := string(bytes)
-
-	return convertedString, nil
+	return uint8(*targetValue), err
 }
 
-func (a *abiData) decodeInt(hexValue string, bitSize int) (*uint, error) {
-	uint64Value, err := strconv.ParseUint(hexValue, BaseHex, bitSize)
-	if err != nil {
-		return nil, err
-	}
+func (a *abiData) decodeUint16(hexRef *string) (uint16, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength16Bits)
 
-	uintValue := uint(uint64Value)
-	return &uintValue, nil
+	targetValue, err := a.decodeInt(&hexToDecode, Bits16)
+
+	return uint16(*targetValue), err
 }
 
-func (a *abiData) decodeUint(hexValue string, bitSize int) (*uint64, error) {
-	uintValue, err := strconv.ParseUint(hexValue, BaseHex, bitSize)
-	if err != nil {
-		return nil, err
-	}
+func (a *abiData) decodeUint32(hexRef *string) (uint32, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength32Bits)
 
-	return &uintValue, nil
+	targetValue, err := a.decodeInt(&hexToDecode, Bits32)
+
+	return uint32(*targetValue), err
 }
 
-func (a *abiData) decodeUint8(hexValue string) (uint8, error) {
-	targetValue, err := a.decodeUint(hexValue, Bits8)
-	uint8Decoded := uint8(*targetValue)
+func (a *abiData) decodeUint64(hexRef *string) (uint64, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength64Bits)
 
-	return uint8Decoded, err
+	targetValue, err := a.decodeInt(&hexToDecode, Bits64)
+
+	return uint64(*targetValue), err
 }
 
-func (a *abiData) decodeUint16(hexValue string) (uint16, error) {
-	targetValue, err := a.decodeUint(hexValue, Bits16)
-	uint16Decoded := uint16(*targetValue)
+func (a *abiData) decodeInt8(hexRef *string) (int8, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength8Bits)
 
-	return uint16Decoded, err
+	targetValue, err := a.decodeInt(&hexToDecode, Bits8)
+
+	return int8(*targetValue), err
 }
 
-func (a *abiData) decodeUint32(hexValue string) (uint32, error) {
-	targetValue, err := a.decodeUint(hexValue, Bits32)
-	uint32Decoded := uint32(*targetValue)
+func (a *abiData) decodeInt16(hexRef *string) (int16, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength16Bits)
 
-	return uint32Decoded, err
+	targetValue, err := a.decodeInt(&hexToDecode, Bits16)
+
+	return int16(*targetValue), err
 }
 
-func (a *abiData) decodeUint64(hexValue string) (uint64, error) {
-	targetValue, err := a.decodeUint(hexValue, Bits64)
-	uint64Decoded := uint64(*targetValue)
+func (a *abiData) decodeInt32(hexRef *string) (int32, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength32Bits)
 
-	return uint64Decoded, err
+	targetValue, err := a.decodeInt(&hexToDecode, Bits32)
+
+	return int32(*targetValue), err
 }
 
-func (a *abiData) decodeBigUint(hexString string) (*big.Int, error) {
-	targetValue, err := a.decodeStringBigNumber(hexString)
-	// if that function suceeds, then it was a string representing a decimal number
+func (a *abiData) decodeInt64(hexRef *string) (int64, error) {
+	hexToDecode := a.handleIntsTrim(hexRef, HexLength64Bits)
+
+	targetValue, err := a.decodeInt(&hexToDecode, Bits64)
+
+	return int64(*targetValue), err
+}
+
+func (a *abiData) decodeBigUint(hexRef *string, trim int) (*big.Int, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
+
+	targetValue, err := a.decodeStringBigNumber(&hexToDecode)
+	// if that function suceeds, then it was a string representing a decimal big number
 	if err == nil {
 		return targetValue, nil
 	}
 
-	targetValue, ok := new(big.Int).SetString(hexString, BaseHex)
+	targetValue, ok := new(big.Int).SetString(hexToDecode, BaseHex)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string to decode to uint64")
+		return nil, fmt.Errorf("invalid hex string %s to decode to uint64", hexToDecode)
 	}
 
 	return targetValue, nil
 }
 
-func (a *abiData) decodeInt8(hexString string) (int8, error) {
-	targetValue, err := a.decodeInt(hexString, Bits8)
-	if err != nil {
-		return 0, err
-	}
+func (a *abiData) decodeBigInt(hexRef *string, trim int) (*big.Int, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	targetValueI8 := int8(*targetValue)
-	return targetValueI8, nil
-}
-
-func (a *abiData) decodeInt16(hexString string) (int16, error) {
-	targetValue, err := a.decodeInt(hexString, Bits16)
-	if err != nil {
-		return 0, err
-	}
-
-	targetValueI16 := int16(*targetValue)
-	return targetValueI16, nil
-}
-
-func (a *abiData) decodeInt32(hexString string) (int32, error) {
-	targetValue, err := a.decodeInt(hexString, Bits32)
-	if err != nil {
-		return 0, err
-	}
-
-	targetValueI32 := int32(*targetValue)
-	return targetValueI32, nil
-}
-
-func (a *abiData) decodeInt64(hexString string) (int64, error) {
-	targetValue, err := a.decodeInt(hexString, Bits64)
-	if err != nil {
-		return 0, err
-	}
-
-	targetValueI64 := int64(*targetValue)
-	return targetValueI64, nil
-}
-
-func (a *abiData) decodeBigInt(hexString string) (*big.Int, error) {
-	targetValueFromString, err := a.decodeStringBigNumber(hexString)
+	targetValueFromString, err := a.decodeStringBigNumber(&hexToDecode)
 	// if that function suceeds, then it was a string representing a decimal number
 	if err == nil {
 		return targetValueFromString, nil
 	}
 
-	targetValueFromInt128, err := a.handleBigInt128(hexString)
+	targetValueFromInt128, err := a.handleBigIntTill128(&hexToDecode)
 	if err == nil {
 		return targetValueFromInt128, nil
 	}
 
-	switch hexLen := len(hexString); {
-	case hexLen <= U8HexLength:
-		decoded, err := a.decodeInt8(hexString)
-		if err != nil {
-			return nil, err
-		}
-		return big.NewInt(int64(decoded)), nil
-	case hexLen <= U16HexLength:
-		decoded, err := a.decodeInt16(hexString)
-		if err != nil {
-			return nil, err
-		}
-		return big.NewInt(int64(decoded)), nil
-	case hexLen <= U32HexLength:
-		decoded, err := a.decodeInt32(hexString)
-		if err != nil {
-			return nil, err
-		}
-		return big.NewInt(int64(decoded)), nil
-	case hexLen <= U64HexLength:
-		decoded, err := a.decodeInt64(hexString)
-		if err != nil {
-			return nil, err
-		}
-		return big.NewInt(int64(decoded)), nil
+	switch hexLen := len(hexToDecode); {
+	case hexLen <= HexLength8Bits:
+		decoded, err := a.decodeInt8(&hexToDecode)
+		return big.NewInt(int64(decoded)), err
+	case hexLen <= HexLength16Bits:
+		decoded, err := a.decodeInt16(&hexToDecode)
+		return big.NewInt(int64(decoded)), err
+	case hexLen <= HexLength32Bits:
+		decoded, err := a.decodeInt32(&hexToDecode)
+		return big.NewInt(int64(decoded)), err
+	case hexLen <= HexLength64Bits:
+		decoded, err := a.decodeInt64(&hexToDecode)
+		return big.NewInt(int64(decoded)), err
 	default:
-		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
+		return nil, fmt.Errorf("invalid hex string %s to decode to BigInt", *hexRef)
 	}
 }
 
-func (a *abiData) decodeStringBigNumber(hexString string) (*big.Int, error) {
-	targetString, err := a.decodeString(hexString)
+func (a *abiData) decodeStringBigNumber(hexRef *string) (*big.Int, error) {
+	targetString, err := a.decodeString(hexRef, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	targetValue, ok := new(big.Int).SetString(targetString, BaseDecimal)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string")
+		return nil, fmt.Errorf("invalid hex string %s to decode to BigInt", (*hexRef))
 	}
 
 	return targetValue, nil
 }
 
-func (a *abiData) handleBigInt128(hexString string) (*big.Int, error) {
-	rawValue, ok := new(big.Int).SetString(hexString, BaseHex)
+func (a *abiData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
+	rawValue, ok := new(big.Int).SetString(*hexRef, BaseHex)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", hexString)
+		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", *hexRef)
 	}
 
-	valueBits := len(hexString) * BitsByHexDigit
+	valueBits := len(*hexRef) * BitsByHexDigit
 
 	two := big.NewInt(2)
 	twoToTheNth := new(big.Int).Exp(two, big.NewInt(int64(valueBits-1)), nil) // 2^valueBits
@@ -520,5 +425,141 @@ func (a *abiData) handleBigInt128(hexString string) (*big.Int, error) {
 		return parsedValue, nil
 	}
 
-	return nil, fmt.Errorf("value range is lower range than 128 bits")
+	return nil, fmt.Errorf("%v range is lower range than 128 bits", rawValue)
+}
+
+func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, error) {
+	hexToDecode := a.handleTrim(hexRef, 2)
+
+	if hexToDecode == "00" {
+		return nil, nil
+	}
+
+	return a.doDecode(hexRef, valueType, 0)
+}
+
+func stringMatch(items []string, cmpFunc func(string) bool) bool {
+	for _, item := range items {
+		if cmpFunc(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (a *abiData) getListTrim(hexRef *string) (int, error) {
+	trimStringHex := (*hexRef)[:LengthHexSizer]
+
+	trimRef, err := a.decodeInt(&trimStringHex, LengthHexSizer*BitsByHexDigit)
+
+	*hexRef = (*hexRef)[LengthHexSizer:]
+
+	return int(*trimRef), err
+}
+
+func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, error) {
+	var result []interface{}
+
+	typeWrapper, innerType := a.splitTypes(valueType)
+
+	staticLengthTypes := []string{
+		Int8, Int16, Int32, Int64, Uint8, Uint16, Uint32, Uint64, Address,
+	}
+
+	dynamicLengthTypes := []string{
+		ManagedBuffer, TokenIdentifier, Bytes, BoxedBytes,
+		String, StrRef, VecU8, SliceU8, BigInt, BigUint,
+	}
+
+	baseTypes := append(staticLengthTypes, dynamicLengthTypes...)
+
+	isDynamicLengthType := stringMatch(dynamicLengthTypes, func(s string) bool {
+		return valueType == s || innerType == s
+	})
+
+	isBaseType := stringMatch(baseTypes, func(s string) bool {
+		return valueType == s || innerType == s
+	})
+
+	if typeWrapper == List && isBaseType {
+		for len((*hexRef)) > 0 {
+			trim, err := a.getListTrim(hexRef)
+			if err != nil {
+				return nil, err
+			}
+
+			parsedValue, err := a.decodeListTillLimit(hexRef, innerType, trim, isDynamicLengthType)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, parsedValue)
+		}
+
+		return result, nil
+	}
+
+	if typeWrapper == List {
+		for len((*hexRef)) > 0 {
+			trim, err := a.getListTrim(hexRef)
+			if err != nil {
+				return nil, err
+			}
+
+			parsedValue, err := a.doDecode(hexRef, valueType, trim)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, parsedValue)
+		}
+
+		return result, nil
+	}
+
+	return a.decodeListTillEndOfHex(hexRef, innerType, isDynamicLengthType)
+}
+
+func (a *abiData) decodeListTillLimit(hexRef *string, valueType string, limit int, isDynamicLength bool) (interface{}, error) {
+	var result []interface{}
+
+	for i := 0; i < limit; i++ {
+		var trim int
+		if isDynamicLength {
+			calculatedTrim, err := a.getListTrim(hexRef)
+			if err != nil {
+				return nil, err
+			}
+			trim = calculatedTrim
+		}
+
+		valueParsed, err := a.doDecode(hexRef, valueType, trim)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, valueParsed)
+	}
+
+	return result, nil
+}
+
+func (a *abiData) decodeListTillEndOfHex(hexRef *string, valueType string, isDynamicLength bool) (interface{}, error) {
+	var result []interface{}
+
+	for len(*hexRef) > 0 {
+		var trim int
+		if isDynamicLength {
+			calculatedTrim, err := a.getListTrim(hexRef)
+			if err != nil {
+				return nil, err
+			}
+			trim = calculatedTrim
+		}
+
+		valueParsed, err := a.doDecode(hexRef, valueType, trim)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, valueParsed)
+	}
+
+	return result, nil
 }
