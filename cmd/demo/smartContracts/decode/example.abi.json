@@ -523,12 +523,32 @@
       ]
     },
     {
+      "name": "list_list_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<i32>>"
+        }
+      ]
+    },
+    {
       "name": "list_list_i64",
       "mutability": "readonly",
       "inputs": [],
       "outputs": [
         {
           "type": "List<List<i64>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<i64>>>"
         }
       ]
     },
@@ -542,6 +562,25 @@
         }
       ]
     },
+    {
+      "name": "list_list_list_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<TokenIdentifier>>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_list_big_int",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<BigInt>>>"
+        }
+      ]
     }
   ],
   "types": {}

@@ -286,7 +286,9 @@ func Test_Decode_List(t *testing.T) {
 	abiHandler := provider.NewSCAbiHandler()
 
 	errLoad := abiHandler.LoadAbi(jsonAbi)
-	require.Nil(t, errLoad, "error opening abi", errLoad)
+	require.Nil(t, errLoad, "error loading abi", errLoad)
+
+	const BaseDecimal = 10
 
 	testCases := []struct {
 		name     string
@@ -335,8 +337,8 @@ func Test_Decode_List(t *testing.T) {
 			endpoint: "list_bign",
 			hex:      "000000050577f695350000000109000000072d383233343732000000063533343233370000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72",
 			expected: func() []*big.Int {
-				bigInt128pos, _ := new(big.Int).SetString("299843598872398459348567275690758798", 10)
-				bigInt128neg, _ := new(big.Int).SetString("-299843598872398459348567275690758798", 10)
+				bigInt128pos, _ := new(big.Int).SetString("299843598872398459348567275690758798", BaseDecimal)
+				bigInt128neg, _ := new(big.Int).SetString("-299843598872398459348567275690758798", BaseDecimal)
 
 				return []*big.Int{
 					big.NewInt(23487485237),
@@ -353,8 +355,8 @@ func Test_Decode_List(t *testing.T) {
 			endpoint: "list_bigun",
 			hex:      "00000001ea00000002266a000000043a9e8554000000087864b47dcf08ef8c0000004438323732333637353235343337363537363738363334373234333635383236333538363832333536383236383931323733363435373637383639383637373838373635370000000f0864a6c0c92180ec36795616644d36",
 			expected: func() []*big.Int {
-				bigUintString, _ := new(big.Int).SetString("82723675254376576786347243658263586823568268912736457678698677887657", 10)
-				bigUint128, _ := new(big.Int).SetString("43579827367895347689574268789869878", 10)
+				bigUintString, _ := new(big.Int).SetString("82723675254376576786347243658263586823568268912736457678698677887657", BaseDecimal)
+				bigUint128, _ := new(big.Int).SetString("43579827367895347689574268789869878", BaseDecimal)
 
 				return []*big.Int{
 					big.NewInt(234),
@@ -373,6 +375,15 @@ func Test_Decode_List(t *testing.T) {
 			expected: []string{"klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5", "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5"},
 		},
 		{
+			name:     "Nested_list_int32",
+			endpoint: "list_list_i32",
+			hex:      "000000036fab02760000001cffff9ca400000003fffffffe0001e308f1b3cfdc",
+			expected: [][]interface{}{
+				{int32(1873478262), int32(28), int32(-25436)},
+				{int32(-2), int32(123656), int32(-239874084)},
+			},
+		},
+		{
 			name:     "Nested_list_int64",
 			endpoint: "list_list_i64",
 			hex:      "0000000319ffee93a36dc12a000000000000001cd7e571502441e18400000003fffffffffffffffe000000000001e308fffffffff1b3cfdc",
@@ -389,6 +400,66 @@ func Test_Decode_List(t *testing.T) {
 				{"KLV", "KFI", "KID-8G9A"},
 				{"DXB-H88G", "CHIPS-N89A", "FFT-2BH6"},
 			},
+		},
+		{
+			name:     "Two_levels_nested_list_int64",
+			endpoint: "list_list_list_i64",
+			hex:      "0000000200000003000000006fab0276000000000000001cffffffffffff9ca400000003fffffffffffffffe000000000001e308fffffffff1b3cfdc0000000200000003fffffffffe4932e1000007f24bf1555700000000000000800000000300000010d9e95b690000000000000001ffffffffffffff9c",
+			expected: [][]interface{}{
+				{
+					[]interface{}{int64(1873478262), int64(28), int64(-25436)},
+					[]interface{}{int64(-2), int64(123656), int64(-239874084)},
+				},
+				{
+					[]interface{}{int64(-28757279), int64(8737237587287), int64(128)},
+					[]interface{}{int64(72375425897), int64(1), int64(-100)},
+				},
+			},
+		},
+		{
+			name:     "Two_levels_nested_list_token-identifiers",
+			endpoint: "list_list_list_token",
+			hex:      "00000002000000030000000a43484950532d4e383941000000034b4c56000000034b464900000003000000085446542d3738364a00000008534a412d4c4b394800000008514b552d3748483100000002000000030000000a43484950532d4e383941000000034b4c56000000034b464900000003000000085446542d3738364a00000008534a412d4c4b394800000008514b552d37484831",
+			expected: [][]interface{}{
+				{
+					[]interface{}{string("CHIPS-N89A"), string("KLV"), string("KFI")},
+					[]interface{}{string("TFT-786J"), string("SJA-LK9H"), string("QKU-7HH1")},
+				},
+				{
+					[]interface{}{string("CHIPS-N89A"), string("KLV"), string("KFI")},
+					[]interface{}{string("TFT-786J"), string("SJA-LK9H"), string("QKU-7HH1")},
+				},
+			},
+		},
+		{
+			name:     "Two_levels_nested_list_big_int",
+			endpoint: "list_list_list_big_int",
+			hex:      "00000002000000030000000387efdb00000002349000000008c91131a14fc23dac000000030000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72000000050103cf744100000002000000030000002839383735373638393739373839393739393837353839373332383739333532313034383438333639000000292d3938373537363839373937383939373939383735383937333238373933353231303438343833363900000002343200000003000000037810250000000154000000064d9f58c4219f",
+			expected: func() [][]interface{} {
+				big1, _ := new(big.Int).SetString("-7868453", BaseDecimal)
+				big2, _ := new(big.Int).SetString("13456", BaseDecimal)
+				big3, _ := new(big.Int).SetString("-3958328028584329812", BaseDecimal)
+				big4, _ := new(big.Int).SetString("299843598872398459348567275690758798", BaseDecimal)
+				big5, _ := new(big.Int).SetString("-299843598872398459348567275690758798", BaseDecimal)
+				big6, _ := new(big.Int).SetString("4358894657", BaseDecimal)
+				big7, _ := new(big.Int).SetString("9875768979789979987589732879352104848369", BaseDecimal)
+				big8, _ := new(big.Int).SetString("-9875768979789979987589732879352104848369", BaseDecimal)
+				big9, _ := new(big.Int).SetString("42", BaseDecimal)
+				big10, _ := new(big.Int).SetString("7868453", BaseDecimal)
+				big11, _ := new(big.Int).SetString("84", BaseDecimal)
+				big12, _ := new(big.Int).SetString("85346784387487", BaseDecimal)
+
+				return [][]interface{}{
+					{
+						[]interface{}{big1, big2, big3},
+						[]interface{}{big4, big5, big6},
+					},
+					{
+						[]interface{}{big7, big8, big9},
+						[]interface{}{big10, big11, big12},
+					},
+				}
+			}(),
 		},
 	}
 
