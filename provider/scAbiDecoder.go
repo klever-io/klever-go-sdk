@@ -185,8 +185,7 @@ func (a *abiData) selectDecoder(
 	case List:
 		return a.decodeList(hexRef, valueType)
 	case Option:
-		decodedOption, err := a.decodeOption(hexRef, valueType)
-		return decodedOption, err
+		return a.decodeOption(hexRef, valueType)
 	case Tuple:
 		return nil, fmt.Errorf("tuple")
 	case Variadic:
@@ -459,87 +458,59 @@ func (a *abiData) getListTrim(hexRef *string) (int, error) {
 
 func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, error) {
 	var result []interface{}
+	for len((*hexRef)) > 0 {
+		decoded, err := a.handleList(hexRef, valueType)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding list item: %w", err)
+		}
 
-	typeWrapper, innerType := a.splitTypes(valueType)
-
-	staticLengthTypes := []string{
-		Int8, Int16, Int32, Int64, Uint8, Uint16, Uint32, Uint64, Address,
+		result = append(result, decoded)
 	}
+
+	return result, nil
+}
+
+func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, error) {
+	wrapperType, innerType := a.splitTypes(valueType)
+
+	if wrapperType == List {
+		listTrim, err := a.getListTrim(hexRef)
+
+		if err != nil {
+			return nil, fmt.Errorf("error getting the list trim: %w", err)
+		}
+
+		return a.decodeNestedList(hexRef, innerType, listTrim)
+	}
+
+	var valueTrim int
 
 	dynamicLengthTypes := []string{
 		ManagedBuffer, TokenIdentifier, Bytes, BoxedBytes,
 		String, StrRef, VecU8, SliceU8, BigInt, BigUint,
 	}
 
-	baseTypes := append(staticLengthTypes, dynamicLengthTypes...)
-
-	isDynamicLengthType := stringMatch(dynamicLengthTypes, func(s string) bool {
-		return valueType == s || innerType == s
-	})
-
-	isBaseType := stringMatch(baseTypes, func(s string) bool {
-		return valueType == s || innerType == s
-	})
-
-	if typeWrapper == List && isBaseType {
-		for len((*hexRef)) > 0 {
-			trim, err := a.getListTrim(hexRef)
-			if err != nil {
-				return nil, err
-			}
-
-			parsedValue, err := a.processListDecoding(hexRef, innerType, trim, isDynamicLengthType, true)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, parsedValue)
+	if stringMatch(dynamicLengthTypes, func(s string) bool { return valueType == s }) {
+		calculatedTrim, err := a.getListTrim(hexRef)
+		if err != nil {
+			return nil, fmt.Errorf("error getting the list item trim: %w", err)
 		}
 
-		return result, nil
+		valueTrim = calculatedTrim
 	}
 
-	if typeWrapper == List {
-		for len((*hexRef)) > 0 {
-			trim, err := a.getListTrim(hexRef)
-			if err != nil {
-				return nil, err
-			}
-
-			parsedValue, err := a.doDecode(hexRef, valueType, trim)
-			if err != nil {
-				return nil, err
-			}
-			result = append(result, parsedValue)
-		}
-
-		return result, nil
-	}
-
-	return a.processListDecoding(hexRef, innerType, 0, isDynamicLengthType, false)
+	return a.decodeSingleValue(hexRef, innerType, valueTrim)
 }
 
-func (a *abiData) processListDecoding(
-	hexRef *string, valueType string, limit int, isDynamicLength, decodeFixed bool,
-) (interface{}, error) {
+func (a *abiData) decodeNestedList(hexRef *string, valueType string, limit int) (interface{}, error) {
 	var result []interface{}
-	var count int = 0
-
-	for decodeFixed && count < limit || !decodeFixed && len(*hexRef) > 0 {
-		var trim int
-		if isDynamicLength {
-			calculatedTrim, err := a.getListTrim(hexRef)
-			if err != nil {
-				return nil, err
-			}
-			trim = calculatedTrim
-		}
-
-		valueParsed, err := a.doDecode(hexRef, valueType, trim)
+	for i := 0; i < limit; i++ {
+		decoded, err := a.handleList(hexRef, valueType)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("error decoding nested list: %w", err)
 		}
-		result = append(result, valueParsed)
-		count++
+
+		result = append(result, decoded)
 	}
 
 	return result, nil
