@@ -607,3 +607,12 @@ func (a *abiData) decodeTuple(hexRef *string, valueType string) ([]interface{}, 
 	return result, nil
 }
 
+func (a *abiData) decodeVariadic(hexRef *string, valueType string) (interface{}, error) {
+	decodedValue, err := a.doDecode(hexRef, valueType, 0)
+	if err != nil {
+		return nil, fmt.Errorf("error trying to decode variadic value: %w", err)
+	}
+
+	return decodedValue, nil
+}
+
