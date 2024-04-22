@@ -234,7 +234,7 @@ func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) 
 		SliceU8:
 		return a.decodeString(hexRef, trim)
 	default:
-		return nil, fmt.Errorf("invalid type %s", valueType)
+		return a.decodeStruct(hexRef, valueType)
 	}
 }
 
@@ -621,3 +621,43 @@ func (a *abiData) decodeVariadic(hexRef *string, valueType string) (interface{},
 	return decodedValue, nil
 }
 
+func (a *abiData) decodeStruct(hexRef *string, valueType string) (map[string]interface{}, error) {
+	typeDef, exists := a.Types[valueType]
+	if !exists {
+		return nil, fmt.Errorf("type %s not found in provided abi", valueType)
+	}
+
+	result := make(map[string]interface{})
+
+	for _, field := range typeDef.Fields {
+		if strings.HasPrefix(field.Type, List) {
+			decodedList, err := a.handleList(hexRef, field.Type)
+			if err != nil {
+				return nil, fmt.Errorf("error %w decoding list value of key %s of custom type %s", err, field.Type, valueType)
+			}
+
+			result[field.Name] = decodedList
+			continue
+		}
+
+		var trim int
+
+		if isDynamicLengthType(field.Type) {
+			calculatedTrim, err := a.getFixedTrim(hexRef)
+			if err != nil {
+				return nil, fmt.Errorf("error while triming option hex string %w", err)
+			}
+
+			trim = calculatedTrim
+		}
+
+		decodedValue, err := a.doDecode(hexRef, field.Type, trim)
+		if err != nil {
+			return nil, fmt.Errorf("error %w decoding value of key %s of custom type %s", err, field.Type, valueType)
+		}
+
+		result[field.Name] = decodedValue
+	}
+
+	return result, nil
+}
