@@ -834,7 +834,82 @@
         }
       ]
     },
+    {
+      "name": "struct_test",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "StructTest"
+        }
+      ]
     }
   ],
-  "types": {}
+  "types": {
+    "StructTest": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "bool_field",
+          "type": "bool"
+        },
+        {
+          "name": "i8_field",
+          "type": "i8"
+        },
+        {
+          "name": "i16_field",
+          "type": "i16"
+        },
+        {
+          "name": "i32_field",
+          "type": "i32"
+        },
+        {
+          "name": "i64_field",
+          "type": "i64"
+        },
+        {
+          "name": "u8_field",
+          "type": "u8"
+        },
+        {
+          "name": "u16_field",
+          "type": "u16"
+        },
+        {
+          "name": "u32_field",
+          "type": "u32"
+        },
+        {
+          "name": "u64_field",
+          "type": "u64"
+        },
+        {
+          "name": "mngd_buf_field",
+          "type": "bytes"
+        },
+        {
+          "name": "token_field",
+          "type": "TokenIdentifier"
+        },
+        {
+          "name": "address_field",
+          "type": "Address"
+        },
+        {
+          "name": "biguint_field",
+          "type": "BigUint"
+        },
+        {
+          "name": "bigint_field",
+          "type": "BigInt"
+        },
+        {
+          "name": "list_token",
+          "type": "List<TokenIdentifier>"
+        }
+      ]
+    }
+  }
 }

@@ -819,6 +819,48 @@ func Test_Decode_Variadic(t *testing.T) {
 	}
 }
 
+func Test_Decode_Struct(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "Various_types_in_fields",
+			endpoint: "struct_test",
+			hex:      "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941",
+			expected: func() map[string]interface{} {
+				bigInt, _ := new(big.Int).SetString("7372987927357988018876673641787893775877874", BaseDecimal)
+				bigUint, _ := new(big.Int).SetString("23723672699978725877874", BaseDecimal)
+
+				return map[string]interface{}{
+					"address_field":  "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5",
+					"bigint_field":   bigInt,
+					"biguint_field":  bigUint,
+					"bool_field":     false,
+					"i16_field":      int16(8482),
+					"i32_field":      int32(425745788),
+					"i64_field":      int64(3958328028584329812),
+					"i8_field":       int8(82),
+					"list_token":     []interface{}{"KLV", "KFI", "KID-8G9A", "DXB-H88G", "CHIPS-N89A"},
+					"mngd_buf_field": "testing outputs types",
+					"token_field":    "KLV",
+					"u16_field":      uint16(8482),
+					"u32_field":      uint32(425745788),
+					"u64_field":      uint64(3958328028584329812),
+					"u8_field":       uint8(82),
+				}
+			}(),
 		},
 	}
 
