@@ -10,6 +10,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const BaseDecimal = 10
+
 func Test_Decode_Single_Value(t *testing.T) {
 	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
 	require.Nil(t, errOpen, "error opening abi", errOpen)
@@ -139,7 +141,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_u_number",
 			hex:      "39bf6e49095ff7dca078957ceb928e",
 			expected: func() *big.Int {
-				bigInt128, _ := new(big.Int).SetString("299843598872398459348567275690758798", 10)
+				bigInt128, _ := new(big.Int).SetString("299843598872398459348567275690758798", BaseDecimal)
 				return bigInt128
 			}(),
 		},
@@ -148,7 +150,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_minus_u_number",
 			hex:      "c64091b6f6a008235f876a83146d72",
 			expected: func() *big.Int {
-				bigInt128, _ := new(big.Int).SetString("-299843598872398459348567275690758798", 10)
+				bigInt128, _ := new(big.Int).SetString("-299843598872398459348567275690758798", BaseDecimal)
 				return bigInt128
 			}(),
 		},
@@ -157,7 +159,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_s_number",
 			hex:      "393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
 			expected: func() *big.Int {
-				bigIntRandomString, _ := new(big.Int).SetString("983475937456892479678890176981908567895769078512986798257", 10)
+				bigIntRandomString, _ := new(big.Int).SetString("983475937456892479678890176981908567895769078512986798257", BaseDecimal)
 				return bigIntRandomString
 			}(),
 		},
@@ -166,7 +168,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_minus_s_number",
 			hex:      "2d393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
 			expected: func() *big.Int {
-				bigIntRandomString, _ := new(big.Int).SetString("-983475937456892479678890176981908567895769078512986798257", 10)
+				bigIntRandomString, _ := new(big.Int).SetString("-983475937456892479678890176981908567895769078512986798257", BaseDecimal)
 				return bigIntRandomString
 			}(),
 		},
@@ -181,7 +183,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_u_s_number",
 			hex:      "3832373432383733363433343735393733353933343736393733393637393337363938333435373836393833393035363938393739373839373839",
 			expected: func() *big.Int {
-				bigUintRandomString, _ := new(big.Int).SetString("82742873643475973593476973967937698345786983905698979789789", 10)
+				bigUintRandomString, _ := new(big.Int).SetString("82742873643475973593476973967937698345786983905698979789789", BaseDecimal)
 				return bigUintRandomString
 			}(),
 		},
@@ -214,7 +216,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 			endpoint: "big_u128",
 			hex:      "1dc7766516260b32b52ff11612d5710e",
 			expected: func() *big.Int {
-				bigUintFromU128, _ := new(big.Int).SetString("39583280285843298128735477835272384782", 10)
+				bigUintFromU128, _ := new(big.Int).SetString("39583280285843298128735477835272384782", BaseDecimal)
 				return bigUintFromU128
 			}(),
 		},
@@ -287,8 +289,6 @@ func Test_Decode_List(t *testing.T) {
 
 	errLoad := abiHandler.LoadAbi(jsonAbi)
 	require.Nil(t, errLoad, "error loading abi", errLoad)
-
-	const BaseDecimal = 10
 
 	testCases := []struct {
 		name     string
