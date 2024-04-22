@@ -220,7 +220,7 @@ func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) 
 	case BigInt:
 		return a.decodeBigInt(hexRef, trim)
 	case Boolean:
-		return (*hexRef) == "01", nil
+		return a.decodeBoolean(hexRef), nil
 	case BigUint:
 		return a.decodeBigUint(hexRef, trim)
 	case
@@ -429,8 +429,12 @@ func (a *abiData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
 	return nil, fmt.Errorf("%v range is lower range than 128 bits", rawValue)
 }
 
-func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, error) {
-	hexToDecode := a.handleTrim(hexRef, 2)
+func (a *abiData) decodeBoolean(hexRef *string) bool {
+	const BooleanLength int = 2
+
+	hexToDecode := a.getDynamicTrim(hexRef, BooleanLength)
+	return hexToDecode == "01"
+}
 
 	if hexToDecode == "00" {
 		return nil, nil
