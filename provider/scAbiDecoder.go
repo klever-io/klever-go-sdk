@@ -607,6 +607,11 @@ func (a *abiData) decodeTuple(hexRef *string, valueType string) ([]interface{}, 
 	return result, nil
 }
 
+// Variadic view, `#[view]`, by default only returns the first value of the VecMapper,
+// so is a simple decode like another one.
+// On the other hand endpoints, `#[endpoint]`, with variadic output returns literaly
+// an array with each element of the VecMapper that originates the variadic output,
+// leading the user to need to call the decoder for each value received as output from the contract
 func (a *abiData) decodeVariadic(hexRef *string, valueType string) (interface{}, error) {
 	decodedValue, err := a.doDecode(hexRef, valueType, 0)
 	if err != nil {
