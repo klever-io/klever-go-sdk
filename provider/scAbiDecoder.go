@@ -191,7 +191,7 @@ func (a *abiData) selectDecoder(
 	case Tuple:
 		return a.decodeTuple(hexRef, valueType)
 	case Variadic:
-		return nil, fmt.Errorf("variadic")
+		return a.decodeVariadic(hexRef, valueType)
 	default:
 		return a.decodeSingleValue(hexRef, valueType, trim)
 	}
