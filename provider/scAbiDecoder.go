@@ -42,7 +42,9 @@ const (
 	Int16           string = "i16"
 	Uint16          string = "u16"
 	Int32           string = "i32"
+	Isize           string = "isize"
 	Uint32          string = "u32"
+	Usize           string = "usize"
 	Int64           string = "i64"
 	Uint64          string = "u64"
 	BigInt          string = "BigInt"
@@ -201,7 +203,7 @@ func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) 
 		return a.decodeInt8(hexRef)
 	case Int16:
 		return a.decodeInt16(hexRef)
-	case Int32:
+	case Int32, Isize:
 		return a.decodeInt32(hexRef)
 	case Int64:
 		return a.decodeInt64(hexRef)
@@ -209,7 +211,7 @@ func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) 
 		return a.decodeUint8(hexRef)
 	case Uint16:
 		return a.decodeUint16(hexRef)
-	case Uint32:
+	case Uint32, Usize:
 		return a.decodeUint32(hexRef)
 	case Uint64:
 		return a.decodeUint64(hexRef)
