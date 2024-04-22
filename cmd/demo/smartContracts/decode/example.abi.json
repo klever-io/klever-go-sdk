@@ -782,6 +782,58 @@
         }
       ]
     },
+    {
+      "name": "tuple",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigInt,Address,i64>"
+        }
+      ]
+    },
+    {
+      "name": "tuple_nested",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigInt,Address,i64,tuple<u8,bytes>>"
+        }
+      ]
+    },
+    {
+      "name": "tuple_with_nested_list",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigUint,List<List<i32>>,TokenIdentifier>"
+        }
+      ]
+    },
+    {
+      "name": "var_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<i32>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "var_i32_multi",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<i32>",
+          "multi_result": true
+        }
+      ]
+    },
     }
   ],
   "types": {}

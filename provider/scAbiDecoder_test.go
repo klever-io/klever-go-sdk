@@ -718,6 +718,107 @@ func Test_Decode_List_Option(t *testing.T) {
 	}
 }
 
+func Test_Decode_Tuple(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "Tuple_of_big_int_address_and_i64",
+			endpoint: "tuple",
+			hex:      "0000000e373633343537383934333638393700000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30",
+			expected: []interface{}{
+				big.NewInt(76345789436897), "klv1qqqqqqqqqqqqqpgq4a9p9vrpu5gu4yrg4axg8ey3s3m7d34dd20q5cqaav", int64(-6372647632),
+			},
+		},
+		{
+			name:     "Tuple_of_big_int_address_and_i64",
+			endpoint: "tuple_nested",
+			hex:      "0000000e373633343537383934333638393700000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30490000000a68736475676668756973",
+			expected: []interface{}{
+				big.NewInt(76345789436897), "klv1qqqqqqqqqqqqqpgq4a9p9vrpu5gu4yrg4axg8ey3s3m7d34dd20q5cqaav", int64(-6372647632),
+				[]interface{}{uint8(73), "hsdugfhuis"},
+			},
+		},
+		{
+			name:     "Tuple_with_nested_list",
+			endpoint: "tuple_with_nested_list",
+			hex:      "000000090106624c51203c773000000002000000036fab02760000001cffff9ca400000003fffffffe0001e308f1b3cfdc000000084458422d31593641",
+			expected: func() []interface{} {
+				bigUint, _ := new(big.Int).SetString("18906758096971659056", BaseDecimal)
+				return []interface{}{
+					bigUint,
+					[]interface{}{
+						[]interface{}{int32(1873478262), int32(28), int32(-25436)},
+						[]interface{}{int32(-2), int32(123656), int32(-239874084)},
+					},
+					"DXB-1Y6A",
+				}
+			}(),
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.ElementsMatch(t, testCase.expected, result)
+		})
+	}
+}
+
+func Test_Decode_Variadic(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "Variadic_with_only_one_i32_value",
+			endpoint: "var_i32",
+			hex:      "049075ea",
+			expected: int32(76576234),
+		},
+		{
+			name:     "Variadic_with_multiple_i32_value",
+			endpoint: "var_i32",
+			hex:      "049075ea",
+			expected: int32(76576234),
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.Equal(t, testCase.expected, result)
+		})
+	}
+}
+
 		},
 	}
 
