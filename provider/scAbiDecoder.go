@@ -503,7 +503,7 @@ func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, err
 }
 
 func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, error) {
-	wrapperType, innerType := a.splitTypes(valueType)
+	wrapperType, coreType := a.splitTypes(valueType)
 
 	if wrapperType == List {
 		listTrim, err := a.getFixedTrim(hexRef)
@@ -512,7 +512,7 @@ func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, err
 			return nil, fmt.Errorf("error getting the list trim: %w", err)
 		}
 
-		return a.decodeNestedList(hexRef, innerType, listTrim)
+		return a.decodeNestedList(hexRef, coreType, listTrim)
 	}
 
 	var valueTrim int
@@ -526,7 +526,7 @@ func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, err
 		valueTrim = calculatedTrim
 	}
 
-	return a.decodeSingleValue(hexRef, innerType, valueTrim)
+	return a.decodeSingleValue(hexRef, coreType, valueTrim)
 }
 
 func (a *abiData) decodeNestedList(hexRef *string, valueType string, limit int) (interface{}, error) {
