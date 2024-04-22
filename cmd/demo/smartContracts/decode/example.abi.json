@@ -423,12 +423,182 @@
       ]
     },
     {
-      "name": "option_bytes",
+      "name": "option_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i8>"
+        }
+      ]
+    },
+    {
+      "name": "option_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i16>"
+        }
+      ]
+    },
+    {
+      "name": "option_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i32>"
+        }
+      ]
+    },
+    {
+      "name": "option_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i64>"
+        }
+      ]
+    },
+    {
+      "name": "option_u8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u8>"
+        }
+      ]
+    },
+    {
+      "name": "option_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u16>"
+        }
+      ]
+    },
+    {
+      "name": "option_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u32>"
+        }
+      ]
+    },
+    {
+      "name": "option_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u64>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_biguint_minus",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_biguint_plus",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_biguint",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "option_biguint_from_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "option_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<Address>"
+        }
+      ]
+    },
+    {
+      "name": "option_managed_buffer",
       "mutability": "readonly",
       "inputs": [],
       "outputs": [
         {
           "type": "Option<bytes>"
+        }
+      ]
+    },
+    {
+      "name": "option_list_list_list_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<TokenIdentifier>>>>"
+        }
+      ]
+    },
+    {
+      "name": "option_list_list_list_big_int",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<BigInt>>>>"
         }
       ]
     },
@@ -601,6 +771,17 @@
           "type": "List<List<List<BigInt>>>"
         }
       ]
+    },
+    {
+      "name": "option_list_list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<i64>>>>"
+        }
+      ]
+    },
     }
   ],
   "types": {}

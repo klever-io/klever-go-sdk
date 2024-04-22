@@ -507,14 +507,217 @@ func Test_Decode_Option(t *testing.T) {
 		{
 			name:     "null",
 			endpoint: "option_bytes_null",
-			hex:      "00",
+			hex:      "",
 			expected: nil,
 		},
 		{
+			name:     "i8",
+			endpoint: "option_i8",
+			hex:      "0152",
+			expected: int8(82),
+		},
+		{
+			name:     "i16",
+			endpoint: "option_i16",
+			hex:      "012122",
+			expected: int16(8482),
+		},
+		{
+			name:     "i32",
+			endpoint: "option_i32",
+			hex:      "0119605d7c",
+			expected: int32(425745788),
+		},
+		{
+			name:     "i64",
+			endpoint: "option_i64",
+			hex:      "0136eece5eb03dc254",
+			expected: int64(3958328028584329812),
+		},
+		{
+			name:     "u8",
+			endpoint: "option_u8",
+			hex:      "0152",
+			expected: uint8(82),
+		},
+		{
+			name:     "u16",
+			endpoint: "option_u16",
+			hex:      "012122",
+			expected: uint16(8482),
+		},
+		{
+			name:     "u32",
+			endpoint: "option_u32",
+			hex:      "0119605d7c",
+			expected: uint32(425745788),
+		},
+		{
+			name:     "u64",
+			endpoint: "option_u64",
+			hex:      "0136eece5eb03dc254",
+			expected: uint64(3958328028584329812),
+		},
+		{
+			name:     "big_int",
+			endpoint: "option_bigint",
+			hex:      "01000000050577f69535",
+			expected: big.NewInt(23487485237),
+		},
+		{
+			name:     "big_int_from_buffer",
+			endpoint: "option_bigint_from_buffer",
+			hex:      "010000001332333438373738343735383733343835323337",
+			expected: func() *big.Int {
+				big, _ := new(big.Int).SetString("2348778475873485237", BaseDecimal)
+				return big
+			}(),
+		},
+		{
+			name:     "bigint_from_biguint_plus",
+			endpoint: "option_bigint_from_biguint_plus",
+			hex:      "010000000f39bf6e49095ff7dca078957ceb928e",
+			expected: func() *big.Int {
+				big, _ := new(big.Int).SetString("299843598872398459348567275690758798", BaseDecimal)
+				return big
+			}(),
+		},
+		{
+			name:     "bigint_from_biguint_minus",
+			endpoint: "option_bigint_from_biguint_minus",
+			hex:      "010000000fc64091b6f6a008235f876a83146d72",
+			expected: func() *big.Int {
+				big, _ := new(big.Int).SetString("-299843598872398459348567275690758798", BaseDecimal)
+				return big
+			}(),
+		},
+		{
+			name:     "biguint",
+			endpoint: "option_biguint",
+			hex:      "010000000537952bd072",
+			expected: big.NewInt(238725877874),
+		},
+		{
+			name:     "biguint_from_buffer",
+			endpoint: "option_biguint_from_buffer",
+			hex:      "0100000015323338373438323734383237393235383737383734",
+			expected: func() *big.Int {
+				big, _ := new(big.Int).SetString("238748274827925877874", BaseDecimal)
+				return big
+			}(),
+		},
+		{
+			name:     "address",
+			endpoint: "option_address",
+			hex:      "01667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e",
+			expected: "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5",
+		},
+		{
 			name:     "bytes",
-			endpoint: "option_bytes",
-			hex:      "0154657374",
-			expected: "Test",
+			endpoint: "option_managed_buffer",
+			hex:      "010000001574657374696e67206f757470757473207479706573",
+			expected: "testing outputs types",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.Equal(t, testCase.expected, result)
+		})
+	}
+}
+
+func Test_Decode_List_Option(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      string
+		expected any
+	}{
+		{
+			name:     "Two_levels_nested_list_token_i64",
+			endpoint: "option_list_list_list_i64",
+			hex:      "01000000020000000200000003000000006fab0276000000000000001cffffffffffff9ca400000003fffffffffffffffe000000000001e308fffffffff1b3cfdc0000000200000003fffffffffe4932e1000007f24bf1555700000000000000800000000300000010d9e95b690000000000000001ffffffffffffff9c",
+			expected: [][]interface{}{
+				{
+					[]interface{}{int64(1873478262), int64(28), int64(-25436)},
+					[]interface{}{int64(-2), int64(123656), int64(-239874084)},
+				},
+				{
+					[]interface{}{int64(-28757279), int64(8737237587287), int64(128)},
+					[]interface{}{int64(72375425897), int64(1), int64(-100)},
+				},
+			},
+		},
+		{
+			name:     "Two_levels_nested_list_token_identifiers",
+			endpoint: "option_list_list_list_token",
+			hex:      "010000000200000002000000030000000a43484950532d4e383941000000034b4c56000000034b464900000003000000085446542d3738364a00000008534a412d4c4b394800000008514b552d3748483100000002000000030000000a43484950532d4e383941000000034b4c56000000034b464900000003000000085446542d3738364a00000008534a412d4c4b394800000008514b552d37484831",
+			expected: [][]interface{}{
+				{
+					[]interface{}{string("CHIPS-N89A"), string("KLV"), string("KFI")},
+					[]interface{}{string("TFT-786J"), string("SJA-LK9H"), string("QKU-7HH1")},
+				},
+				{
+					[]interface{}{string("CHIPS-N89A"), string("KLV"), string("KFI")},
+					[]interface{}{string("TFT-786J"), string("SJA-LK9H"), string("QKU-7HH1")},
+				},
+			},
+		},
+		{
+			name:     "Two_levels_nested_list_big_int",
+			endpoint: "option_list_list_list_big_int",
+			hex:      "010000000200000002000000030000000387efdb00000002349000000008c91131a14fc23dac000000030000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72000000050103cf744100000002000000030000002839383735373638393739373839393739393837353839373332383739333532313034383438333639000000292d3938373537363839373937383939373939383735383937333238373933353231303438343833363900000002343200000003000000037810250000000154000000064d9f58c4219f",
+			expected: func() [][]interface{} {
+				big1, _ := new(big.Int).SetString("-7868453", BaseDecimal)
+				big2, _ := new(big.Int).SetString("13456", BaseDecimal)
+				big3, _ := new(big.Int).SetString("-3958328028584329812", BaseDecimal)
+				big4, _ := new(big.Int).SetString("299843598872398459348567275690758798", BaseDecimal)
+				big5, _ := new(big.Int).SetString("-299843598872398459348567275690758798", BaseDecimal)
+				big6, _ := new(big.Int).SetString("4358894657", BaseDecimal)
+				big7, _ := new(big.Int).SetString("9875768979789979987589732879352104848369", BaseDecimal)
+				big8, _ := new(big.Int).SetString("-9875768979789979987589732879352104848369", BaseDecimal)
+				big9, _ := new(big.Int).SetString("42", BaseDecimal)
+				big10, _ := new(big.Int).SetString("7868453", BaseDecimal)
+				big11, _ := new(big.Int).SetString("84", BaseDecimal)
+				big12, _ := new(big.Int).SetString("85346784387487", BaseDecimal)
+
+				return [][]interface{}{
+					{
+						[]interface{}{big1, big2, big3},
+						[]interface{}{big4, big5, big6},
+					},
+					{
+						[]interface{}{big7, big8, big9},
+						[]interface{}{big10, big11, big12},
+					},
+				}
+			}(),
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.ElementsMatch(t, testCase.expected, result)
+		})
+	}
+}
+
 		},
 	}
 
