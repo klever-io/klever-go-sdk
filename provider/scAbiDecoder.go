@@ -261,11 +261,11 @@ func (a *abiData) decodeInt(hexRef *string, bitSize int) (*uint64, error) {
 	return &uintValue, err
 }
 
-func (a *abiData) handleIntsTrim(hexRef *string, bitSize int) string {
+func (a *abiData) getDynamicTrim(hexRef *string, trimSize int) string {
 	var hexToDecode string
 
-	if len(*hexRef) > bitSize {
-		hexToDecode = a.handleTrim(hexRef, bitSize)
+	if len(*hexRef) > trimSize {
+		hexToDecode = a.handleTrim(hexRef, trimSize)
 
 		return hexToDecode
 	}
@@ -277,7 +277,7 @@ func (a *abiData) handleIntsTrim(hexRef *string, bitSize int) string {
 }
 
 func (a *abiData) decodeUint8(hexRef *string) (uint8, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength8Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength8Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits8)
 
@@ -285,7 +285,7 @@ func (a *abiData) decodeUint8(hexRef *string) (uint8, error) {
 }
 
 func (a *abiData) decodeUint16(hexRef *string) (uint16, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength16Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength16Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits16)
 
@@ -293,7 +293,7 @@ func (a *abiData) decodeUint16(hexRef *string) (uint16, error) {
 }
 
 func (a *abiData) decodeUint32(hexRef *string) (uint32, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength32Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength32Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits32)
 
@@ -301,7 +301,7 @@ func (a *abiData) decodeUint32(hexRef *string) (uint32, error) {
 }
 
 func (a *abiData) decodeUint64(hexRef *string) (uint64, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength64Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength64Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits64)
 
@@ -309,7 +309,7 @@ func (a *abiData) decodeUint64(hexRef *string) (uint64, error) {
 }
 
 func (a *abiData) decodeInt8(hexRef *string) (int8, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength8Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength8Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits8)
 
@@ -317,7 +317,7 @@ func (a *abiData) decodeInt8(hexRef *string) (int8, error) {
 }
 
 func (a *abiData) decodeInt16(hexRef *string) (int16, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength16Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength16Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits16)
 
@@ -325,7 +325,7 @@ func (a *abiData) decodeInt16(hexRef *string) (int16, error) {
 }
 
 func (a *abiData) decodeInt32(hexRef *string) (int32, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength32Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength32Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits32)
 
@@ -333,7 +333,7 @@ func (a *abiData) decodeInt32(hexRef *string) (int32, error) {
 }
 
 func (a *abiData) decodeInt64(hexRef *string) (int64, error) {
-	hexToDecode := a.handleIntsTrim(hexRef, HexLength64Bits)
+	hexToDecode := a.getDynamicTrim(hexRef, HexLength64Bits)
 
 	targetValue, err := a.decodeInt(&hexToDecode, Bits64)
 
@@ -466,7 +466,7 @@ func isDynamicLengthType(t string) bool {
 	return exists
 }
 
-func (a *abiData) getListTrim(hexRef *string) (int, error) {
+func (a *abiData) getFixedTrim(hexRef *string) (int, error) {
 	trimStringHex := (*hexRef)[:LengthHexSizer]
 
 	trimRef, err := a.decodeInt(&trimStringHex, LengthHexSizer*BitsByHexDigit)
@@ -494,7 +494,7 @@ func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, err
 	wrapperType, innerType := a.splitTypes(valueType)
 
 	if wrapperType == List {
-		listTrim, err := a.getListTrim(hexRef)
+		listTrim, err := a.getFixedTrim(hexRef)
 
 		if err != nil {
 			return nil, fmt.Errorf("error getting the list trim: %w", err)
