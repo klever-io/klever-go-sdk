@@ -436,18 +436,30 @@ func (a *abiData) decodeBoolean(hexRef *string) bool {
 	return hexToDecode == "01"
 }
 
-	if hexToDecode == "00" {
+func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, error) {
+	if *hexRef == "" {
 		return nil, nil
 	}
 
-	return a.doDecode(hexRef, valueType, 0)
+	const OptionStringLenght int = 2
+	a.getDynamicTrim(hexRef, OptionStringLenght)
+
+	hasListPrefix := strings.HasPrefix(valueType, List)
+
+	var trim int
+
+	if isDynamicLengthType(valueType) || hasListPrefix {
+		calculatedTrim, err := a.getFixedTrim(hexRef)
+		if err != nil {
+			return nil, fmt.Errorf("error while triming option hex string %w", err)
+		}
+
+		trim = calculatedTrim
+	}
+
+	return a.doDecode(hexRef, valueType, trim)
 }
 
-func stringMatch(items []string, cmpFunc func(string) bool) bool {
-	for _, item := range items {
-		if cmpFunc(item) {
-			return true
-		}
 func isDynamicLengthType(t string) bool {
 	typesMap := map[string]struct{}{
 		ManagedBuffer:   {},
