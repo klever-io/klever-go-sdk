@@ -375,6 +375,21 @@ func Test_Decode_List(t *testing.T) {
 			expected: []string{"klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5", "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5"},
 		},
 		{
+			name:     "Boolean",
+			endpoint: "list_bool",
+			hex:      "01000001",
+			expected: []bool{true, false, false, true},
+		},
+		{
+			name:     "Nested_list_boolean",
+			endpoint: "list_list_bool",
+			hex:      "00000004010000010000000401000100",
+			expected: [][]interface{}{
+				{true, false, false, true},
+				{true, false, true, false},
+			},
+		},
+		{
 			name:     "Nested_list_int32",
 			endpoint: "list_list_i32",
 			hex:      "000000036fab02760000001cffff9ca400000003fffffffe0001e308f1b3cfdc",

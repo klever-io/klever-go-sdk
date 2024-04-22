@@ -503,6 +503,26 @@
       ]
     },
     {
+      "name": "list_bool",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<bool>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_bool",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<bool>>"
+        }
+      ]
+    },
+    {
       "name": "list_bign",
       "mutability": "readonly",
       "inputs": [],
