@@ -189,7 +189,7 @@ func (a *abiData) selectDecoder(
 	case Option:
 		return a.decodeOption(hexRef, valueType)
 	case Tuple:
-		return nil, fmt.Errorf("tuple")
+		return a.decodeTuple(hexRef, valueType)
 	case Variadic:
 		return nil, fmt.Errorf("variadic")
 	default:
@@ -542,3 +542,68 @@ func (a *abiData) decodeNestedList(hexRef *string, valueType string, limit int) 
 
 	return result, nil
 }
+
+func splitTupleTypes(tuple string) []string {
+	var result []string
+	var current int
+	depth := 0
+	start := 0
+
+	for current < len(tuple) {
+		switch tuple[current] {
+		case '<':
+			depth++
+		case '>':
+			depth--
+		case ',':
+			if depth == 0 {
+				result = append(result, strings.TrimSpace(tuple[start:current]))
+				start = current + 1
+			}
+		}
+		current++
+	}
+
+	result = append(result, strings.TrimSpace(tuple[start:]))
+
+	return result
+}
+
+func (a *abiData) decodeTuple(hexRef *string, valueType string) ([]interface{}, error) {
+	var result []interface{}
+
+	types := splitTupleTypes(valueType)
+
+	for _, t := range types {
+		if strings.HasPrefix(t, List) {
+			decodedList, err := a.handleList(hexRef, t)
+			if err != nil {
+				return nil, err
+			}
+
+			result = append(result, decodedList)
+			continue
+		}
+
+		var valueTrim int
+
+		if isDynamicLengthType(t) {
+			calculatedTrim, err := a.getFixedTrim(hexRef)
+			if err != nil {
+				return nil, fmt.Errorf("error getting the list item trim: %w", err)
+			}
+
+			valueTrim = calculatedTrim
+		}
+
+		decodedValue, err := a.doDecode(hexRef, t, valueTrim)
+		if err != nil {
+			return nil, fmt.Errorf("error decoding tuple value %w", err)
+		}
+
+		result = append(result, decodedValue)
+	}
+
+	return result, nil
+}
+
