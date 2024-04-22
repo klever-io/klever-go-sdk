@@ -448,8 +448,22 @@ func stringMatch(items []string, cmpFunc func(string) bool) bool {
 		if cmpFunc(item) {
 			return true
 		}
+func isDynamicLengthType(t string) bool {
+	typesMap := map[string]struct{}{
+		ManagedBuffer:   {},
+		TokenIdentifier: {},
+		Bytes:           {},
+		BoxedBytes:      {},
+		String:          {},
+		StrRef:          {},
+		VecU8:           {},
+		SliceU8:         {},
+		BigInt:          {},
+		BigUint:         {},
 	}
-	return false
+
+	_, exists := typesMap[t]
+	return exists
 }
 
 func (a *abiData) getListTrim(hexRef *string) (int, error) {
@@ -491,13 +505,8 @@ func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, err
 
 	var valueTrim int
 
-	dynamicLengthTypes := []string{
-		ManagedBuffer, TokenIdentifier, Bytes, BoxedBytes,
-		String, StrRef, VecU8, SliceU8, BigInt, BigUint,
-	}
-
-	if stringMatch(dynamicLengthTypes, func(s string) bool { return valueType == s }) {
-		calculatedTrim, err := a.getListTrim(hexRef)
+	if isDynamicLengthType(valueType) {
+		calculatedTrim, err := a.getFixedTrim(hexRef)
 		if err != nil {
 			return nil, fmt.Errorf("error getting the list item trim: %w", err)
 		}
