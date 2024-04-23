@@ -111,7 +111,11 @@ func convertArguments(args []string) (string, error) {
 			value = fmt.Sprintf("%X", v)
 			// check padding
 			if len(value)%2 != 0 {
-				value = "0" + value
+				if strings.HasPrefix(kv[1], "-") {
+					value = "F" + value
+				} else {
+					value = "0" + value
+				}
 			}
 		case "i", "I", "i64", "I64": // int64
 			// string to int64
