@@ -272,7 +272,7 @@ func Test_Decode_Single_Value(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -480,7 +480,7 @@ func Test_Decode_List(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -622,7 +622,7 @@ func Test_Decode_Option(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -710,7 +710,7 @@ func Test_Decode_List_Option(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -771,7 +771,7 @@ func Test_Decode_Tuple(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -811,7 +811,7 @@ func Test_Decode_Variadic(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -866,10 +866,39 @@ func Test_Decode_Struct(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.Decode(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
 		})
 	}
+}
+
+func Test_Decode_List_of_Struct(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/scFiles/lottery-kda.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewSCAbiHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	hexOutput := "0000000b226474c28c44db45a9b52945192f533afefe9c4dbf24fccee16dc0553972ac1f000000040ee6b28000000010eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd000000040a21fe8000000002eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd0000000401312d0000000001eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd00000003989680000000012fdc794513bd5d6a96bd1c4369244285a9e9ed840cf6d2480296fc2716ed2f710000000398968000000003226474c28c44db45a9b52945192f533afefe9c4dbf24fccee16dc0553972ac1f0000000401c9c3800000000243016b136874f81ed9c4b1b12c2b1db466127b74d7e276296a6cf7f95992c3bd0000000401c9c380000000019f1354706d75aeb684f26d7dea1fbda17e264c7595cc1eddec0b8968c1be85240000000398968000000001667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e00000003989680"
+
+	result, err := abiHandler.DecodeHex("getWinnersInfo", hexOutput)
+
+	expectedResult := []interface{}([]interface{}{
+		map[string]interface{}{"drawn_ticket_number": uint32(11), "prize": big.NewInt(250000000), "winner_address": "klv1yfj8fs5vgnd5t2d499z3jt6n8tl0a8zdhuj0enhpdhq92wtj4s0snj96jg"},
+		map[string]interface{}{"drawn_ticket_number": uint32(16), "prize": big.NewInt(170000000), "winner_address": "klv1at6gv6pz6q8ulhvjgl548hnljdmpnstjqvm2tspadu5nnnnrhtxsj29zmr"},
+		map[string]interface{}{"drawn_ticket_number": uint32(2), "prize": big.NewInt(20000000), "winner_address": "klv1at6gv6pz6q8ulhvjgl548hnljdmpnstjqvm2tspadu5nnnnrhtxsj29zmr"},
+		map[string]interface{}{"drawn_ticket_number": uint32(1), "prize": big.NewInt(10000000), "winner_address": "klv1at6gv6pz6q8ulhvjgl548hnljdmpnstjqvm2tspadu5nnnnrhtxsj29zmr"},
+		map[string]interface{}{"drawn_ticket_number": uint32(1), "prize": big.NewInt(10000000), "winner_address": "klv19lw8j3gnh4wk494ar3pkjfzzsk57nmvypnmdyjqzjm7zw9hd9acs6qdz6w"},
+		map[string]interface{}{"drawn_ticket_number": uint32(3), "prize": big.NewInt(30000000), "winner_address": "klv1yfj8fs5vgnd5t2d499z3jt6n8tl0a8zdhuj0enhpdhq92wtj4s0snj96jg"},
+		map[string]interface{}{"drawn_ticket_number": uint32(2), "prize": big.NewInt(30000000), "winner_address": "klv1gvqkkymgwnupakwykxcjc2cak3npy7m56l38v2t2dnmljkvjcw7sraj2ny"},
+		map[string]interface{}{"drawn_ticket_number": uint32(1), "prize": big.NewInt(10000000), "winner_address": "klv1nuf4gurdwkhtdp8jd47758aa59lzvnr4jhxpah0vpwyk3sd7s5jqy6mut7"},
+		map[string]interface{}{"drawn_ticket_number": uint32(1), "prize": big.NewInt(10000000), "winner_address": "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5"}})
+
+	require.Nil(t, err)
+	assert.ElementsMatch(t, expectedResult, result)
 }
