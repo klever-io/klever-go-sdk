@@ -108,14 +108,36 @@ func convertArguments(args []string) (string, error) {
 			if !ok {
 				return "", fmt.Errorf("invalid value: %s", kv[1])
 			}
+
 			value = fmt.Sprintf("%X", v)
-			// check padding
-			if len(value)%2 != 0 {
-				if strings.HasPrefix(kv[1], "-") {
-					value = "F" + value
-				} else {
-					value = "0" + value
+
+			// ensuring the use of two's complement in case of string representing a decimal negative value
+			if strings.HasPrefix(kv[1], "-") {
+				bigNeg, _ := new(big.Int).SetString(kv[1][1:], 10)
+
+				bigOne := big.NewInt(1)
+
+				bitmask := new(big.Int).Sub(new(big.Int).Lsh(bigOne, uint(bigNeg.BitLen())), bigOne)
+
+				bigNeg.Xor(bigNeg, bitmask)
+
+				bigNeg.Add(bigNeg, bigOne)
+
+				value = fmt.Sprintf("%X", bigNeg)
+
+				nextPowerOfTwo := 1
+				for nextPowerOfTwo < bigNeg.BitLen() {
+					nextPowerOfTwo <<= 1
 				}
+				requiredHexDigits := nextPowerOfTwo / 4
+
+				for len(value) < requiredHexDigits {
+					value = "F" + value
+				}
+			}
+
+			if len(value)%2 != 0 {
+				value = "0" + value
 			}
 		case "i", "I", "i64", "I64": // int64
 			// string to int64
@@ -123,7 +145,7 @@ func convertArguments(args []string) (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("invalid value: %w", err)
 			}
-			value = fmt.Sprintf("%016X", v)
+			value = fmt.Sprintf("%016X", uint64(v)) // use two's complement for v < 0
 		case "u", "U", "u64", "U64": // uint64
 			// string to uint64
 			v, err := strconv.ParseUint(kv[1], 10, 64)
@@ -137,7 +159,7 @@ func convertArguments(args []string) (string, error) {
 			if err != nil {
 				return "", fmt.Errorf("invalid value: %w", err)
 			}
-			value = fmt.Sprintf("%08X", str)
+			value = fmt.Sprintf("%08X", uint32(str)) // use two's complement for str < 0
 		case "u32", "U32": // uint32
 			// string to uint32
 			str, err := strconv.ParseUint(kv[1], 10, 32)
