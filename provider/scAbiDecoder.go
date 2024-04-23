@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
@@ -94,12 +95,17 @@ type abiData struct {
 }
 
 type AbiData interface {
-	Decode(endpoint, hex string) (interface{}, error)
+	DecodeHex(endpoint, hex string) (interface{}, error)
+	DecodeQuery(endpoint, base64 string) (interface{}, error)
 	LoadAbi(r io.Reader) error
 }
 
 func NewSCAbiHandler() AbiData {
 	return &abiData{}
+}
+
+func (kc *kleverChain) NewScOutputParser() AbiData {
+	return NewSCAbiHandler()
 }
 
 func (a *abiData) LoadAbi(r io.Reader) error {
@@ -117,7 +123,7 @@ func (a *abiData) LoadAbi(r io.Reader) error {
 	return nil
 }
 
-func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
+func (a *abiData) DecodeHex(endpoint, hex string) (interface{}, error) {
 	if !a.AbiLoaded {
 		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
 	}
@@ -128,6 +134,17 @@ func (a *abiData) Decode(endpoint, hex string) (interface{}, error) {
 	}
 
 	return a.doDecode(&hex, a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
+}
+
+func (a *abiData) DecodeQuery(endpoint, base64Data string) (interface{}, error) {
+	dataBytes, err := base64.StdEncoding.DecodeString(base64Data)
+	if err != nil {
+		return nil, fmt.Errorf("invalid base64 string: %w", err)
+	}
+
+	hexString := hex.EncodeToString(dataBytes)
+
+	return a.DecodeHex(endpoint, hexString)
 }
 
 func (a *abiData) findEndpoint(endpointName string) (*int, error) {
