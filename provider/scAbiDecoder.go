@@ -50,6 +50,7 @@ const (
 	Uint64          string = "u64"
 	BigInt          string = "BigInt"
 	BigUint         string = "BigUint"
+	BigFloat        string = "BigFloat"
 	Address         string = "Address"
 	Boolean         string = "bool"
 	ManagedBuffer   string = "ManagedBuffer"
@@ -236,10 +237,12 @@ func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) 
 		return a.decodeAddress(hexRef)
 	case BigInt:
 		return a.decodeBigInt(hexRef, trim)
-	case Boolean:
-		return a.decodeBoolean(hexRef), nil
 	case BigUint:
 		return a.decodeBigUint(hexRef, trim)
+	case BigFloat:
+		return a.decodeBigFloat(hexRef, trim)
+	case Boolean:
+		return a.decodeBoolean(hexRef), nil
 	case
 		ManagedBuffer,
 		TokenIdentifier,
@@ -453,6 +456,23 @@ func (a *abiData) decodeBoolean(hexRef *string) bool {
 	return hexToDecode == "01"
 }
 
+func (a *abiData) decodeBigFloat(hexRef *string, trim int) (interface{}, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
+
+	hexBytes, err := hex.DecodeString(hexToDecode)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding hex string to bytes: %w", err)
+	}
+
+	parsedValue := new(big.Float)
+
+	if err := parsedValue.GobDecode(hexBytes); err != nil {
+		return nil, fmt.Errorf("error decoding big float: %w", err)
+	}
+
+	return parsedValue, nil
+}
+
 func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, error) {
 	if *hexRef == "" {
 		return nil, nil
@@ -489,6 +509,7 @@ func isDynamicLengthType(t string) bool {
 		SliceU8:         {},
 		BigInt:          {},
 		BigUint:         {},
+		BigFloat:        {},
 	}
 
 	_, exists := typesMap[t]
