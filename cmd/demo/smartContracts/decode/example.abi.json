@@ -835,6 +835,86 @@
       ]
     },
     {
+      "name": "test_from_fraction",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_neg",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_parts",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_sci",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_bi",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_bu",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_from_generics",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_option",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigFloat>"
+        }
+      ]
+    },
+    {
       "name": "struct_test",
       "mutability": "readonly",
       "inputs": [],
@@ -904,6 +984,10 @@
         {
           "name": "bigint_field",
           "type": "BigInt"
+        },
+        {
+          "name": "bigfloat_field",
+          "type": "BigFloat"
         },
         {
           "name": "list_token",
