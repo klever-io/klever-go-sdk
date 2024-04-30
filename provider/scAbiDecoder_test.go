@@ -268,6 +268,64 @@ func Test_Decode_Single_Value(t *testing.T) {
 			hex:      "c91131a14fc23dac",
 			expected: int64(-3958328028584329812),
 		},
+		{
+			name:     "BigFloat_from_fraction",
+			endpoint: "test_from_fraction",
+			hex:      "010a0000003500000000c000000000000000",
+			expected: big.NewFloat(0.75),
+		},
+		{
+			name:     "BigFloat_from_fraction_negative",
+			endpoint: "test_float_neg",
+			hex:      "010b00000035000000008000000000000000",
+			expected: big.NewFloat(-0.5),
+		},
+		{
+			name:     "BigFloat_from_parts",
+			endpoint: "test_float_parts",
+			hex:      "010a000000350000000f93eac189374bc800",
+			expected: big.NewFloat(18933.378),
+		},
+		{
+			name:     "BigFloat_from_scientific_notation",
+			endpoint: "test_float_sci",
+			hex:      "010a00000035fffffffcf5c28f5c28f5c000",
+			expected: big.NewFloat(0.06),
+		},
+		{
+			name:     "BigFloat_from_big_int",
+			endpoint: "test_float_bi",
+			hex:      "010b0000003500000053d7da3fa6c03de800",
+			expected: func() *big.Float {
+				bf, _ := new(big.Float).SetString("-8154678164717479819989764")
+				bf.SetPrec(53)
+				bf.SetMode(big.RoundingMode(big.Exact))
+				return bf
+			}(),
+		},
+		{
+			name:     "BigFloat_from_big_uint",
+			endpoint: "test_float_bu",
+			hex:      "010a000000350000005bb35b36c567c96000",
+			expected: func() *big.Float {
+				bf, _ := new(big.Float).SetString("1734627739277592794878918977")
+				bf.SetPrec(53)
+				bf.SetMode(big.RoundingMode(big.Exact))
+				return bf
+			}(),
+		},
+		{
+			name:     "BigFloat_from_generics",
+			endpoint: "test_float_from_generics",
+			hex:      "010a00000035000000028000000000000000",
+			expected: big.NewFloat(2),
+		},
+		{
+			name:     "BigFloat_from_generics",
+			endpoint: "test_float_from_generics",
+			hex:      "010a00000035000000028000000000000000",
+			expected: big.NewFloat(2),
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -618,6 +676,12 @@ func Test_Decode_Option(t *testing.T) {
 			hex:      "010000001574657374696e67206f757470757473207479706573",
 			expected: "testing outputs types",
 		},
+		{
+			name:     "bigfloat",
+			endpoint: "test_float_option",
+			hex:      "0100000012010a00000035000000028000000000000000",
+			expected: big.NewFloat(2),
+		},
 	}
 
 	for _, testCase := range testCases {
@@ -848,9 +912,17 @@ func Test_Decode_Struct(t *testing.T) {
 		"u32_field":      uint32(425745788),
 		"u64_field":      uint64(3958328028584329812),
 		"u8_field":       uint8(82),
+		"bigfloat_field": func() *big.Float {
+			numerator := big.NewFloat(8)
+			denominator := big.NewFloat(3)
+
+			result := new(big.Float).Quo(numerator, denominator)
+			result.SetMode(big.RoundingMode(big.Exact))
+			return result
+		}(),
 	}
 
-	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
+	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000012010a0000003500000002aaaaaaaaaaaaa80000000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
 
 	result, err := abiHandler.DecodeHex("struct_test", hex)
 
@@ -916,9 +988,17 @@ func Test_Decode_query_output_struct(t *testing.T) {
 		"u32_field":      uint32(425745788),
 		"u64_field":      uint64(3958328028584329812),
 		"u8_field":       uint8(82),
+		"bigfloat_field": func() *big.Float {
+			numerator := big.NewFloat(8)
+			denominator := big.NewFloat(3)
+
+			result := new(big.Float).Quo(numerator, denominator)
+			result.SetMode(big.RoundingMode(big.Exact))
+			return result
+		}(),
 	}
 
-	queryBase64 := "AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAACs3MzcyOTg3OTI3MzU3OTg4MDE4ODc2NjczNjQxNzg3ODkzNzc1ODc3ODc0AAAABQAAAANLTFYAAAADS0ZJAAAACEtJRC04RzlBAAAACERYQi1IODhHAAAACkNISVBTLU44OUE="
+	queryBase64 := "AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAACs3MzcyOTg3OTI3MzU3OTg4MDE4ODc2NjczNjQxNzg3ODkzNzc1ODc3ODc0AAAAEgEKAAAANQAAAAKqqqqqqqqoAAAAAAUAAAADS0xWAAAAA0tGSQAAAAhLSUQtOEc5QQAAAAhEWEItSDg4RwAAAApDSElQUy1OODlB"
 
 	result, err := abiHandler.DecodeQuery("struct_test", queryBase64)
 
