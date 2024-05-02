@@ -35,7 +35,7 @@ type QueryOutput struct {
 func scReq(endpoint, funcName, scAddress string, args ...string) ([]byte, error) {
 	jsonArgs, err := json.Marshal(args)
 	if err != nil {
-		return nil, fmt.Errorf("error marshaling arguments: %v", err)
+		return nil, fmt.Errorf("\n\nerror marshaling arguments: %v\n\n", err)
 	}
 
 	var argsString string
@@ -61,18 +61,18 @@ func scReq(endpoint, funcName, scAddress string, args ...string) ([]byte, error)
 		bodyReader,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("error creating http request: %w", err)
+		return nil, fmt.Errorf("\n\nerror creating http request: %w\n\n", err)
 	}
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("error executing http request: %w", err)
+		return nil, fmt.Errorf("\n\nerror executing http request: %w\n\n", err)
 	}
 	defer resp.Body.Close()
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, fmt.Errorf("error reading http response body: %w", err)
+		return nil, fmt.Errorf("\n\nerror reading http response body: %w\n\n", err)
 	}
 
 	return body, nil
@@ -86,7 +86,7 @@ func parseHex(hexBytes []byte, abiPath, funcName string, kc provider.KleverChain
 	}
 
 	if h.Error != "" {
-		return nil, fmt.Errorf("error requesting kleverchain vm: %s", h.Error)
+		return nil, fmt.Errorf("\n\nerror requesting kleverchain vm: %s\n\n", h.Error)
 	}
 
 	parser := kc.NewScOutputParser()
@@ -101,7 +101,7 @@ func parseHex(hexBytes []byte, abiPath, funcName string, kc provider.KleverChain
 		return nil, err
 	}
 
-	parsedValue, err := parser.DecodeHex(funcName, h.Data.Data)
+	parsedValue, err := parser.DecodeHex(funcName, []string{h.Data.Data})
 	if err != nil {
 		return nil, err
 	}
@@ -128,10 +128,13 @@ func reqAndParseHex(abiPath, scAddress, endpoint string, kc provider.KleverChain
 	fmt.Printf("\n\nParsed %s hex output:\n %+v", endpoint, parsedValue)
 }
 
-func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverChain) {
-	lotteryNameHex := hex.EncodeToString([]byte("SCLotteryDemo"))
+func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverChain, args ...string) {
+	var hexArgs []string
+	for _, arg := range args {
+		hexArgs = append(hexArgs, hex.EncodeToString([]byte(arg)))
+	}
 
-	bytes, err := scReq("query", endpoint, scAddress, lotteryNameHex)
+	bytes, err := scReq("query", endpoint, scAddress, hexArgs...)
 	if err != nil {
 		panic(err)
 	}
@@ -143,7 +146,7 @@ func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverCha
 	}
 
 	if q.Data.Data.ReturnCode != "Ok" {
-		panic(fmt.Errorf("vm return code isn't Ok"))
+		panic(fmt.Errorf("\n\nvm return code isn't Ok\n\n"))
 	}
 
 	parser := kc.NewScOutputParser()
@@ -159,7 +162,7 @@ func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverCha
 		panic(err)
 	}
 
-	parsedValue, err := parser.DecodeQuery(endpoint, q.Data.Data.ReturnData[0])
+	parsedValue, err := parser.DecodeQuery(endpoint, q.Data.Data.ReturnData)
 	if err != nil {
 		panic(err)
 	}
@@ -168,7 +171,7 @@ func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverCha
 }
 
 func main() {
-	_, _, kc, err := demo.InitWallets()
+	_, _, kc, err := demo.InitWallets() // needs the pem file of your testnet wallet on the root of the project
 	if err != nil {
 		panic(err)
 	}
@@ -178,7 +181,24 @@ func main() {
 	const ExampleAbiPath string = "./cmd/demo/smartContracts/decode/example.abi.json"
 	const LotteryAbiPath string = "./cmd/demo/smartContracts/scFiles/lottery-kda.abi.json"
 
+	// nested big int list
 	reqAndParseHex(ExampleAbiPath, ExampleScAddress, "list_list_list_big_int", kc)
+
+	// nested tokens identifiers list
+	reqAndParseHex(ExampleAbiPath, ExampleScAddress, "list_list_list_token", kc)
+
+	// struct with multiple fields
 	reqAndParseHex(ExampleAbiPath, ExampleScAddress, "struct_test", kc)
-	reqAndParseQuery(LotteryAbiPath, LotteryScAddress, "getWinnersInfo", kc)
+
+	// list of structs
+	reqAndParseQuery(LotteryAbiPath, LotteryScAddress, "getWinnersInfo", kc, "SCLotteryDemo")
+
+	// variadic list, multiple values, of int64 (fix size)
+	reqAndParseQuery(ExampleAbiPath, ExampleScAddress, "variadic_i64", kc)
+
+	// variadic list, multiple values, of big int (dynamic size)
+	reqAndParseQuery(ExampleAbiPath, ExampleScAddress, "variadic_bign", kc)
+
+	// multiple values and types output, is like a managed tuple
+	reqAndParseQuery(ExampleAbiPath, ExampleScAddress, "multi_value_nested_list_struct", kc)
 }
