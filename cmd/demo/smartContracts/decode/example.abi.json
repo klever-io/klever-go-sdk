@@ -813,7 +813,7 @@
       ]
     },
     {
-      "name": "var_i32",
+      "name": "variadic_i32",
       "mutability": "readonly",
       "inputs": [],
       "outputs": [
@@ -824,13 +824,84 @@
       ]
     },
     {
-      "name": "var_i32_multi",
+      "name": "variadic_i64",
       "mutability": "readonly",
       "inputs": [],
       "outputs": [
         {
-          "type": "variadic<i32>",
+          "type": "variadic<i64>",
           "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<u32>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<u64>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_bign",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<BigInt>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_bigu",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<BigUint>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<TokenIdentifier>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "multi_value_nested_list_struct",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "StructTest"
+        },
+        {
+          "type": "List<List<i32>>"
+        },
+        {
+          "type": "List<List<List<BigInt>>>"
         }
       ]
     },
