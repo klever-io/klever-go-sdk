@@ -12,61 +12,7 @@ import (
 	"strings"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
-)
-
-const (
-	// Hex length
-	HexLength8Bits  int = 2
-	HexLength16Bits int = 4
-	HexLength32Bits int = 8
-	HexLength64Bits int = 16
-
-	// Bits count
-	Bits8  int = 8
-	Bits16 int = 16
-	Bits32 int = 32
-	Bits64 int = 64
-
-	// Numerical bases
-	BaseHex     int = 16
-	BaseDecimal int = 10
-
-	// Types wrappers
-	List     string = "List"
-	Option   string = "Option"
-	Tuple    string = "tuple"
-	Variadic string = "variadic"
-
-	// Possible Types
-	Int8            string = "i8"
-	Uint8           string = "u8"
-	Int16           string = "i16"
-	Uint16          string = "u16"
-	Int32           string = "i32"
-	Isize           string = "isize"
-	Uint32          string = "u32"
-	Usize           string = "usize"
-	Int64           string = "i64"
-	Uint64          string = "u64"
-	BigInt          string = "BigInt"
-	BigUint         string = "BigUint"
-	BigFloat        string = "BigFloat"
-	Address         string = "Address"
-	Boolean         string = "bool"
-	ManagedBuffer   string = "ManagedBuffer"
-	TokenIdentifier string = "TokenIdentifier"
-	Bytes           string = "bytes"
-	BoxedBytes      string = "BoxedBytes"
-	String          string = "String"
-	StrRef          string = "&str"
-	VecU8           string = "Vec<u8>"
-	SliceU8         string = "&[u8]"
-
-	LengthHexSizer int = 8
-
-	BitsByHexDigit int = 4
-
-	AddressHexLen int = 64
+	"github.com/klever-io/klever-go-sdk/provider/utils"
 )
 
 type output struct {
@@ -190,21 +136,8 @@ func (a *abiData) findEndpoint(endpointName string) (*int, error) {
 	return endpointIndex, nil
 }
 
-func (a *abiData) splitTypes(fullType string) (string, string) {
-	index := strings.Index(fullType, "<")
-	if index == -1 {
-		return "", fullType
-	}
-
-	wrapperType := fullType[:index]
-	valueType := fullType[index+1:]
-	valueType = valueType[:len(valueType)-1]
-
-	return wrapperType, valueType
-}
-
 func (a *abiData) doDecode(hexRef *string, fullType string, trim int) (interface{}, error) {
-	wrapperType, valueType := a.splitTypes(fullType)
+	wrapperType, valueType := utils.SplitTypes(fullType)
 
 	return a.selectDecoder(hexRef, wrapperType, valueType, trim)
 }
@@ -227,13 +160,13 @@ func (a *abiData) selectDecoder(
 	trim int,
 ) (interface{}, error) {
 	switch typeWrapper {
-	case List:
+	case utils.List:
 		return a.decodeList(hexRef, valueType)
-	case Option:
+	case utils.Option:
 		return a.decodeOption(hexRef, valueType)
-	case Tuple:
+	case utils.Tuple:
 		return a.decodeTuple(hexRef, valueType)
-	case Variadic:
+	case utils.Variadic:
 		return a.decodeVariadic(hexRef, valueType)
 	default:
 		return a.decodeSingleValue(hexRef, valueType, trim)
@@ -242,49 +175,49 @@ func (a *abiData) selectDecoder(
 
 func (a *abiData) decodeSingleValue(hexRef *string, valueType string, trim int) (interface{}, error) {
 	switch valueType {
-	case Int8:
-		decodedValue, err := a.decodeInt(hexRef, HexLength8Bits)
+	case utils.Int8:
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength8Bits)
 		return int8(decodedValue), err
-	case Int16:
-		decodedValue, err := a.decodeInt(hexRef, HexLength16Bits)
+	case utils.Int16:
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength16Bits)
 		return int16(decodedValue), err
-	case Int32, Isize:
-		decodedValue, err := a.decodeInt(hexRef, HexLength32Bits)
+	case utils.Int32, utils.Isize:
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength32Bits)
 		return int32(decodedValue), err
-	case Int64:
-		decodedValue, err := a.decodeInt(hexRef, HexLength64Bits)
+	case utils.Int64:
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength64Bits)
 		return int64(decodedValue), err
-	case Uint8:
-		decodedValue, err := a.decodeUint(hexRef, HexLength8Bits)
+	case utils.Uint8:
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength8Bits)
 		return uint8(decodedValue), err
-	case Uint16:
-		decodedValue, err := a.decodeUint(hexRef, HexLength16Bits)
+	case utils.Uint16:
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength16Bits)
 		return uint16(decodedValue), err
-	case Uint32, Usize:
-		decodedValue, err := a.decodeUint(hexRef, HexLength32Bits)
+	case utils.Uint32, utils.Usize:
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength32Bits)
 		return uint32(decodedValue), err
-	case Uint64:
-		decodedValue, err := a.decodeUint(hexRef, HexLength64Bits)
+	case utils.Uint64:
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength64Bits)
 		return uint64(decodedValue), err
-	case Address:
+	case utils.Address:
 		return a.decodeAddress(hexRef)
-	case BigInt:
+	case utils.BigInt:
 		return a.decodeBigInt(hexRef, trim)
-	case BigUint:
+	case utils.BigUint:
 		return a.decodeBigUint(hexRef, trim)
-	case BigFloat:
+	case utils.BigFloat:
 		return a.decodeBigFloat(hexRef, trim)
-	case Boolean:
+	case utils.Boolean:
 		return a.decodeBoolean(hexRef), nil
 	case
-		ManagedBuffer,
-		TokenIdentifier,
-		Bytes,
-		BoxedBytes,
-		String,
-		StrRef,
-		VecU8,
-		SliceU8:
+		utils.ManagedBuffer,
+		utils.TokenIdentifier,
+		utils.Bytes,
+		utils.BoxedBytes,
+		utils.String,
+		utils.StrRef,
+		utils.VecU8,
+		utils.SliceU8:
 		return a.decodeString(hexRef, trim)
 	default:
 		return a.decodeStruct(hexRef, valueType)
@@ -300,8 +233,8 @@ func (a *abiData) decodeString(hexRef *string, trim int) (string, error) {
 }
 
 func (a *abiData) decodeAddress(hexRef *string) (string, error) {
-	hexToDecode := (*hexRef)[:AddressHexLen]
-	*hexRef = (*hexRef)[AddressHexLen:]
+	hexToDecode := (*hexRef)[:utils.AddressHexLen]
+	*hexRef = (*hexRef)[utils.AddressHexLen:]
 
 	decodedAddress, err := address.NewAddressFromHex(hexToDecode)
 
@@ -309,7 +242,7 @@ func (a *abiData) decodeAddress(hexRef *string) (string, error) {
 }
 
 func (a *abiData) parseUint(hexRef *string, bitSize int) (*uint64, error) {
-	uintValue, err := strconv.ParseUint(*hexRef, BaseHex, bitSize)
+	uintValue, err := strconv.ParseUint(*hexRef, utils.BaseHex, bitSize)
 
 	return &uintValue, err
 }
@@ -333,17 +266,17 @@ func (a *abiData) decodeUint(hexRef *string, bitsHexLen int) (uint, error) {
 	hexToDecode := a.getDynamicTrim(hexRef, bitsHexLen)
 
 	switch rawHexLen := len(hexToDecode); {
-	case rawHexLen <= HexLength8Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits8)
+	case rawHexLen <= utils.HexLength8Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits8)
 		return uint(*targetValue), err
-	case rawHexLen <= HexLength16Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits16)
+	case rawHexLen <= utils.HexLength16Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits16)
 		return uint(*targetValue), err
-	case rawHexLen <= HexLength32Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits32)
+	case rawHexLen <= utils.HexLength32Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits32)
 		return uint(*targetValue), err
-	case rawHexLen <= HexLength64Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits64)
+	case rawHexLen <= utils.HexLength64Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits64)
 		return uint(*targetValue), err
 	default:
 		return 0, fmt.Errorf("invalid hex string %s to decode to uint", hexToDecode)
@@ -354,17 +287,17 @@ func (a *abiData) decodeInt(hexRef *string, bitsHexLen int) (int, error) {
 	hexToDecode := a.getDynamicTrim(hexRef, bitsHexLen)
 
 	switch rawHexLen := len(hexToDecode); {
-	case rawHexLen <= HexLength8Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits8)
+	case rawHexLen <= utils.HexLength8Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits8)
 		return int(int8(*targetValue)), err
-	case rawHexLen <= HexLength16Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits16)
+	case rawHexLen <= utils.HexLength16Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits16)
 		return int(int16(*targetValue)), err
-	case rawHexLen <= HexLength32Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits32)
+	case rawHexLen <= utils.HexLength32Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits32)
 		return int(int32(*targetValue)), err
-	case rawHexLen <= HexLength64Bits:
-		targetValue, err := a.parseUint(&hexToDecode, Bits64)
+	case rawHexLen <= utils.HexLength64Bits:
+		targetValue, err := a.parseUint(&hexToDecode, utils.Bits64)
 		return int(int64(*targetValue)), err
 	default:
 		return 0, fmt.Errorf("invalid hex string %s to decode to int", hexToDecode)
@@ -380,7 +313,7 @@ func (a *abiData) decodeBigUint(hexRef *string, trim int) (*big.Int, error) {
 		return targetValue, nil
 	}
 
-	targetValue, ok := new(big.Int).SetString(hexToDecode, BaseHex)
+	targetValue, ok := new(big.Int).SetString(hexToDecode, utils.BaseHex)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string %s to decode to uint64", hexToDecode)
 	}
@@ -416,7 +349,7 @@ func (a *abiData) decodeStringBigNumber(hexRef *string) (*big.Int, error) {
 		return nil, err
 	}
 
-	targetValue, ok := new(big.Int).SetString(targetString, BaseDecimal)
+	targetValue, ok := new(big.Int).SetString(targetString, utils.BaseDecimal)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string %s to decode to BigInt", (*hexRef))
 	}
@@ -425,12 +358,12 @@ func (a *abiData) decodeStringBigNumber(hexRef *string) (*big.Int, error) {
 }
 
 func (a *abiData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
-	rawValue, ok := new(big.Int).SetString(*hexRef, BaseHex)
+	rawValue, ok := new(big.Int).SetString(*hexRef, utils.BaseHex)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", *hexRef)
 	}
 
-	valueBits := len(*hexRef) * BitsByHexDigit
+	valueBits := len(*hexRef) * utils.BitsByHexDigit
 
 	two := big.NewInt(2)
 	twoToTheNth := new(big.Int).Exp(two, big.NewInt(int64(valueBits-1)), nil) // 2^valueBits
@@ -482,11 +415,11 @@ func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, e
 	const OptionStringLenght int = 2
 	a.getDynamicTrim(hexRef, OptionStringLenght)
 
-	hasListPrefix := strings.HasPrefix(valueType, List)
+	hasListPrefix := strings.HasPrefix(valueType, utils.List)
 
 	var trim int
 
-	if isDynamicLengthType(valueType) || hasListPrefix {
+	if utils.IsDynamicLengthType(valueType) || hasListPrefix {
 		calculatedTrim, err := a.getFixedTrim(hexRef)
 		if err != nil {
 			return nil, fmt.Errorf("error while triming option hex string %w", err)
@@ -498,31 +431,12 @@ func (a *abiData) decodeOption(hexRef *string, valueType string) (interface{}, e
 	return a.doDecode(hexRef, valueType, trim)
 }
 
-func isDynamicLengthType(t string) bool {
-	typesMap := map[string]struct{}{
-		ManagedBuffer:   {},
-		TokenIdentifier: {},
-		Bytes:           {},
-		BoxedBytes:      {},
-		String:          {},
-		StrRef:          {},
-		VecU8:           {},
-		SliceU8:         {},
-		BigInt:          {},
-		BigUint:         {},
-		BigFloat:        {},
-	}
-
-	_, exists := typesMap[t]
-	return exists
-}
-
 func (a *abiData) getFixedTrim(hexRef *string) (int, error) {
-	trimStringHex := (*hexRef)[:LengthHexSizer]
+	trimStringHex := (*hexRef)[:utils.LengthHexSizer]
 
-	trimRef, err := a.parseUint(&trimStringHex, LengthHexSizer*BitsByHexDigit)
+	trimRef, err := a.parseUint(&trimStringHex, utils.LengthHexSizer*utils.BitsByHexDigit)
 
-	*hexRef = (*hexRef)[LengthHexSizer:]
+	*hexRef = (*hexRef)[utils.LengthHexSizer:]
 
 	return int(*trimRef), err
 }
@@ -542,9 +456,9 @@ func (a *abiData) decodeList(hexRef *string, valueType string) (interface{}, err
 }
 
 func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, error) {
-	wrapperType, coreType := a.splitTypes(valueType)
+	wrapperType, coreType := utils.SplitTypes(valueType)
 
-	if wrapperType == List {
+	if wrapperType == utils.List {
 		listTrim, err := a.getFixedTrim(hexRef)
 
 		if err != nil {
@@ -556,7 +470,7 @@ func (a *abiData) handleList(hexRef *string, valueType string) (interface{}, err
 
 	var valueTrim int
 
-	if isDynamicLengthType(valueType) {
+	if utils.IsDynamicLengthType(valueType) {
 		calculatedTrim, err := a.getFixedTrim(hexRef)
 		if err != nil {
 			return nil, fmt.Errorf("error getting the list item trim: %w", err)
@@ -582,39 +496,13 @@ func (a *abiData) decodeNestedList(hexRef *string, valueType string, limit int) 
 	return result, nil
 }
 
-func splitTupleTypes(tuple string) []string {
-	var result []string
-	var current int
-	depth := 0
-	start := 0
-
-	for current < len(tuple) {
-		switch tuple[current] {
-		case '<':
-			depth++
-		case '>':
-			depth--
-		case ',':
-			if depth == 0 {
-				result = append(result, strings.TrimSpace(tuple[start:current]))
-				start = current + 1
-			}
-		}
-		current++
-	}
-
-	result = append(result, strings.TrimSpace(tuple[start:]))
-
-	return result
-}
-
 func (a *abiData) decodeTuple(hexRef *string, valueType string) ([]interface{}, error) {
 	var result []interface{}
 
-	types := splitTupleTypes(valueType)
+	types := utils.SplitTupleTypes(valueType)
 
 	for _, t := range types {
-		if strings.HasPrefix(t, List) {
+		if strings.HasPrefix(t, utils.List) {
 			decodedList, err := a.handleList(hexRef, t)
 			if err != nil {
 				return nil, err
@@ -626,7 +514,7 @@ func (a *abiData) decodeTuple(hexRef *string, valueType string) ([]interface{}, 
 
 		var valueTrim int
 
-		if isDynamicLengthType(t) {
+		if utils.IsDynamicLengthType(t) {
 			calculatedTrim, err := a.getFixedTrim(hexRef)
 			if err != nil {
 				return nil, fmt.Errorf("error getting the list item trim: %w", err)
@@ -664,7 +552,7 @@ func (a *abiData) decodeStruct(hexRef *string, valueType string) (map[string]int
 	result := make(map[string]interface{})
 
 	for _, field := range typeDef.Fields {
-		if strings.HasPrefix(field.Type, List) {
+		if strings.HasPrefix(field.Type, utils.List) {
 			decodedList, err := a.handleList(hexRef, field.Type)
 			if err != nil {
 				return nil, fmt.Errorf("error %w decoding list value of key %s of custom type %s", err, field.Type, valueType)
@@ -676,7 +564,7 @@ func (a *abiData) decodeStruct(hexRef *string, valueType string) (map[string]int
 
 		var trim int
 
-		if isDynamicLengthType(field.Type) {
+		if utils.IsDynamicLengthType(field.Type) {
 			calculatedTrim, err := a.getFixedTrim(hexRef)
 			if err != nil {
 				return nil, fmt.Errorf("error while triming option hex string %w", err)
