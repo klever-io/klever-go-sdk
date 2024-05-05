@@ -79,7 +79,7 @@ func Test_Parse_Single_Value(t *testing.T) {
 		{
 			name:     "BigInt_from_small_positive_string",
 			endpoint: "big_s_10",
-			hex:      []string{"b11d292bea47a53107f00000000"},
+			hex:      []string{"3130"},
 			expected: big.NewInt(10),
 		},
 		{
@@ -330,7 +330,7 @@ func Test_Parse_Single_Value(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseHex(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -538,7 +538,7 @@ func Test_Parse_List(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseHex(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -686,7 +686,7 @@ func Test_Parse_Option(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseHex(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.Equal(t, testCase.expected, result)
@@ -774,7 +774,7 @@ func Test_Parse_List_Option(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseHex(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -835,7 +835,7 @@ func Test_Parse_Tuple(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseHex(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -929,7 +929,7 @@ func Test_Parse_Query_Variadic(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			result, err := abiHandler.ParseQuery(testCase.endpoint, testCase.hex)
+			result, err := abiHandler.DecodeQuery(testCase.endpoint, testCase.hex)
 
 			require.Nil(t, err)
 			assert.ElementsMatch(t, testCase.expected, result)
@@ -978,7 +978,7 @@ func Test_Parse_Struct(t *testing.T) {
 
 	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000012010a0000003500000002aaaaaaaaaaaaa80000000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
 
-	result, err := abiHandler.ParseHex("struct_test", []string{hex})
+	result, err := abiHandler.DecodeHex("struct_test", []string{hex})
 
 	require.Nil(t, err)
 	assert.Equal(t, expected, result)
@@ -996,7 +996,7 @@ func Test_Parse_List_of_Struct(t *testing.T) {
 
 	hexOutput := "0000000b226474c28c44db45a9b52945192f533afefe9c4dbf24fccee16dc0553972ac1f000000040ee6b28000000010eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd000000040a21fe8000000002eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd0000000401312d0000000001eaf4866822d00fcfdd9247e953de7f937619c1720336a5c03d6f2939ce63bacd00000003989680000000012fdc794513bd5d6a96bd1c4369244285a9e9ed840cf6d2480296fc2716ed2f710000000398968000000003226474c28c44db45a9b52945192f533afefe9c4dbf24fccee16dc0553972ac1f0000000401c9c3800000000243016b136874f81ed9c4b1b12c2b1db466127b74d7e276296a6cf7f95992c3bd0000000401c9c380000000019f1354706d75aeb684f26d7dea1fbda17e264c7595cc1eddec0b8968c1be85240000000398968000000001667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e00000003989680"
 
-	result, err := abiHandler.ParseHex("getWinnersInfo", []string{hexOutput})
+	result, err := abiHandler.DecodeHex("getWinnersInfo", []string{hexOutput})
 
 	expectedResult := []interface{}([]interface{}{
 		map[string]interface{}{"drawn_ticket_number": uint32(11), "prize": big.NewInt(250000000), "winner_address": "klv1yfj8fs5vgnd5t2d499z3jt6n8tl0a8zdhuj0enhpdhq92wtj4s0snj96jg"},
@@ -1054,7 +1054,7 @@ func Test_ParseQuery_output_struct(t *testing.T) {
 
 	queryBase64 := "AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAACs3MzcyOTg3OTI3MzU3OTg4MDE4ODc2NjczNjQxNzg3ODkzNzc1ODc3ODc0AAAAEgEKAAAANQAAAAKqqqqqqqqoAAAAAAUAAAADS0xWAAAAA0tGSQAAAAhLSUQtOEc5QQAAAAhEWEItSDg4RwAAAApDSElQUy1OODlB"
 
-	result, err := abiHandler.ParseQuery("struct_test", []string{queryBase64})
+	result, err := abiHandler.DecodeQuery("struct_test", []string{queryBase64})
 
 	require.Nil(t, err)
 	assert.Equal(t, expected, result)
@@ -1072,7 +1072,7 @@ func Test_ParseQuery_List_of_Struct(t *testing.T) {
 
 	queryOutput := "AAAACyJkdMKMRNtFqbUpRRkvUzr+/pxNvyT8zuFtwFU5cqwfAAAABA7msoAAAAAQ6vSGaCLQD8/dkkfpU95/k3YZwXIDNqXAPW8pOc5jus0AAAAECiH+gAAAAALq9IZoItAPz92SR+lT3n+TdhnBcgM2pcA9byk5zmO6zQAAAAQBMS0AAAAAAer0hmgi0A/P3ZJH6VPef5N2GcFyAzalwD1vKTnOY7rNAAAAA5iWgAAAAAEv3HlFE71dapa9HENpJEKFqenthAz20kgClvwnFu0vcQAAAAOYloAAAAADImR0woxE20WptSlFGS9TOv7+nE2/JPzO4W3AVTlyrB8AAAAEAcnDgAAAAAJDAWsTaHT4HtnEsbEsKx20ZhJ7dNfidilqbPf5WZLDvQAAAAQBycOAAAAAAZ8TVHBtda62hPJtfeofvaF+Jkx1lcwe3ewLiWjBvoUkAAAAA5iWgAAAAAFmf9J0SBz1sHQYsv3F2LqmrnFyOTV/M4zemcL2EqlqngAAAAOYloA="
 
-	result, err := abiHandler.ParseQuery("getWinnersInfo", []string{queryOutput})
+	result, err := abiHandler.DecodeQuery("getWinnersInfo", []string{queryOutput})
 
 	expectedResult := []interface{}([]interface{}{
 		map[string]interface{}{"drawn_ticket_number": uint32(11), "prize": big.NewInt(250000000), "winner_address": "klv1yfj8fs5vgnd5t2d499z3jt6n8tl0a8zdhuj0enhpdhq92wtj4s0snj96jg"},
@@ -1166,7 +1166,7 @@ func Test_ParseQuery_MultiValue_of_struct_and_nested_list(t *testing.T) {
 		"AAAAA2+rAnYAAAAc//+cpAAAAAP////+AAHjCPGzz9w=",
 		"AAAAAgAAAAMAAAADh+/bAAAAAjSQAAAACMkRMaFPwj2sAAAAAwAAAA85v25JCV/33KB4lXzrko4AAAAPxkCRtvagCCNfh2qDFG1yAAAABQEDz3RBAAAAAgAAAAMAAAAoOTg3NTc2ODk3OTc4OTk3OTk4NzU4OTczMjg3OTM1MjEwNDg0ODM2OQAAACktOTg3NTc2ODk3OTc4OTk3OTk4NzU4OTczMjg3OTM1MjEwNDg0ODM2OQAAAAI0MgAAAAMAAAADeBAlAAAAAVQAAAAGTZ9YxCGf"}
 
-	result, err := abiHandler.ParseQuery("multi_value_nested_list_struct", hexInputs)
+	result, err := abiHandler.DecodeQuery("multi_value_nested_list_struct", hexInputs)
 
 	require.Nil(t, err)
 	assert.ElementsMatch(t, expectedOutput, result)
