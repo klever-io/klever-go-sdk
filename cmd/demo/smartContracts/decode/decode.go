@@ -89,7 +89,7 @@ func parseHex(hexBytes []byte, abiPath, funcName string, kc provider.KleverChain
 		return nil, fmt.Errorf("\n\nerror requesting kleverchain vm: %s\n\n", h.Error)
 	}
 
-	parser := kc.NewScOutputParser()
+	parser := kc.NewScOutputDecoder()
 
 	abi, err := os.Open(abiPath)
 	if err != nil {
@@ -101,7 +101,7 @@ func parseHex(hexBytes []byte, abiPath, funcName string, kc provider.KleverChain
 		return nil, err
 	}
 
-	parsedValue, err := parser.ParseHex(funcName, []string{h.Data.Data})
+	parsedValue, err := parser.DecodeHex(funcName, []string{h.Data.Data})
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverCha
 		panic(fmt.Errorf("\n\nvm return code isn't Ok\n\n"))
 	}
 
-	parser := kc.NewScOutputParser()
+	parser := kc.NewScOutputDecoder()
 
 	abi, err := os.Open(abiPath)
 	if err != nil {
@@ -162,7 +162,7 @@ func reqAndParseQuery(abiPath, scAddress, endpoint string, kc provider.KleverCha
 		panic(err)
 	}
 
-	parsedValue, err := parser.ParseQuery(endpoint, q.Data.Data.ReturnData)
+	parsedValue, err := parser.DecodeQuery(endpoint, q.Data.Data.ReturnData)
 	if err != nil {
 		panic(err)
 	}
