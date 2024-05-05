@@ -42,8 +42,8 @@ type vmOutputData struct {
 }
 
 type VMOutputData interface {
-	ParseHex(endpoint string, hex []string) (interface{}, error)
-	ParseQuery(endpoint string, base64 []string) (interface{}, error)
+	DecodeHex(endpoint string, hex []string) (interface{}, error)
+	DecodeQuery(endpoint string, base64 []string) (interface{}, error)
 	LoadAbi(r io.Reader) error
 }
 
@@ -51,7 +51,7 @@ func NewVMOutputHandler() VMOutputData {
 	return &vmOutputData{}
 }
 
-func (kc *kleverChain) NewScOutputParser() VMOutputData {
+func (kc *kleverChain) NewScOutputDecoder() VMOutputData {
 	return NewVMOutputHandler()
 }
 
@@ -71,9 +71,9 @@ func (a *vmOutputData) LoadAbi(r io.Reader) error {
 }
 
 // only for single result outputs
-func (a *vmOutputData) ParseHex(endpoint string, hexData []string) (interface{}, error) {
+func (a *vmOutputData) DecodeHex(endpoint string, hexData []string) (interface{}, error) {
 	if !a.AbiLoaded {
-		return nil, fmt.Errorf("before parse any value load your abi with `LoadAbi`")
+		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
 	}
 
 	endpointIndex, err := a.findEndpoint(endpoint)
@@ -82,10 +82,10 @@ func (a *vmOutputData) ParseHex(endpoint string, hexData []string) (interface{},
 	}
 
 	if len(hexData) == 1 {
-		return a.doParse(&hexData[0], a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
+		return a.doDecode(&hexData[0], a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
 	}
 
-	var parsedValues []interface{}
+	var decodedValues []interface{}
 
 	var outputIndex int
 	isMultipleOutputs := len(a.Endpoints[*endpointIndex].Outputs) > 1
@@ -94,18 +94,18 @@ func (a *vmOutputData) ParseHex(endpoint string, hexData []string) (interface{},
 		if isMultipleOutputs {
 			outputIndex = i
 		}
-		parsed, err := a.doParse(&h, a.Endpoints[*endpointIndex].Outputs[outputIndex].Type, 0)
+		decoded, err := a.doDecode(&h, a.Endpoints[*endpointIndex].Outputs[outputIndex].Type, 0)
 		if err != nil {
 			return nil, fmt.Errorf("error decoding hex value: %w", err)
 		}
-		parsedValues = append(parsedValues, parsed)
+		decodedValues = append(decodedValues, decoded)
 	}
 
-	return parsedValues, nil
+	return decodedValues, nil
 }
 
 // mainly for multi result outputs
-func (a *vmOutputData) ParseQuery(endpoint string, base64Data []string) (interface{}, error) {
+func (a *vmOutputData) DecodeQuery(endpoint string, base64Data []string) (interface{}, error) {
 	var hexData []string
 
 	for _, data := range base64Data {
@@ -116,7 +116,7 @@ func (a *vmOutputData) ParseQuery(endpoint string, base64Data []string) (interfa
 		hexData = append(hexData, hex.EncodeToString(dataBytes))
 	}
 
-	return a.ParseHex(endpoint, hexData)
+	return a.DecodeHex(endpoint, hexData)
 }
 
 func (a *vmOutputData) findEndpoint(endpointName string) (*int, error) {
@@ -136,79 +136,79 @@ func (a *vmOutputData) findEndpoint(endpointName string) (*int, error) {
 	return endpointIndex, nil
 }
 
-func (a *vmOutputData) doParse(hexRef *string, fullType string, trim int) (interface{}, error) {
+func (a *vmOutputData) doDecode(hexRef *string, fullType string, trim int) (interface{}, error) {
 	wrapperType, valueType := utils.SplitTypes(fullType)
 
-	return a.selectParser(hexRef, wrapperType, valueType, trim)
+	return a.selectDecoder(hexRef, wrapperType, valueType, trim)
 }
 
 func (a *vmOutputData) handleTrim(hexRef *string, trim int) string {
-	hexToParse := (*hexRef)[:trim]
+	hexToDecode := (*hexRef)[:trim]
 
 	if trim == 0 {
-		hexToParse = *hexRef
+		hexToDecode = *hexRef
 	}
 
 	*hexRef = (*hexRef)[trim:]
 
-	return hexToParse
+	return hexToDecode
 }
 
-func (a *vmOutputData) selectParser(
+func (a *vmOutputData) selectDecoder(
 	hexRef *string,
 	typeWrapper, valueType string,
 	trim int,
 ) (interface{}, error) {
 	switch typeWrapper {
 	case utils.List:
-		return a.parseList(hexRef, valueType)
+		return a.decodeList(hexRef, valueType)
 	case utils.Option:
-		return a.parseOption(hexRef, valueType)
+		return a.decodeOption(hexRef, valueType)
 	case utils.Tuple:
-		return a.parseTuple(hexRef, valueType)
+		return a.decodeTuple(hexRef, valueType)
 	case utils.Variadic:
-		return a.parseVariadic(hexRef, valueType)
+		return a.decodeVariadic(hexRef, valueType)
 	default:
-		return a.parseSingleValue(hexRef, valueType, trim)
+		return a.decodeSingleValue(hexRef, valueType, trim)
 	}
 }
 
-func (a *vmOutputData) parseSingleValue(hexRef *string, valueType string, trim int) (interface{}, error) {
+func (a *vmOutputData) decodeSingleValue(hexRef *string, valueType string, trim int) (interface{}, error) {
 	switch valueType {
 	case utils.Int8:
-		parsedValue, err := a.parseInt(hexRef, utils.HexLength8Bits)
-		return int8(parsedValue), err
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength8Bits)
+		return int8(decodedValue), err
 	case utils.Int16:
-		parsedValue, err := a.parseInt(hexRef, utils.HexLength16Bits)
-		return int16(parsedValue), err
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength16Bits)
+		return int16(decodedValue), err
 	case utils.Int32, utils.Isize:
-		parsedValue, err := a.parseInt(hexRef, utils.HexLength32Bits)
-		return int32(parsedValue), err
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength32Bits)
+		return int32(decodedValue), err
 	case utils.Int64:
-		parsedValue, err := a.parseInt(hexRef, utils.HexLength64Bits)
-		return int64(parsedValue), err
+		decodedValue, err := a.decodeInt(hexRef, utils.HexLength64Bits)
+		return int64(decodedValue), err
 	case utils.Uint8:
-		parsedValue, err := a.parseUint(hexRef, utils.HexLength8Bits)
-		return uint8(parsedValue), err
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength8Bits)
+		return uint8(decodedValue), err
 	case utils.Uint16:
-		parsedValue, err := a.parseUint(hexRef, utils.HexLength16Bits)
-		return uint16(parsedValue), err
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength16Bits)
+		return uint16(decodedValue), err
 	case utils.Uint32, utils.Usize:
-		parsedValue, err := a.parseUint(hexRef, utils.HexLength32Bits)
-		return uint32(parsedValue), err
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength32Bits)
+		return uint32(decodedValue), err
 	case utils.Uint64:
-		parsedValue, err := a.parseUint(hexRef, utils.HexLength64Bits)
-		return uint64(parsedValue), err
+		decodedValue, err := a.decodeUint(hexRef, utils.HexLength64Bits)
+		return uint64(decodedValue), err
 	case utils.Address:
-		return a.parseAddress(hexRef)
+		return a.decodeAddress(hexRef)
 	case utils.BigInt:
-		return a.parseBigInt(hexRef, trim)
+		return a.decodeBigInt(hexRef, trim)
 	case utils.BigUint:
-		return a.parseBigUint(hexRef, trim)
+		return a.decodeBigUint(hexRef, trim)
 	case utils.BigFloat:
-		return a.parseBigFloat(hexRef, trim)
+		return a.decodeBigFloat(hexRef, trim)
 	case utils.Boolean:
-		return a.parseBoolean(hexRef), nil
+		return a.decodeBoolean(hexRef), nil
 	case
 		utils.ManagedBuffer,
 		utils.TokenIdentifier,
@@ -218,140 +218,140 @@ func (a *vmOutputData) parseSingleValue(hexRef *string, valueType string, trim i
 		utils.StrRef,
 		utils.VecU8,
 		utils.SliceU8:
-		return a.parseString(hexRef, trim)
+		return a.decodeString(hexRef, trim)
 	default:
-		return a.parseStruct(hexRef, valueType)
+		return a.decodeStruct(hexRef, valueType)
 	}
 }
 
-func (a *vmOutputData) parseString(hexRef *string, trim int) (string, error) {
-	hexToParse := a.handleTrim(hexRef, trim*2)
+func (a *vmOutputData) decodeString(hexRef *string, trim int) (string, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	bytes, err := hex.DecodeString(hexToParse)
+	bytes, err := hex.DecodeString(hexToDecode)
 
 	return string(bytes), err
 }
 
-func (a *vmOutputData) parseAddress(hexRef *string) (string, error) {
-	hexToParse := (*hexRef)[:utils.AddressHexLen]
+func (a *vmOutputData) decodeAddress(hexRef *string) (string, error) {
+	hexToDecode := (*hexRef)[:utils.AddressHexLen]
 	*hexRef = (*hexRef)[utils.AddressHexLen:]
 
-	parsedAddress, err := address.NewAddressFromHex(hexToParse)
+	decodedAddress, err := address.NewAddressFromHex(hexToDecode)
 
-	return parsedAddress.Bech32(), err
+	return decodedAddress.Bech32(), err
 }
 
-func (a *vmOutputData) parseBaseUint(hexRef *string, bitSize int) (*uint64, error) {
+func (a *vmOutputData) decodeBaseUint(hexRef *string, bitSize int) (*uint64, error) {
 	uintValue, err := strconv.ParseUint(*hexRef, utils.BaseHex, bitSize)
 
 	return &uintValue, err
 }
 
 func (a *vmOutputData) getDynamicTrim(hexRef *string, trimSize int) string {
-	var hexToParse string
+	var hexToDecode string
 
 	if len(*hexRef) > trimSize {
-		hexToParse = a.handleTrim(hexRef, trimSize)
+		hexToDecode = a.handleTrim(hexRef, trimSize)
 
-		return hexToParse
+		return hexToDecode
 	}
 
-	hexToParse = *hexRef
+	hexToDecode = *hexRef
 	*hexRef = ""
 
-	return hexToParse
+	return hexToDecode
 }
 
-func (a *vmOutputData) parseUint(hexRef *string, bitsHexLen int) (uint, error) {
-	hexToParse := a.getDynamicTrim(hexRef, bitsHexLen)
+func (a *vmOutputData) decodeUint(hexRef *string, bitsHexLen int) (uint, error) {
+	hexToDecode := a.getDynamicTrim(hexRef, bitsHexLen)
 
-	switch rawHexLen := len(hexToParse); {
+	switch rawHexLen := len(hexToDecode); {
 	case rawHexLen <= utils.HexLength8Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits8)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits8)
 		return uint(*targetValue), err
 	case rawHexLen <= utils.HexLength16Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits16)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits16)
 		return uint(*targetValue), err
 	case rawHexLen <= utils.HexLength32Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits32)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits32)
 		return uint(*targetValue), err
 	case rawHexLen <= utils.HexLength64Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits64)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits64)
 		return uint(*targetValue), err
 	default:
-		return 0, fmt.Errorf("invalid hex string %s to parse to uint", hexToParse)
+		return 0, fmt.Errorf("invalid hex string %s to dedode to uint", hexToDecode)
 	}
 }
 
-func (a *vmOutputData) parseInt(hexRef *string, bitsHexLen int) (int, error) {
-	hexToParse := a.getDynamicTrim(hexRef, bitsHexLen)
+func (a *vmOutputData) decodeInt(hexRef *string, bitsHexLen int) (int, error) {
+	hexToDecode := a.getDynamicTrim(hexRef, bitsHexLen)
 
-	switch rawHexLen := len(hexToParse); {
+	switch rawHexLen := len(hexToDecode); {
 	case rawHexLen <= utils.HexLength8Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits8)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits8)
 		return int(int8(*targetValue)), err
 	case rawHexLen <= utils.HexLength16Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits16)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits16)
 		return int(int16(*targetValue)), err
 	case rawHexLen <= utils.HexLength32Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits32)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits32)
 		return int(int32(*targetValue)), err
 	case rawHexLen <= utils.HexLength64Bits:
-		targetValue, err := a.parseBaseUint(&hexToParse, utils.Bits64)
+		targetValue, err := a.decodeBaseUint(&hexToDecode, utils.Bits64)
 		return int(int64(*targetValue)), err
 	default:
-		return 0, fmt.Errorf("invalid hex string %s to parse to int", hexToParse)
+		return 0, fmt.Errorf("invalid hex string %s to decode to int", hexToDecode)
 	}
 }
 
-func (a *vmOutputData) parseBigUint(hexRef *string, trim int) (*big.Int, error) {
-	hexToParse := a.handleTrim(hexRef, trim*2)
+func (a *vmOutputData) decodeBigUint(hexRef *string, trim int) (*big.Int, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	targetValue, err := a.parseStringBigNumber(&hexToParse)
+	targetValue, err := a.decodeStringBigNumber(&hexToDecode)
 	// if that function suceeds, then it was a string representing a decimal big number
 	if err == nil {
 		return targetValue, nil
 	}
 
-	targetValue, ok := new(big.Int).SetString(hexToParse, utils.BaseHex)
+	targetValue, ok := new(big.Int).SetString(hexToDecode, utils.BaseHex)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string %s to parse to uint64", hexToParse)
+		return nil, fmt.Errorf("invalid hex string %s to decode to uint64", hexToDecode)
 	}
 
 	return targetValue, nil
 }
 
-func (a *vmOutputData) parseBigInt(hexRef *string, trim int) (*big.Int, error) {
-	hexToParse := a.handleTrim(hexRef, trim*2)
+func (a *vmOutputData) decodeBigInt(hexRef *string, trim int) (*big.Int, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	targetValueFromString, err := a.parseStringBigNumber(&hexToParse)
+	targetValueFromString, err := a.decodeStringBigNumber(&hexToDecode)
 	// if that function suceeds, then it was a string representing a decimal number
 	if err == nil {
 		return targetValueFromString, nil
 	}
 
-	targetValueFromInt128, err := a.handleBigIntTill128(&hexToParse)
+	targetValueFromInt128, err := a.handleBigIntTill128(&hexToDecode)
 	if err == nil {
 		return targetValueFromInt128, nil
 	}
 
-	targetValue, err := a.parseInt(&hexToParse, len(hexToParse))
+	targetValue, err := a.decodeInt(&hexToDecode, len(hexToDecode))
 	if err != nil {
-		return nil, fmt.Errorf("invelid hex string %s to parse to big int", hexToParse)
+		return nil, fmt.Errorf("invelid hex string %s to decode to big int", hexToDecode)
 	}
 
 	return big.NewInt(int64(targetValue)), nil
 }
 
-func (a *vmOutputData) parseStringBigNumber(hexRef *string) (*big.Int, error) {
-	targetString, err := a.parseString(hexRef, 0)
+func (a *vmOutputData) decodeStringBigNumber(hexRef *string) (*big.Int, error) {
+	targetString, err := a.decodeString(hexRef, 0)
 	if err != nil {
 		return nil, err
 	}
 
 	targetValue, ok := new(big.Int).SetString(targetString, utils.BaseDecimal)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string %s to parse to BigInt", (*hexRef))
+		return nil, fmt.Errorf("invalid hex string %s to decode to BigInt", (*hexRef))
 	}
 
 	return targetValue, nil
@@ -360,7 +360,7 @@ func (a *vmOutputData) parseStringBigNumber(hexRef *string) (*big.Int, error) {
 func (a *vmOutputData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
 	rawValue, ok := new(big.Int).SetString(*hexRef, utils.BaseHex)
 	if !ok {
-		return nil, fmt.Errorf("invalid hex string to parse to BigInt: %s", *hexRef)
+		return nil, fmt.Errorf("invalid hex string to decode to BigInt: %s", *hexRef)
 	}
 
 	valueBits := len(*hexRef) * utils.BitsByHexDigit
@@ -376,38 +376,38 @@ func (a *vmOutputData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
 	}
 
 	if rawValue.Cmp(MaxIntNBits) == 1 {
-		parsedValue := rawValue.Sub(rawValue, new(big.Int).Lsh(one, uint(valueBits)))
-		return parsedValue, nil
+		decodedValue := rawValue.Sub(rawValue, new(big.Int).Lsh(one, uint(valueBits)))
+		return decodedValue, nil
 	}
 
 	return nil, fmt.Errorf("%v range is lower range than 128 bits", rawValue)
 }
 
-func (a *vmOutputData) parseBoolean(hexRef *string) bool {
+func (a *vmOutputData) decodeBoolean(hexRef *string) bool {
 	const BooleanLength int = 2
 
-	hexToParse := a.getDynamicTrim(hexRef, BooleanLength)
-	return hexToParse == "01"
+	hexToDecode := a.getDynamicTrim(hexRef, BooleanLength)
+	return hexToDecode == "01"
 }
 
-func (a *vmOutputData) parseBigFloat(hexRef *string, trim int) (interface{}, error) {
-	hexToParse := a.handleTrim(hexRef, trim*2)
+func (a *vmOutputData) decodeBigFloat(hexRef *string, trim int) (interface{}, error) {
+	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	hexBytes, err := hex.DecodeString(hexToParse)
+	hexBytes, err := hex.DecodeString(hexToDecode)
 	if err != nil {
 		return nil, fmt.Errorf("error decoding hex string to bytes: %w", err)
 	}
 
-	parsedValue := new(big.Float)
+	decodedValue := new(big.Float)
 
-	if err := parsedValue.GobDecode(hexBytes); err != nil {
+	if err := decodedValue.GobDecode(hexBytes); err != nil {
 		return nil, fmt.Errorf("error decoding big float: %w", err)
 	}
 
-	return parsedValue, nil
+	return decodedValue, nil
 }
 
-func (a *vmOutputData) parseOption(hexRef *string, valueType string) (interface{}, error) {
+func (a *vmOutputData) decodeOption(hexRef *string, valueType string) (interface{}, error) {
 	if *hexRef == "" {
 		return nil, nil
 	}
@@ -428,28 +428,28 @@ func (a *vmOutputData) parseOption(hexRef *string, valueType string) (interface{
 		trim = calculatedTrim
 	}
 
-	return a.doParse(hexRef, valueType, trim)
+	return a.doDecode(hexRef, valueType, trim)
 }
 
 func (a *vmOutputData) getFixedTrim(hexRef *string) (int, error) {
 	trimStringHex := (*hexRef)[:utils.LengthHexSizer]
 
-	trimRef, err := a.parseBaseUint(&trimStringHex, utils.LengthHexSizer*utils.BitsByHexDigit)
+	trimRef, err := a.decodeBaseUint(&trimStringHex, utils.LengthHexSizer*utils.BitsByHexDigit)
 
 	*hexRef = (*hexRef)[utils.LengthHexSizer:]
 
 	return int(*trimRef), err
 }
 
-func (a *vmOutputData) parseList(hexRef *string, valueType string) (interface{}, error) {
+func (a *vmOutputData) decodeList(hexRef *string, valueType string) (interface{}, error) {
 	var result []interface{}
 	for len((*hexRef)) > 0 {
-		parsed, err := a.handleList(hexRef, valueType)
+		decoded, err := a.handleList(hexRef, valueType)
 		if err != nil {
 			return nil, fmt.Errorf("error decoding list item: %w", err)
 		}
 
-		result = append(result, parsed)
+		result = append(result, decoded)
 	}
 
 	return result, nil
@@ -465,7 +465,7 @@ func (a *vmOutputData) handleList(hexRef *string, valueType string) (interface{}
 			return nil, fmt.Errorf("error getting the list trim: %w", err)
 		}
 
-		return a.parseNestedList(hexRef, coreType, listTrim)
+		return a.decodeNestedList(hexRef, coreType, listTrim)
 	}
 
 	var valueTrim int
@@ -479,36 +479,36 @@ func (a *vmOutputData) handleList(hexRef *string, valueType string) (interface{}
 		valueTrim = calculatedTrim
 	}
 
-	return a.parseSingleValue(hexRef, coreType, valueTrim)
+	return a.decodeSingleValue(hexRef, coreType, valueTrim)
 }
 
-func (a *vmOutputData) parseNestedList(hexRef *string, valueType string, limit int) (interface{}, error) {
+func (a *vmOutputData) decodeNestedList(hexRef *string, valueType string, limit int) (interface{}, error) {
 	var result []interface{}
 	for i := 0; i < limit; i++ {
-		parsed, err := a.handleList(hexRef, valueType)
+		decoded, err := a.handleList(hexRef, valueType)
 		if err != nil {
 			return nil, fmt.Errorf("error decoding nested list: %w", err)
 		}
 
-		result = append(result, parsed)
+		result = append(result, decoded)
 	}
 
 	return result, nil
 }
 
-func (a *vmOutputData) parseTuple(hexRef *string, valueType string) ([]interface{}, error) {
+func (a *vmOutputData) decodeTuple(hexRef *string, valueType string) ([]interface{}, error) {
 	var result []interface{}
 
 	types := utils.SplitTupleTypes(valueType)
 
 	for _, t := range types {
 		if strings.HasPrefix(t, utils.List) {
-			parsedList, err := a.handleList(hexRef, t)
+			decodedList, err := a.handleList(hexRef, t)
 			if err != nil {
 				return nil, err
 			}
 
-			result = append(result, parsedList)
+			result = append(result, decodedList)
 			continue
 		}
 
@@ -523,27 +523,27 @@ func (a *vmOutputData) parseTuple(hexRef *string, valueType string) ([]interface
 			valueTrim = calculatedTrim
 		}
 
-		parsedValue, err := a.doParse(hexRef, t, valueTrim)
+		decodedValue, err := a.doDecode(hexRef, t, valueTrim)
 		if err != nil {
 			return nil, fmt.Errorf("error decoding tuple value %w", err)
 		}
 
-		result = append(result, parsedValue)
+		result = append(result, decodedValue)
 	}
 
 	return result, nil
 }
 
-func (a *vmOutputData) parseVariadic(hexRef *string, valueType string) (interface{}, error) {
-	parsedValue, err := a.doParse(hexRef, valueType, 0)
+func (a *vmOutputData) decodeVariadic(hexRef *string, valueType string) (interface{}, error) {
+	decodedValue, err := a.doDecode(hexRef, valueType, 0)
 	if err != nil {
-		return nil, fmt.Errorf("error trying to parse variadic value: %w", err)
+		return nil, fmt.Errorf("error trying to decode variadic value: %w", err)
 	}
 
-	return parsedValue, nil
+	return decodedValue, nil
 }
 
-func (a *vmOutputData) parseStruct(hexRef *string, valueType string) (map[string]interface{}, error) {
+func (a *vmOutputData) decodeStruct(hexRef *string, valueType string) (map[string]interface{}, error) {
 	typeDef, exists := a.Types[valueType]
 	if !exists {
 		return nil, fmt.Errorf("type %s not found in provided abi", valueType)
@@ -553,12 +553,12 @@ func (a *vmOutputData) parseStruct(hexRef *string, valueType string) (map[string
 
 	for _, field := range typeDef.Fields {
 		if strings.HasPrefix(field.Type, utils.List) {
-			parsedList, err := a.handleList(hexRef, field.Type)
+			decodedList, err := a.handleList(hexRef, field.Type)
 			if err != nil {
 				return nil, fmt.Errorf("error %w decoding list value of key %s of custom type %s", err, field.Type, valueType)
 			}
 
-			result[field.Name] = parsedList
+			result[field.Name] = decodedList
 			continue
 		}
 
@@ -573,12 +573,12 @@ func (a *vmOutputData) parseStruct(hexRef *string, valueType string) (map[string
 			trim = calculatedTrim
 		}
 
-		parsedValue, err := a.doParse(hexRef, field.Type, trim)
+		decodedValue, err := a.doDecode(hexRef, field.Type, trim)
 		if err != nil {
 			return nil, fmt.Errorf("error %w decoding value of key %s of custom type %s", err, field.Type, valueType)
 		}
 
-		result[field.Name] = parsedValue
+		result[field.Name] = decodedValue
 	}
 
 	return result, nil
