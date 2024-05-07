@@ -1,5 +1,32 @@
 package utils
 
+const LengthOfCodeMetadata = 2
+
+// Const group for the first byte of the metadata
+const (
+	// MetadataUpgradeable is the bit for upgradable flag
+	MetadataUpgradeable = 1
+	// MetadataReadable is the bit for readable flag
+	MetadataReadable = 4
+)
+
+// Const group for the second byte of the metadata
+const (
+	// MetadataPayable is the bit for payable flag
+	MetadataPayable = 2
+	// MetadataPayableBySC is the bit for payable flag
+	MetadataPayableBySC = 4
+)
+
+const DefaultVMType = "0500"
+
+type SCType int32
+
+const (
+	SmartContractInvoke SCType = iota
+	SmartContractDeploy
+)
+
 // Hex length
 const (
 	HexLength8Bits  int = 2
@@ -12,10 +39,11 @@ const (
 
 // Bits count
 const (
-	Bits8  int = 8
-	Bits16 int = 16
-	Bits32 int = 32
-	Bits64 int = 64
+	Bits8   int = 8
+	Bits16  int = 16
+	Bits32  int = 32
+	Bits64  int = 64
+	Bits128 int = 128
 )
 
 // Numerical bases
@@ -64,3 +92,5 @@ const (
 	LengthHexSizer int = 8
 	BitsByHexDigit int = 4
 )
+
+const BigFloatVMPrecision uint = 53

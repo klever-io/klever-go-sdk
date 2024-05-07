@@ -15,7 +15,7 @@ import (
 func EncodeInput(args []string) (string, error) {
 	encodedArgs := ""
 	for _, arg := range args {
-		encoded, err := DoEncode(arg)
+		encoded, err := doEncode(arg)
 		if err != nil {
 			return "", fmt.Errorf("invalid item to encode `%s`", arg)
 		}
@@ -26,7 +26,7 @@ func EncodeInput(args []string) (string, error) {
 	return encodedArgs, nil
 }
 
-func DoEncode(arg string) (string, error) {
+func doEncode(arg string) (string, error) {
 	kv := strings.SplitN(arg, ":", 2)
 
 	isOption := false
