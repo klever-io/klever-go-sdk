@@ -1,0 +1,1070 @@
+{
+  "buildInfo": {
+    "rustc": {
+      "version": "1.79.0-nightly",
+      "commitHash": "ab5bda1aa70f707014e2e691e43bc37a8819252a",
+      "commitDate": "2024-04-08",
+      "channel": "Nightly",
+      "short": "rustc 1.79.0-nightly (ab5bda1aa 2024-04-08)"
+    },
+    "contractCrate": {
+      "name": "outputs",
+      "version": "0.0.0"
+    },
+    "framework": {
+      "name": "klever-sc",
+      "version": "0.43.3"
+    }
+  },
+  "name": "Outputs",
+  "constructor": {
+    "inputs": [],
+    "outputs": []
+  },
+  "endpoints": [
+    {
+      "name": "managed_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "token_identifier",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "TokenIdentifier"
+        }
+      ]
+    },
+    {
+      "name": "usize_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "u32"
+        }
+      ]
+    },
+    {
+      "name": "isize_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "isize_minus_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "bool_false",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "bool_true",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "name": "owner_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Address"
+        }
+      ]
+    },
+    {
+      "name": "big_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_u_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_u_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_minus_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigInt"
+        }
+      ]
+    },
+    {
+      "name": "big_u_s_10",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u_s_number",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "big_u128",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigUint"
+        }
+      ]
+    },
+    {
+      "name": "number_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i8"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i8"
+        }
+      ]
+    },
+    {
+      "name": "number_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i16"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i16"
+        }
+      ]
+    },
+    {
+      "name": "number_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i32"
+        }
+      ]
+    },
+    {
+      "name": "number_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "number_minus_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "list_token_identifier",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<TokenIdentifier>"
+        }
+      ]
+    },
+    {
+      "name": "list_of_lists_tokens",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<TokenIdentifier>>"
+        }
+      ]
+    },
+    {
+      "name": "option_bytes_null",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<bytes>"
+        }
+      ]
+    },
+    {
+      "name": "option_i8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i8>"
+        }
+      ]
+    },
+    {
+      "name": "option_i16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i16>"
+        }
+      ]
+    },
+    {
+      "name": "option_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i32>"
+        }
+      ]
+    },
+    {
+      "name": "option_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<i64>"
+        }
+      ]
+    },
+    {
+      "name": "option_u8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u8>"
+        }
+      ]
+    },
+    {
+      "name": "option_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u16>"
+        }
+      ]
+    },
+    {
+      "name": "option_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u32>"
+        }
+      ]
+    },
+    {
+      "name": "option_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<u64>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_biguint_minus",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_bigint_from_biguint_plus",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "option_biguint",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "option_biguint_from_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "option_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<Address>"
+        }
+      ]
+    },
+    {
+      "name": "option_managed_buffer",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<bytes>"
+        }
+      ]
+    },
+    {
+      "name": "option_list_list_list_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<TokenIdentifier>>>>"
+        }
+      ]
+    },
+    {
+      "name": "option_list_list_list_big_int",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<BigInt>>>>"
+        }
+      ]
+    },
+    {
+      "name": "list_int32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<i32>"
+        }
+      ]
+    },
+    {
+      "name": "list_int64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<i64>"
+        }
+      ]
+    },
+    {
+      "name": "list_uint8",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "bytes"
+        }
+      ]
+    },
+    {
+      "name": "list_u16",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u16>"
+        }
+      ]
+    },
+    {
+      "name": "list_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u32>"
+        }
+      ]
+    },
+    {
+      "name": "list_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<u64>"
+        }
+      ]
+    },
+    {
+      "name": "list_address",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<Address>"
+        }
+      ]
+    },
+    {
+      "name": "list_bool",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<bool>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_bool",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<bool>>"
+        }
+      ]
+    },
+    {
+      "name": "list_bign",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<BigInt>"
+        }
+      ]
+    },
+    {
+      "name": "list_bigun",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<BigUint>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<i32>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<i64>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<i64>>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_tokens",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<TokenIdentifier>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_list_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<TokenIdentifier>>>"
+        }
+      ]
+    },
+    {
+      "name": "list_list_list_big_int",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "List<List<List<BigInt>>>"
+        }
+      ]
+    },
+    {
+      "name": "option_list_list_list_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<List<List<List<i64>>>>"
+        }
+      ]
+    },
+    {
+      "name": "tuple",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigInt,Address,i64>"
+        }
+      ]
+    },
+    {
+      "name": "tuple_nested",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigInt,Address,i64,tuple<u8,bytes>>"
+        }
+      ]
+    },
+    {
+      "name": "tuple_with_nested_list",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "tuple<BigUint,List<List<i32>>,TokenIdentifier>"
+        }
+      ]
+    },
+    {
+      "name": "variadic_i32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<i32>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_i64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<i64>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_u32",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<u32>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_u64",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<u64>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_bign",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<BigInt>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_bigu",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<BigUint>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "variadic_token",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "variadic<TokenIdentifier>",
+          "multi_result": true
+        }
+      ]
+    },
+    {
+      "name": "multi_value_nested_list_struct",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "StructTest"
+        },
+        {
+          "type": "List<List<i32>>"
+        },
+        {
+          "type": "List<List<List<BigInt>>>"
+        }
+      ]
+    },
+    {
+      "name": "test_from_fraction",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_neg",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_parts",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_sci",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_bi",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_bu",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_from_generics",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "BigFloat"
+        }
+      ]
+    },
+    {
+      "name": "test_float_option",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "Option<BigFloat>"
+        }
+      ]
+    },
+    {
+      "name": "struct_test",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "StructTest"
+        }
+      ]
+    }
+  ],
+  "types": {
+    "StructTest": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "bool_field",
+          "type": "bool"
+        },
+        {
+          "name": "i8_field",
+          "type": "i8"
+        },
+        {
+          "name": "i16_field",
+          "type": "i16"
+        },
+        {
+          "name": "i32_field",
+          "type": "i32"
+        },
+        {
+          "name": "i64_field",
+          "type": "i64"
+        },
+        {
+          "name": "u8_field",
+          "type": "u8"
+        },
+        {
+          "name": "u16_field",
+          "type": "u16"
+        },
+        {
+          "name": "u32_field",
+          "type": "u32"
+        },
+        {
+          "name": "u64_field",
+          "type": "u64"
+        },
+        {
+          "name": "mngd_buf_field",
+          "type": "bytes"
+        },
+        {
+          "name": "token_field",
+          "type": "TokenIdentifier"
+        },
+        {
+          "name": "address_field",
+          "type": "Address"
+        },
+        {
+          "name": "biguint_field",
+          "type": "BigUint"
+        },
+        {
+          "name": "bigint_field",
+          "type": "BigInt"
+        },
+        {
+          "name": "bigfloat_field",
+          "type": "BigFloat"
+        },
+        {
+          "name": "list_token",
+          "type": "List<TokenIdentifier>"
+        }
+      ]
+    }
+  }
+}

@@ -64,6 +64,7 @@ type KleverChain interface {
 	// Smart Contract
 	DeploySmartContract(base *models.BaseTX, wasmPath string, payable, payableBySC, upgradeable, readable bool, vmType string, arguments ...string) (*proto.Transaction, error)
 	InvokeSmartContract(base *models.BaseTX, scAddress string, functionToCall string, callValue map[string]int64, arguments ...string) (*proto.Transaction, error)
+	NewScOutputDecoder() VMOutputData
 	// Network Broadcast
 	BroadcastTransaction(tx *proto.Transaction) (string, error)
 	BroadcastTransactions(txs []*proto.Transaction) ([]string, error)
