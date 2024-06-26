@@ -36,8 +36,8 @@ type typeInfos struct {
 }
 
 type vmOutputData struct {
-	Endpoints []endpoint           `json:"endpoints"`
 	Types     map[string]typeInfos `json:"types"`
+	Endpoints []endpoint           `json:"endpoints"`
 	AbiLoaded bool
 }
 
