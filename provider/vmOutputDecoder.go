@@ -418,7 +418,12 @@ func (a *vmOutputData) decodeOption(hexRef *string, valueType string) (interface
 	}
 
 	const OptionStringLenght int = 2
-	a.getDynamicTrim(hexRef, OptionStringLenght)
+
+	optPrefix := a.getDynamicTrim(hexRef, OptionStringLenght)
+
+	if optPrefix == "00" {
+		return nil, nil
+	}
 
 	hasListPrefix := strings.HasPrefix(valueType, utils.List)
 
