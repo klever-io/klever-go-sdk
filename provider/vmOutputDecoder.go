@@ -36,8 +36,8 @@ type typeInfos struct {
 }
 
 type vmOutputData struct {
-	Endpoints []endpoint           `json:"endpoints"`
 	Types     map[string]typeInfos `json:"types"`
+	Endpoints []endpoint           `json:"endpoints"`
 	AbiLoaded bool
 }
 
@@ -173,7 +173,11 @@ func (a *vmOutputData) selectDecoder(
 	}
 }
 
-func (a *vmOutputData) decodeSingleValue(hexRef *string, valueType string, trim int) (interface{}, error) {
+func (a *vmOutputData) decodeSingleValue(
+	hexRef *string,
+	valueType string,
+	trim int,
+) (interface{}, error) {
 	switch valueType {
 	case utils.Int8:
 		decodedValue, err := a.decodeInt(hexRef, utils.HexLength8Bits)
@@ -371,7 +375,8 @@ func (a *vmOutputData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
 
 	MaxIntNBits := new(big.Int).Sub(twoToTheNth, one)
 
-	if rawValue.Cmp(new(big.Int).SetUint64(math.MaxUint64)) == 1 && rawValue.Cmp(MaxIntNBits) == -1 {
+	if rawValue.Cmp(new(big.Int).SetUint64(math.MaxUint64)) == 1 &&
+		rawValue.Cmp(MaxIntNBits) == -1 {
 		return rawValue, nil
 	}
 
@@ -413,7 +418,12 @@ func (a *vmOutputData) decodeOption(hexRef *string, valueType string) (interface
 	}
 
 	const OptionStringLenght int = 2
-	a.getDynamicTrim(hexRef, OptionStringLenght)
+
+	optPrefix := a.getDynamicTrim(hexRef, OptionStringLenght)
+
+	if optPrefix == "00" {
+		return nil, nil
+	}
 
 	hasListPrefix := strings.HasPrefix(valueType, utils.List)
 
@@ -460,7 +470,6 @@ func (a *vmOutputData) handleList(hexRef *string, valueType string) (interface{}
 
 	if wrapperType == utils.List {
 		listTrim, err := a.getFixedTrim(hexRef)
-
 		if err != nil {
 			return nil, fmt.Errorf("error getting the list trim: %w", err)
 		}
@@ -482,7 +491,11 @@ func (a *vmOutputData) handleList(hexRef *string, valueType string) (interface{}
 	return a.decodeSingleValue(hexRef, coreType, valueTrim)
 }
 
-func (a *vmOutputData) decodeNestedList(hexRef *string, valueType string, limit int) (interface{}, error) {
+func (a *vmOutputData) decodeNestedList(
+	hexRef *string,
+	valueType string,
+	limit int,
+) (interface{}, error) {
 	var result []interface{}
 	for i := 0; i < limit; i++ {
 		decoded, err := a.handleList(hexRef, valueType)
@@ -543,7 +556,10 @@ func (a *vmOutputData) decodeVariadic(hexRef *string, valueType string) (interfa
 	return decodedValue, nil
 }
 
-func (a *vmOutputData) decodeStruct(hexRef *string, valueType string) (map[string]interface{}, error) {
+func (a *vmOutputData) decodeStruct(
+	hexRef *string,
+	valueType string,
+) (map[string]interface{}, error) {
 	typeDef, exists := a.Types[valueType]
 	if !exists {
 		return nil, fmt.Errorf("type %s not found in provided abi", valueType)
@@ -555,7 +571,12 @@ func (a *vmOutputData) decodeStruct(hexRef *string, valueType string) (map[strin
 		if strings.HasPrefix(field.Type, utils.List) {
 			decodedList, err := a.handleList(hexRef, field.Type)
 			if err != nil {
-				return nil, fmt.Errorf("error %w decoding list value of key %s of custom type %s", err, field.Type, valueType)
+				return nil, fmt.Errorf(
+					"error %w decoding list value of key %s of custom type %s",
+					err,
+					field.Type,
+					valueType,
+				)
 			}
 
 			result[field.Name] = decodedList
@@ -575,7 +596,12 @@ func (a *vmOutputData) decodeStruct(hexRef *string, valueType string) (map[strin
 
 		decodedValue, err := a.doDecode(hexRef, field.Type, trim)
 		if err != nil {
-			return nil, fmt.Errorf("error %w decoding value of key %s of custom type %s", err, field.Type, valueType)
+			return nil, fmt.Errorf(
+				"error %w decoding value of key %s of custom type %s",
+				err,
+				field.Type,
+				valueType,
+			)
 		}
 
 		result[field.Name] = decodedValue
