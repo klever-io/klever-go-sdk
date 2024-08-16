@@ -627,11 +627,8 @@ func (a *vmOutputData) decodeEnum(
 		return variants[0].Name, nil
 	}
 
-	dTrim, dBits := utils.HexLength8Bits, utils.Bits8
-
-	dHex := a.getDynamicTrim(hexRef, dTrim)
-
-	discriminant, err := a.decodeBaseUint(&dHex, dBits)
+	dHex := a.getDynamicTrim(hexRef, utils.HexLength8Bits)
+	discriminant, err := a.decodeBaseUint(&dHex, utils.Bits8)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing enum discriminant %s. %w", dHex, err)
 	}
