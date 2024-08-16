@@ -338,6 +338,52 @@ func Test_Parse_Single_Value(t *testing.T) {
 	}
 }
 
+func Test_Parse_Single_Enum_Value(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewVMOutputHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		endpoint string
+		hex      []string
+		expected string
+	}{
+		{
+			name:     "Zero_discriminant",
+			endpoint: "enum_test",
+			hex:      []string{""},
+			expected: "Neutral",
+		},
+		{
+			name:     "One_discriminant",
+			endpoint: "enum_test",
+			hex:      []string{"01"},
+			expected: "Down",
+		},
+		{
+			name:     "Two_discriminant",
+			endpoint: "enum_test",
+			hex:      []string{"02"},
+			expected: "Up",
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			result, err := abiHandler.DecodeHex(testCase.endpoint, testCase.hex)
+
+			require.Nil(t, err)
+			assert.Equal(t, testCase.expected, result)
+		})
+	}
+}
+
 func Test_Parse_List(t *testing.T) {
 	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
 	require.Nil(t, errOpen, "error opening abi", errOpen)
@@ -979,6 +1025,34 @@ func Test_Parse_Struct(t *testing.T) {
 	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000012010a0000003500000002aaaaaaaaaaaaa80000000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
 
 	result, err := abiHandler.DecodeHex("struct_test", []string{hex})
+
+	require.Nil(t, err)
+	assert.Equal(t, expected, result)
+}
+
+func Test_Parse_Struct_With_Simple_And_Tuple_Variant_Enum(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/decode/example.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewVMOutputHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	expected := map[string]interface{}{
+		"id":                 uint64(1),
+		"category":           "KDA",
+		"creator":            "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5",
+		"creation_timestamp": uint64(1723721192),
+		"deadline":           uint64(1723728352),
+		"status":             true,
+		"subject":            []any{"URB-3P2A"},
+	}
+
+	hex := "000000000000000100667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000066bde5e80000000066be01e00100000000085552422d33503241"
+
+	result, err := abiHandler.DecodeHex("struct_with_enums", []string{hex})
 
 	require.Nil(t, err)
 	assert.Equal(t, expected, result)
