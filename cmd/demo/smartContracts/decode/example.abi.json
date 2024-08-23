@@ -994,6 +994,26 @@
           "type": "StructTest"
         }
       ]
+    },
+    {
+      "name": "struct_with_enums",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "PollInfo"
+        }
+      ]
+    },
+    {
+      "name": "enum_test",
+      "mutability": "readonly",
+      "inputs": [],
+      "outputs": [
+        {
+          "type": "VoteType"
+        }
+      ]
     }
   ],
   "types": {
@@ -1063,6 +1083,116 @@
         {
           "name": "list_token",
           "type": "List<TokenIdentifier>"
+        }
+      ]
+    },
+    "PollInfo": {
+      "type": "struct",
+      "fields": [
+        {
+          "name": "id",
+          "type": "u64"
+        },
+        {
+          "name": "category",
+          "type": "Category"
+        },
+        {
+          "name": "creator",
+          "type": "Address"
+        },
+        {
+          "name": "creation_timestamp",
+          "type": "u64"
+        },
+        {
+          "name": "deadline",
+          "type": "u64"
+        },
+        {
+          "name": "status",
+          "type": "bool"
+        },
+        {
+          "name": "subject",
+          "type": "PollSubject"
+        }
+      ]
+    },
+    "VoteType": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Neutral",
+          "discriminant": 0
+        },
+        {
+          "name": "Down",
+          "discriminant": 1
+        },
+        {
+          "name": "Up",
+          "discriminant": 2
+        }
+      ]
+    },
+    "Category": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "KDA",
+          "discriminant": 0
+        },
+        {
+          "name": "Validator",
+          "discriminant": 1
+        },
+        {
+          "name": "Contract",
+          "discriminant": 2
+        },
+        {
+          "name": "FeatureRequest",
+          "discriminant": 3
+        },
+        {
+          "name": "Open",
+          "discriminant": 4
+        }
+      ]
+    },
+    "PollSubject": {
+      "type": "enum",
+      "variants": [
+        {
+          "name": "Ticker",
+          "discriminant": 0,
+          "fields": [
+            {
+              "name": "0",
+              "type": "TokenIdentifier"
+            }
+          ]
+        },
+        {
+          "name": "Address",
+          "discriminant": 1,
+          "fields": [
+            {
+              "name": "0",
+              "type": "Address"
+            }
+          ]
+        },
+        {
+          "name": "Text",
+          "discriminant": 2,
+          "fields": [
+            {
+              "name": "0",
+              "type": "bytes"
+            }
+          ]
         }
       ]
     }

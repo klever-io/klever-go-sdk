@@ -30,9 +30,16 @@ type field struct {
 	Type string `json:"type"`
 }
 
+type enumVariant struct {
+	Name         string  `json:"name"`
+	Discriminant uint    `json:"discriminant"`
+	EnumFields   []field `json:"fields,omitempty"`
+}
+
 type typeInfos struct {
-	Type   string  `json:"type"` // struct, tuple, variadic, List, Option
-	Fields []field `json:"fields"`
+	Type         string        `json:"type"` // struct, enum, tuple, variadic, List, Option
+	StructFields []field       `json:"fields,omitempty"`
+	EnumVariants []enumVariant `json:"variants,omitempty"`
 }
 
 type vmOutputData struct {
@@ -224,7 +231,15 @@ func (a *vmOutputData) decodeSingleValue(
 		utils.SliceU8:
 		return a.decodeString(hexRef, trim)
 	default:
-		return a.decodeStruct(hexRef, valueType)
+		typeDef, exists := a.Types[valueType]
+		if !exists {
+			return nil, fmt.Errorf("type %s not found in provided abi", valueType)
+		}
+
+		if typeDef.Type == "enum" {
+			return a.decodeEnum(hexRef, typeDef.EnumVariants)
+		}
+		return a.decodeStruct(hexRef, typeDef.StructFields)
 	}
 }
 
@@ -558,16 +573,11 @@ func (a *vmOutputData) decodeVariadic(hexRef *string, valueType string) (interfa
 
 func (a *vmOutputData) decodeStruct(
 	hexRef *string,
-	valueType string,
+	fields []field,
 ) (map[string]interface{}, error) {
-	typeDef, exists := a.Types[valueType]
-	if !exists {
-		return nil, fmt.Errorf("type %s not found in provided abi", valueType)
-	}
-
 	result := make(map[string]interface{})
 
-	for _, field := range typeDef.Fields {
+	for _, field := range fields {
 		if strings.HasPrefix(field.Type, utils.List) {
 			decodedList, err := a.handleList(hexRef, field.Type)
 			if err != nil {
@@ -575,7 +585,7 @@ func (a *vmOutputData) decodeStruct(
 					"error %w decoding list value of key %s of custom type %s",
 					err,
 					field.Type,
-					valueType,
+					fields,
 				)
 			}
 
@@ -584,7 +594,6 @@ func (a *vmOutputData) decodeStruct(
 		}
 
 		var trim int
-
 		if utils.IsDynamicLengthType(field.Type) {
 			calculatedTrim, err := a.getFixedTrim(hexRef)
 			if err != nil {
@@ -600,7 +609,7 @@ func (a *vmOutputData) decodeStruct(
 				"error %w decoding value of key %s of custom type %s",
 				err,
 				field.Type,
-				valueType,
+				fields,
 			)
 		}
 
@@ -608,4 +617,75 @@ func (a *vmOutputData) decodeStruct(
 	}
 
 	return result, nil
+}
+
+func (a *vmOutputData) decodeEnum(
+	hexRef *string,
+	variants []enumVariant,
+) (interface{}, error) {
+	if (*hexRef) == "" {
+		return variants[0].Name, nil
+	}
+
+	dHex := a.getDynamicTrim(hexRef, utils.HexLength8Bits)
+	discriminant, err := a.decodeBaseUint(&dHex, utils.Bits8)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing enum discriminant %s. %w", dHex, err)
+	}
+
+	if !haveTupleVariants(variants) {
+		return variants[(*discriminant)].Name, nil
+	}
+
+	enumFields := variants[(*discriminant)].EnumFields
+	decodedValues := make([]any, 0, len(enumFields))
+	for _, field := range enumFields {
+		if strings.HasPrefix(field.Type, utils.List) {
+			decodedList, err := a.handleList(hexRef, field.Type)
+			if err != nil {
+				return nil, fmt.Errorf(
+					"error %w decoding list value of key %s of custom type %s",
+					err,
+					field.Type,
+					variants[(*discriminant)].Name,
+				)
+			}
+
+			decodedValues = append(decodedValues, decodedList)
+			continue
+		}
+
+		var trim int
+		if utils.IsDynamicLengthType(field.Type) {
+			calculatedTrim, err := a.getFixedTrim(hexRef)
+			if err != nil {
+				return nil, fmt.Errorf("error while triming option hex string %w", err)
+			}
+
+			trim = calculatedTrim
+		}
+
+		decodedValue, err := a.doDecode(hexRef, field.Type, trim)
+		if err != nil {
+			return nil, fmt.Errorf(
+				"error %w decoding value of key %s of custom type %s",
+				err,
+				field.Type,
+				variants[(*discriminant)].Name,
+			)
+		}
+
+		decodedValues = append(decodedValues, decodedValue)
+	}
+
+	return decodedValues, nil
+}
+
+func haveTupleVariants(variants []enumVariant) bool {
+	for _, variant := range variants {
+		if len(variant.EnumFields) == 0 {
+			return false
+		}
+	}
+	return true
 }

@@ -58,10 +58,10 @@ func encodeSingleValue(t, v string, isNested bool) (string, error) {
 
 		return encodeInt(v, t, isNested)
 	case
-		utils.Uint8, strings.ToUpper(utils.Int8), // uint8
-		utils.Uint16, strings.ToUpper(utils.Int64), // uint16
-		utils.Uint32, strings.ToUpper(utils.Int64), utils.Usize, // uint32
-		utils.Uint64, strings.ToUpper(utils.Int64): // uint864
+		utils.Uint8, strings.ToUpper(utils.Uint8), // uint8
+		utils.Uint16, strings.ToUpper(utils.Uint64), // uint16
+		utils.Uint32, strings.ToUpper(utils.Uint64), utils.Usize, // uint32
+		utils.Uint64, strings.ToUpper(utils.Uint64): // uint864
 
 		return encodeUint(v, t, isNested)
 	case utils.BigInt, strings.ToLower(utils.BigInt),
@@ -111,13 +111,13 @@ func encodeTopLevelInt(v string) (string, error) {
 	switch {
 	// typecast to uint to correspondent bit size to use 2's complement in negative values
 	case rawInt >= math.MinInt8 && rawInt <= math.MaxInt8:
-		return fmt.Sprintf("%x", uint8(rawInt)), nil
+		return fmt.Sprintf("%02x", uint8(rawInt)), nil
 	case rawInt >= math.MinInt16 && rawInt <= math.MaxInt16:
-		return fmt.Sprintf("%x", uint16(rawInt)), nil
+		return fmt.Sprintf("%04x", uint16(rawInt)), nil
 	case rawInt >= math.MinInt32 && rawInt <= math.MaxInt32:
-		return fmt.Sprintf("%x", uint32(rawInt)), nil
+		return fmt.Sprintf("%08x", uint32(rawInt)), nil
 	default:
-		return fmt.Sprintf("%x", uint64(rawInt)), nil
+		return fmt.Sprintf("%016x", uint64(rawInt)), nil
 	}
 }
 
@@ -153,14 +153,14 @@ func encodeTopLevelUint(v string) (string, error) {
 		return "", fmt.Errorf("invalid string `%s` to convert to signed integer", v)
 	}
 	switch {
-	case rawInt <= math.MaxInt8:
-		return fmt.Sprintf("%x", uint8(rawInt)), nil
-	case rawInt <= math.MaxInt16:
-		return fmt.Sprintf("%x", uint16(rawInt)), nil
-	case rawInt <= math.MaxInt32:
-		return fmt.Sprintf("%x", uint32(rawInt)), nil
+	case rawInt <= math.MaxUint8:
+		return fmt.Sprintf("%02x", uint8(rawInt)), nil
+	case rawInt <= math.MaxUint16:
+		return fmt.Sprintf("%04x", uint16(rawInt)), nil
+	case rawInt <= math.MaxUint32:
+		return fmt.Sprintf("%08x", uint32(rawInt)), nil
 	default:
-		return fmt.Sprintf("%x", rawInt), nil
+		return fmt.Sprintf("%016x", rawInt), nil
 	}
 }
 
@@ -272,7 +272,10 @@ func bigIntTwosComplement(b *big.Int) {
 func encodeBigFloat(v string, isNested bool) (string, error) {
 	bf, ok := new(big.Float).SetString(v)
 	if !ok {
-		return "", fmt.Errorf("invalid string `%s` representing a big float to encode to hexadecimal", v)
+		return "", fmt.Errorf(
+			"invalid string `%s` representing a big float to encode to hexadecimal",
+			v,
+		)
 	}
 
 	bf.SetPrec(utils.BigFloatVMPrecision)
@@ -280,7 +283,10 @@ func encodeBigFloat(v string, isNested bool) (string, error) {
 
 	bfBytes, err := bf.GobEncode()
 	if err != nil {
-		return "", fmt.Errorf("invalid string `%s` representing a big float to encode to hexadecimal", v)
+		return "", fmt.Errorf(
+			"invalid string `%s` representing a big float to encode to hexadecimal",
+			v,
+		)
 	}
 
 	hexBf := hex.EncodeToString(bfBytes)
