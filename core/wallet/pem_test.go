@@ -2,8 +2,8 @@ package wallet_test
 
 import (
 	"encoding/hex"
-	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/klever-io/klever-go-sdk/core/wallet"
@@ -11,7 +11,7 @@ import (
 )
 
 func tempPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +26,7 @@ MDQ1ZTVjZjU3MTQ5N2Q5ZA==
 }
 
 func tempPemFileEncrypted() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -34,17 +34,17 @@ func tempPemFileEncrypted() string {
 	file.WriteString(
 		`-----BEGIN PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----
 Proc-Type: 4,ENCRYPTED
-DEK-Info: AES-GCM,453eb5c4c21225936c8c27b2
+DEK-Info: AES-GCM,677bac32f3e8eeb54b5f2e40
 
-RT61xMISJZNsjCeyEiLgO/Nftp5Nk/l1OsGg7jlbnk/YDQ6675Nq82qg3U/IIC6b
-Y3osGzZtxlO0KWQ9MOeZ1aRkIDl3Mys15RmXEqBBF+Ukqmcm1K2+oupmSgw=
+Z3usMvPo7rVLXy5AQk/z4lKS7XaarfhI4OSA8j7pL8CeBExqaApF4Op263+qFe35
+YQgq5vmh9dRHYF6YdCy7Zuv2mI0OEho8KMwtqjhBXCpiILNub9qliVG140c=
 -----END PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----`)
 
 	return file.Name()
 }
 
 func tempPemFileEncryptedWrong() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,7 +62,7 @@ Y3osGzZtxlO0KWQ9MOeZ1aRkIDl3Mys15RmXEqBBF+Ukqmcm1K2+oupmSgw=
 }
 
 func tempEmptyPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +72,7 @@ func tempEmptyPemFile() string {
 }
 
 func tempInvalidPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -153,7 +153,7 @@ func TestLoadKey_InvalidSKIndexNotFound(t *testing.T) {
 
 func TestEncryptPEMBlock_ShouldWork(t *testing.T) {
 
-	pem, err := wallet.EncryptPEMBlock("AES-GCM", []byte("8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d"), "123")
+	pemBlock, err := wallet.EncryptPEMBlock("AES-GCM", []byte("8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d"), "123")
 	assert.Nil(t, err)
-	assert.Len(t, pem.Bytes, 92)
+	assert.Len(t, pemBlock.Bytes, 92)
 }

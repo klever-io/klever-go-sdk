@@ -4,14 +4,12 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,7 +47,7 @@ func LoadSkPkFromPemFile(relativePath string, skIndex int, pwd string) ([]byte, 
 		_ = file.Close()
 	}()
 
-	buff, err := ioutil.ReadAll(file)
+	buff, err := io.ReadAll(file)
 	if err != nil {
 		return nil, "", fmt.Errorf("%w while reading %s file", err, relativePath)
 	}
@@ -209,5 +207,5 @@ func StringHash(text string) []byte {
 
 // PBKDFPass from password and salt
 func PBKDFPass(password, salt []byte) []byte {
-	return pbkdf2.Key(password, salt, 4096, 32, sha1.New)
+	return pbkdf2.Key(password, salt, 4096, 32, sha256.New)
 }
