@@ -2,8 +2,8 @@ package wallet_test
 
 import (
 	"encoding/hex"
-	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 
 	"github.com/klever-io/klever-go-sdk/core/wallet"
@@ -11,7 +11,7 @@ import (
 )
 
 func tempPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -26,7 +26,25 @@ MDQ1ZTVjZjU3MTQ5N2Q5ZA==
 }
 
 func tempPemFileEncrypted() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	file.WriteString(
+		`-----BEGIN PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-256-GCM,3e3ed6b4a2c6ccd144d84ccc
+
+Pj7WtKLGzNFE2EzMwpyfrwGuWUNxumZs9wjHBDIjn3z0RSsNrHDEDwHTnIUEUNUT
+vYloWYjT0LPoKZ1WC5ZqUiRNuy1GE2J6Opbebyy2CkcpjV8PDJ/ficxU3xg=
+-----END PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----`)
+
+	return file.Name()
+}
+
+func tempPemFileOldEncrypted() string {
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -44,7 +62,7 @@ Y3osGzZtxlO0KWQ9MOeZ1aRkIDl3Mys15RmXEqBBF+Ukqmcm1K2+oupmSgw=
 }
 
 func tempPemFileEncryptedWrong() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -62,7 +80,7 @@ Y3osGzZtxlO0KWQ9MOeZ1aRkIDl3Mys15RmXEqBBF+Ukqmcm1K2+oupmSgw=
 }
 
 func tempEmptyPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +90,7 @@ func tempEmptyPemFile() string {
 }
 
 func tempInvalidPemFile() string {
-	file, err := ioutil.TempFile("", "wallet*.pem")
+	file, err := os.CreateTemp("", "wallet*.pem")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -127,6 +145,15 @@ func TestLoadKey_EncryptedShouldWork(t *testing.T) {
 	assert.Equal(t, "8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d", hex.EncodeToString(pk))
 }
 
+func TestLoadKey_OldEncryptedShouldWork(t *testing.T) {
+	fileName := tempPemFileOldEncrypted()
+
+	pk, pub, err := wallet.LoadKey(fileName, 0, "123")
+	assert.Nil(t, err)
+	assert.Equal(t, "klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy", pub)
+	assert.Equal(t, "8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d", hex.EncodeToString(pk))
+}
+
 func TestLoadKey_EncryptedWrongPassword(t *testing.T) {
 	fileName := tempPemFileEncrypted()
 
@@ -153,7 +180,7 @@ func TestLoadKey_InvalidSKIndexNotFound(t *testing.T) {
 
 func TestEncryptPEMBlock_ShouldWork(t *testing.T) {
 
-	pem, err := wallet.EncryptPEMBlock("AES-GCM", []byte("8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d"), "123")
+	pemBlock, err := wallet.EncryptPEMBlock("AES-GCM", []byte("8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d"), "123")
 	assert.Nil(t, err)
-	assert.Len(t, pem.Bytes, 92)
+	assert.Len(t, pemBlock.Bytes, 92)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -53,7 +53,7 @@ func (h *httpClient) Get(ctx context.Context, url string, target interface{}, op
 	}
 	defer r.Body.Close()
 
-	body, err := ioutil.ReadAll(r.Body)
+	body, err := io.ReadAll(r.Body)
 	if err != nil {
 		return err
 	}
@@ -95,7 +95,7 @@ func (h *httpClient) Post(ctx context.Context, url string, body string, headers 
 	}
 	defer r.Body.Close()
 
-	data, errRead := ioutil.ReadAll(r.Body)
+	data, errRead := io.ReadAll(r.Body)
 	defer r.Body.Close()
 	if errRead != nil {
 		return errRead
