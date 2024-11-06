@@ -4,11 +4,13 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
+	"crypto/sha1"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/pem"
 	"errors"
 	"fmt"
+	"hash"
 	"io"
 	"os"
 	"path/filepath"
@@ -131,11 +133,16 @@ func DecryptPEMBlock(b *pem.Block, pwd string) (*pem.Block, error) {
 		return nil, errors.New("x509: malformed DEK-Info header")
 	}
 
-	if mode != "AES-GCM" {
+	// keep compatibility with old PEM encryption
+	var password []byte
+	switch mode {
+	case "AES-GCM":
+		password = getEncryptionKey(pwd, sha1.New)
+	case "AES-256-GCM":
+		password = getEncryptionKey(pwd, sha256.New)
+	default:
 		return nil, errors.New("invalid encryption mode")
 	}
-
-	password := getEncryptionKey(pwd)
 
 	block, err := aes.NewCipher(password)
 	if err != nil {
@@ -166,7 +173,8 @@ func DecryptPEMBlock(b *pem.Block, pwd string) (*pem.Block, error) {
 // given DER encoded data encrypted with GCM algorithm and
 // password according to RFC 1423.
 func EncryptPEMBlock(blockType string, data []byte, pwd string) (*pem.Block, error) {
-	password := getEncryptionKey(pwd)
+	// get encryption key using password and sha256
+	password := getEncryptionKey(pwd, sha256.New)
 
 	block, _ := aes.NewCipher(password)
 	gcm, err := cipher.NewGCM(block)
@@ -184,18 +192,18 @@ func EncryptPEMBlock(blockType string, data []byte, pwd string) (*pem.Block, err
 		Type: blockType,
 		Headers: map[string]string{
 			"Proc-Type": "4,ENCRYPTED",
-			"DEK-Info":  "AES-GCM," + hex.EncodeToString(nonce),
+			"DEK-Info":  "AES-256-GCM," + hex.EncodeToString(nonce),
 		},
 		Bytes: ciphertext,
 	}, nil
 }
 
 // getEncryptionKey based for pin
-func getEncryptionKey(pin string) []byte {
+func getEncryptionKey(pin string, hashType func() hash.Hash) []byte {
 	idBytes := StringHash("kleverchain")
 	pwdBytes := StringHash(pin)
 
-	return PBKDFPass(pwdBytes, idBytes)
+	return PBKDFPass(pwdBytes, idBytes, hashType)
 }
 
 // StringHash computes SHA256 from string
@@ -206,6 +214,6 @@ func StringHash(text string) []byte {
 }
 
 // PBKDFPass from password and salt
-func PBKDFPass(password, salt []byte) []byte {
-	return pbkdf2.Key(password, salt, 4096, 32, sha256.New)
+func PBKDFPass(password, salt []byte, hashType func() hash.Hash) []byte {
+	return pbkdf2.Key(password, salt, 4096, 32, hashType)
 }

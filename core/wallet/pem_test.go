@@ -34,10 +34,28 @@ func tempPemFileEncrypted() string {
 	file.WriteString(
 		`-----BEGIN PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----
 Proc-Type: 4,ENCRYPTED
-DEK-Info: AES-GCM,677bac32f3e8eeb54b5f2e40
+DEK-Info: AES-256-GCM,3e3ed6b4a2c6ccd144d84ccc
 
-Z3usMvPo7rVLXy5AQk/z4lKS7XaarfhI4OSA8j7pL8CeBExqaApF4Op263+qFe35
-YQgq5vmh9dRHYF6YdCy7Zuv2mI0OEho8KMwtqjhBXCpiILNub9qliVG140c=
+Pj7WtKLGzNFE2EzMwpyfrwGuWUNxumZs9wjHBDIjn3z0RSsNrHDEDwHTnIUEUNUT
+vYloWYjT0LPoKZ1WC5ZqUiRNuy1GE2J6Opbebyy2CkcpjV8PDJ/ficxU3xg=
+-----END PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----`)
+
+	return file.Name()
+}
+
+func tempPemFileOldEncrypted() string {
+	file, err := os.CreateTemp("", "wallet*.pem")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+	file.WriteString(
+		`-----BEGIN PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----
+Proc-Type: 4,ENCRYPTED
+DEK-Info: AES-GCM,453eb5c4c21225936c8c27b2
+
+RT61xMISJZNsjCeyEiLgO/Nftp5Nk/l1OsGg7jlbnk/YDQ6675Nq82qg3U/IIC6b
+Y3osGzZtxlO0KWQ9MOeZ1aRkIDl3Mys15RmXEqBBF+Ukqmcm1K2+oupmSgw=
 -----END PRIVATE KEY for klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy-----`)
 
 	return file.Name()
@@ -120,6 +138,15 @@ func TestLoadKey_ShouldWork(t *testing.T) {
 
 func TestLoadKey_EncryptedShouldWork(t *testing.T) {
 	fileName := tempPemFileEncrypted()
+
+	pk, pub, err := wallet.LoadKey(fileName, 0, "123")
+	assert.Nil(t, err)
+	assert.Equal(t, "klv1usdnywjhrlv4tcyu6stxpl6yvhplg35nepljlt4y5r7yppe8er4qujlazy", pub)
+	assert.Equal(t, "8734062c1158f26a3ca8a4a0da87b527a7c168653f7f4c77045e5cf571497d9d", hex.EncodeToString(pk))
+}
+
+func TestLoadKey_OldEncryptedShouldWork(t *testing.T) {
+	fileName := tempPemFileOldEncrypted()
 
 	pk, pub, err := wallet.LoadKey(fileName, 0, "123")
 	assert.Nil(t, err)
