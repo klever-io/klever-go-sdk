@@ -1,12 +1,13 @@
 module github.com/klever-io/klever-go-sdk
 
-go 1.22
+go 1.22.1
 
-toolchain go1.22.8
+toolchain go1.23.4
 
 require (
 	github.com/btcsuite/btcutil v1.0.3-0.20201208143702-a53e38424cce
 	github.com/cosmos/go-bip39 v1.0.0
+	github.com/klever-io/klever-go v1.7.8
 	github.com/stretchr/testify v1.9.0
 	github.com/xdg-go/pbkdf2 v1.0.0
 	golang.org/x/crypto v0.28.0
