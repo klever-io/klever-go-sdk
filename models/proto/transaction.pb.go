@@ -504,6 +504,8 @@ type Transaction struct {
 	Block         uint64                   `protobuf:"varint,6,opt,name=Block,json=block,proto3" json:"Block,omitempty"`
 	GasLimit      uint64                   `protobuf:"varint,7,opt,name=GasLimit,json=gasLimit,proto3" json:"GasLimit,omitempty"`
 	GasMultiplier uint64                   `protobuf:"varint,8,opt,name=GasMultiplier,json=gasMultiplier,proto3" json:"GasMultiplier,omitempty"`
+
+	Hash []byte `json:"hash"`
 }
 
 func (x *Transaction) Reset() {
