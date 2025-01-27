@@ -1,11 +1,13 @@
 package address_test
 
 import (
+	"bytes"
 	"encoding/hex"
 	"testing"
 
 	"github.com/klever-io/klever-go-sdk/core/address"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAddress_ZeroAddress(t *testing.T) {
@@ -75,4 +77,17 @@ func TestAddress_Address_ShouldWork(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, addr.Bech32(), bech32Addr)
 	assert.Equal(t, addr.Hex(), hexString)
+}
+
+func TestAddress_AdressSlice_ShouldWork(t *testing.T) {
+	bech32Addr := "klv1mge94r8n3q44hcwu2tk9afgjcxcawmutycu0cwkap7m6jnktjlvq58355l"
+	hexString := "da325a8cf3882b5be1dc52ec5ea512c1b1d76f8b2638fc3add0fb7a94ecb97d8"
+	expectedBytes, err := hex.DecodeString(hexString)
+	require.NoError(t, err)
+
+	addr, err := address.NewAddress(bech32Addr)
+	require.NoError(t, err)
+
+	addrSlice := addr.AddressSlice()
+	bytes.Equal(addrSlice[:], expectedBytes)
 }
