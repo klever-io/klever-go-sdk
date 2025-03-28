@@ -57,7 +57,7 @@ func scReq(endpoint, funcName, scAddress string, args ...string) ([]byte, error)
 
 	req, err := http.NewRequest(
 		"POST",
-		fmt.Sprintf("https://node.testnet.klever.finance/vm/%s", endpoint),
+		fmt.Sprintf("https://node.testnet.klever.org/vm/%s", endpoint),
 		bodyReader,
 	)
 	if err != nil {
