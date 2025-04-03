@@ -37,16 +37,16 @@ func NewNetworkConfig(network Network) NetworkConfig {
 	switch network {
 	case LocalNet:
 	case MainNet:
-		APIUri = "https://api.mainnet.klever.finance"
-		NodeUri = "https://node.mainnet.klever.finance"
+		APIUri = "https://api.mainnet.klever.org"
+		NodeUri = "https://node.mainnet.klever.org"
 		ExplorerUri = "https://kleverscan.org/"
 	case TestNet:
-		APIUri = "https://api.testnet.klever.finance"
-		NodeUri = "https://node.testnet.klever.finance"
+		APIUri = "https://api.testnet.klever.org"
+		NodeUri = "https://node.testnet.klever.org"
 		ExplorerUri = "https://testnet.kleverscan.org/"
 	case DevNet:
-		APIUri = "https://api.devnet.klever.finance"
-		NodeUri = "https://node.devnet.klever.finance"
+		APIUri = "https://api.devnet.klever.org"
+		NodeUri = "https://node.devnet.klever.org"
 		ExplorerUri = "https://klever-explorer-oxw5p5ia3q-uc.a.run.app/"
 	default:
 		panic("invalid network config")
