@@ -5,4 +5,6 @@ type Address interface {
 	Hex() string
 	Bytes() []byte
 	IsInterfaceNil() bool
+	AddressSlice() [32]byte
+	IsValid() bool
 }
