@@ -153,6 +153,7 @@ func (kc *kleverChain) CreateKDA(
 	contracts = append(contracts, models.CreateAssetTXRequest{
 		Type:          uint32(kdaType),
 		OwnerAddress:  base.FromAddress,
+		AdminAddress:  op.AdminAddress,
 		Name:          op.Name,
 		Ticker:        op.Ticker,
 		Precision:     uint32(op.Precision),

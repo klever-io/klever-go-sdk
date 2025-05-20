@@ -46,7 +46,8 @@ func main() {
 				ITOFixed:       10,
 				SplitRoyalties: splitRoyalties,
 			},
-			URIs: map[string]string{"explorer": "testnet.kleverscan.org"},
+			URIs:         map[string]string{"explorer": "testnet.kleverscan.org"},
+			AdminAddress: base.FromAddress,
 		})
 	if err != nil {
 		panic(err)
