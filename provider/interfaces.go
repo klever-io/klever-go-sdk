@@ -48,7 +48,7 @@ type KleverChain interface {
 	ITOTrigger(base *models.BaseTX, kdaID string, triggerType ITOTriggerType, op *models.ITOTriggerOptions) (*proto.Transaction, error)
 	CreateMarketplace(base *models.BaseTX, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
 	ConfigMarketplace(base *models.BaseTX, id, name, referralAddr string, referralPercent float64) (*proto.Transaction, error)
-	BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error)
+	BuyOrder(base *models.BaseTX, id, currency string, amount float64, currencyAmount float64, buyType int32) (*proto.Transaction, error)
 	SellOrder(base *models.BaseTX, kdaID, currency, mktID string, price, reservePrice float64, endTime int64, mktType int32, message string) (*proto.Transaction, error)
 	CancelMarketOrder(base *models.BaseTX, orderID string) (*proto.Transaction, error)
 	// Staking Action
