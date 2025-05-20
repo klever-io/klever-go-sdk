@@ -47,7 +47,7 @@ func NewNetworkConfig(network Network) NetworkConfig {
 	case DevNet:
 		APIUri = "https://api.devnet.klever.org"
 		NodeUri = "https://node.devnet.klever.org"
-		ExplorerUri = "https://klever-explorer-oxw5p5ia3q-uc.a.run.app/"
+		ExplorerUri = "https://devnet.kleverscan.org/"
 	default:
 		panic("invalid network config")
 	}
