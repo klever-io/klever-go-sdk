@@ -14,6 +14,8 @@ type KDAOptions struct {
 	Staking              StakingInfo
 	Royalties            RoyaltiesInfo
 
+	AdminAddress string
+
 	Mime string
 	Logo string
 	URIs map[string]string

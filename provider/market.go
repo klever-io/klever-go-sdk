@@ -42,7 +42,7 @@ func (kc *kleverChain) ConfigMarketplace(base *models.BaseTX, id, name, referral
 	return kc.PrepareTransaction(data)
 }
 
-func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount float64, buyType int32) (*proto.Transaction, error) {
+func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount float64, currencyAmount float64, buyType int32) (*proto.Transaction, error) {
 	parsedAmount := amount
 
 	precision, err := kc.getPrecision(id)
@@ -53,10 +53,11 @@ func (kc *kleverChain) BuyOrder(base *models.BaseTX, id, currency string, amount
 	parsedAmount = amount * math.Pow10(int(precision))
 
 	buyOrder := models.BuyTXRequest{
-		BuyType:    buyType,
-		ID:         id,
-		CurrencyID: currency,
-		Amount:     int64(parsedAmount),
+		BuyType:        buyType,
+		ID:             id,
+		CurrencyID:     currency,
+		Amount:         int64(parsedAmount),
+		CurrencyAmount: int64(currencyAmount),
 	}
 
 	data, err := kc.buildRequest(proto.TXContract_BuyContractType, base, []interface{}{buyOrder})
