@@ -100,6 +100,21 @@ func (a address) Bytes() []byte {
 	return append([]byte{}, a.bytes...)
 }
 
+// TODO: check if it is needed, klv-eth-bridge uses it but need to validate its utility
+// AddressSlice will convert the provided buffer to its [32]byte representation
+func (a *address) AddressSlice() [32]byte {
+	var result [32]byte
+	copy(result[:], a.bytes)
+
+	return result
+}
+
+// TODO: check if it is needed, since there is a validadion on NewAddress
+// IsValid returns true if the contained address is valid
+func (a *address) IsValid() bool {
+	return len(a.bytes) == core.AddressBytesLen
+}
+
 func (a *address) IsInterfaceNil() bool {
 	return a == nil
 }
