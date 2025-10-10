@@ -1,0 +1,61 @@
+{
+    "types": {
+        "AddLiquidityEvent": {
+            "type": "struct",
+            "fields": [
+                {
+                    "name": "caller",
+                    "type": "Address"
+                },
+                {
+                    "name": "first_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "first_token_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "second_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "second_token_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "lp_token_id",
+                    "type": "TokenIdentifier"
+                },
+                {
+                    "name": "lp_token_amount",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "lp_supply",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "first_token_reserves",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "second_token_reserves",
+                    "type": "BigUint"
+                },
+                {
+                    "name": "block",
+                    "type": "u64"
+                },
+                {
+                    "name": "epoch",
+                    "type": "u64"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "u64"
+                }
+            ]
+        }
+    }
+}

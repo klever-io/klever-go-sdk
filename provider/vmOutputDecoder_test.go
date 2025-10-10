@@ -1463,3 +1463,20 @@ func Test_ParseQuery_MultiValue_of_struct_and_nested_list(t *testing.T) {
 	require.Nil(t, err)
 	assert.ElementsMatch(t, expectedOutput, result)
 }
+
+func Test_DecodeStruct(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/scFiles/pair.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewVMOutputHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error opening abi", errLoad)
+
+	hex := "5a8228800e2a7a4decf109302d52ee67558402e0c4131e4df61a3d5b8002b438000000034b4649000000022710000000034b4c560000000441e36c940000000d4b46494b4c564c502d3348314700000003039f4f000000040bd6fa51000000037fad9f00000005d75c39315d00000000004f6fac00000000000087f80000000068e4059c"
+
+	_, err := abiHandler.DecodeStruct("AddLiquidityEvent", hex)
+	require.Nil(t, err)
+
+}
