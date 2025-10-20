@@ -51,6 +51,7 @@ type vmOutputData struct {
 type VMOutputData interface {
 	DecodeHex(endpoint string, hex []string) (interface{}, error)
 	DecodeQuery(endpoint string, base64 []string) (interface{}, error)
+	DecodeStruct(structType string, hex string) (map[string]interface{}, error)
 	LoadAbi(r io.Reader) error
 }
 
@@ -75,6 +76,29 @@ func (a *vmOutputData) LoadAbi(r io.Reader) error {
 	a.AbiLoaded = true
 
 	return nil
+}
+
+func (a *vmOutputData) DecodeStruct(structType string, hex string) (map[string]interface{}, error) {
+	if !a.AbiLoaded {
+		return nil, fmt.Errorf("before decode any value load your abi with `LoadAbi`")
+	}
+
+	typeDef, exists := a.Types[structType]
+	if !exists {
+		return nil, fmt.Errorf("struct type %s not found in provided abi", structType)
+	}
+
+	if typeDef.Type != "struct" {
+		return nil, fmt.Errorf("type %s is not a struct, it's a %s", structType, typeDef.Type)
+	}
+	hexRef := hex
+
+	result, err := a.decodeStruct(&hexRef, typeDef.StructFields)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding struct %s: %w", structType, err)
+	}
+
+	return result, nil
 }
 
 // only for single result outputs
