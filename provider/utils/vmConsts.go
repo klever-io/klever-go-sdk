@@ -57,6 +57,7 @@ const (
 	List     string = "List"
 	Option   string = "Option"
 	Tuple    string = "tuple"
+	Multi    string = "multi"
 	Variadic string = "variadic"
 )
 

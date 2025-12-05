@@ -16,7 +16,8 @@ import (
 )
 
 type output struct {
-	Type string `json:"type"`
+	Type        string `json:"type"`
+	MultiResult bool   `json:"multi_result,omitempty"`
 }
 
 type endpoint struct {
@@ -116,6 +117,11 @@ func (a *vmOutputData) DecodeHex(endpoint string, hexData []string) (interface{}
 		return a.doDecode(&hexData[0], a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
 	}
 
+	// check if the output has multi_result flag
+	if a.Endpoints[*endpointIndex].Outputs[0].MultiResult {
+		return a.decodeMultiResult(hexData, a.Endpoints[*endpointIndex].Outputs[0].Type)
+	}
+
 	var decodedValues []interface{}
 
 	var outputIndex int
@@ -148,6 +154,46 @@ func (a *vmOutputData) DecodeQuery(endpoint string, base64Data []string) (interf
 	}
 
 	return a.DecodeHex(endpoint, hexData)
+}
+
+func (a *vmOutputData) decodeMultiResult(hexData []string, fullType string) (interface{}, error) {
+	wrapperType, innerType := utils.SplitTypes(fullType)
+	if wrapperType != utils.Variadic {
+		return nil, fmt.Errorf("multi_result expects variadic type, got %s", wrapperType)
+	}
+
+	multiWrapper, tupleTypes := utils.SplitTypes(innerType)
+	if multiWrapper != utils.Multi {
+		return nil, fmt.Errorf("multi_result expects multi type inside variadic, got %s", multiWrapper)
+	}
+
+	types := utils.SplitTupleTypes(tupleTypes)
+	numTypesPerGroup := len(types)
+
+	if len(hexData)%numTypesPerGroup != 0 {
+		return nil, fmt.Errorf("hex data length %d is not a multiple of types count %d", len(hexData), numTypesPerGroup)
+	}
+
+	var result []interface{}
+
+	for i := 0; i < len(hexData); i += numTypesPerGroup {
+		group := make([]interface{}, numTypesPerGroup)
+
+		for j := 0; j < numTypesPerGroup; j++ {
+			h := hexData[i+j]
+
+			decoded, err := a.doDecode(&h, types[j], 0)
+			if err != nil {
+				return nil, fmt.Errorf("error decoding type %s at index %d: %w", types[j], i+j, err)
+			}
+
+			group[j] = decoded
+		}
+
+		result = append(result, group)
+	}
+
+	return result, nil
 }
 
 func (a *vmOutputData) findEndpoint(endpointName string) (*int, error) {
