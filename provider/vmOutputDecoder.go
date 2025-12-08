@@ -175,11 +175,15 @@ func (a *vmOutputData) decodeMultiResult(hexData []string, fullType string) (int
 	types := utils.SplitTupleTypes(tupleTypes)
 	numTypesPerGroup := len(types)
 
+	if numTypesPerGroup == 0 {
+		return nil, fmt.Errorf("multi_result has no inner types for %s", fullType)
+	}
+
 	if len(hexData)%numTypesPerGroup != 0 {
 		return nil, fmt.Errorf("hex data length %d is not a multiple of types count %d", len(hexData), numTypesPerGroup)
 	}
 
-	var result []interface{}
+	result := make([]interface{}, 0, len(hexData)/numTypesPerGroup)
 
 	// process each group of values
 	for i := 0; i < len(hexData); i += numTypesPerGroup {
