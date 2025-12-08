@@ -16,8 +16,7 @@ import (
 )
 
 type output struct {
-	Type        string `json:"type"`
-	MultiResult bool   `json:"multi_result,omitempty"`
+	Type string `json:"type"`
 }
 
 type endpoint struct {
@@ -113,13 +112,14 @@ func (a *vmOutputData) DecodeHex(endpoint string, hexData []string) (interface{}
 		return nil, err
 	}
 
-	if len(hexData) == 1 {
-		return a.doDecode(&hexData[0], a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
+	// handle variadic<multi<...>> pattern which returns flattened data
+	outputType := a.Endpoints[*endpointIndex].Outputs[0].Type
+	if len(hexData) > 1 && utils.IsVariadicMulti(outputType) {
+		return a.decodeMultiResult(hexData, outputType)
 	}
 
-	// check if the output has multi_result flag
-	if a.Endpoints[*endpointIndex].Outputs[0].MultiResult {
-		return a.decodeMultiResult(hexData, a.Endpoints[*endpointIndex].Outputs[0].Type)
+	if len(hexData) == 1 {
+		return a.doDecode(&hexData[0], a.Endpoints[*endpointIndex].Outputs[0].Type, 0)
 	}
 
 	var decodedValues []interface{}
@@ -144,7 +144,6 @@ func (a *vmOutputData) DecodeHex(endpoint string, hexData []string) (interface{}
 // mainly for multi result outputs
 func (a *vmOutputData) DecodeQuery(endpoint string, base64Data []string) (interface{}, error) {
 	var hexData []string
-
 	for _, data := range base64Data {
 		dataBytes, err := base64.StdEncoding.DecodeString(data)
 		if err != nil {
@@ -156,6 +155,8 @@ func (a *vmOutputData) DecodeQuery(endpoint string, base64Data []string) (interf
 	return a.DecodeHex(endpoint, hexData)
 }
 
+// decodeMultiResult handles the multi_result flag where variadic<multi<A,B,...>>
+// returns data as [a1,b1,a2,b2,...] instead of grouped tuples
 func (a *vmOutputData) decodeMultiResult(hexData []string, fullType string) (interface{}, error) {
 	wrapperType, innerType := utils.SplitTypes(fullType)
 	if wrapperType != utils.Variadic {
@@ -176,17 +177,16 @@ func (a *vmOutputData) decodeMultiResult(hexData []string, fullType string) (int
 
 	var result []interface{}
 
+	// process each group of values
 	for i := 0; i < len(hexData); i += numTypesPerGroup {
 		group := make([]interface{}, numTypesPerGroup)
 
 		for j := 0; j < numTypesPerGroup; j++ {
 			h := hexData[i+j]
-
 			decoded, err := a.doDecode(&h, types[j], 0)
 			if err != nil {
 				return nil, fmt.Errorf("error decoding type %s at index %d: %w", types[j], i+j, err)
 			}
-
 			group[j] = decoded
 		}
 
