@@ -112,6 +112,10 @@ func (a *vmOutputData) DecodeHex(endpoint string, hexData []string) (interface{}
 		return nil, err
 	}
 
+	if len(a.Endpoints[*endpointIndex].Outputs) == 0 {
+		return nil, fmt.Errorf("endpoint %s has no outputs defined", endpoint)
+	}
+
 	// handle variadic<multi<...>> pattern which returns flattened data
 	outputType := a.Endpoints[*endpointIndex].Outputs[0].Type
 	if len(hexData) > 1 && utils.IsVariadicMulti(outputType) {
