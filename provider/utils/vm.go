@@ -59,3 +59,14 @@ func IsDynamicLengthType(t string) bool {
 	_, exists := typesMap[t]
 	return exists
 }
+
+// IsVariadicMulti checks if a type is variadic<multi<...>> pattern
+// which requires special handling for multi-result outputs
+func IsVariadicMulti(fullType string) bool {
+	wrapper, inner := SplitTypes(fullType)
+	if wrapper != Variadic {
+		return false
+	}
+	innerWrapper, _ := SplitTypes(inner)
+	return innerWrapper == Multi
+}
