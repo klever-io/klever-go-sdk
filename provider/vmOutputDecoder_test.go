@@ -78,18 +78,6 @@ func Test_Parse_Single_Value(t *testing.T) {
 			expected: "klv1velayazgrn6mqaqckt7utk9656h8zu3ex4ln8rx7n8p0vy4fd20qmwh4p5",
 		},
 		{
-			name:     "BigInt_from_small_positive_string",
-			endpoint: "big_s_10",
-			hex:      []string{"3130"},
-			expected: big.NewInt(10),
-		},
-		{
-			name:     "BigInt_from_small_negative_string",
-			endpoint: "big_minus_s_10",
-			hex:      []string{"2d3130"},
-			expected: big.NewInt(-10),
-		},
-		{
 			name:     "BigInt_from_negative_int8",
 			endpoint: "big_minus_i8",
 			hex:      []string{"ae"},
@@ -157,51 +145,6 @@ func Test_Parse_Single_Value(t *testing.T) {
 					big.Int,
 				).SetString("-299843598872398459348567275690758798", BaseDecimal)
 				return bigInt128
-			}(),
-		},
-		{
-			name:     "BigInt_from_random_string",
-			endpoint: "big_s_number",
-			hex: []string{
-				"393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
-			},
-			expected: func() *big.Int {
-				bigIntRandomString, _ := new(
-					big.Int,
-				).SetString("983475937456892479678890176981908567895769078512986798257", BaseDecimal)
-				return bigIntRandomString
-			}(),
-		},
-		{
-			name:     "BigInt_from_random_negative_string",
-			endpoint: "big_minus_s_number",
-			hex: []string{
-				"2d393833343735393337343536383932343739363738383930313736393831393038353637383935373639303738353132393836373938323537",
-			},
-			expected: func() *big.Int {
-				bigIntRandomString, _ := new(
-					big.Int,
-				).SetString("-983475937456892479678890176981908567895769078512986798257", BaseDecimal)
-				return bigIntRandomString
-			}(),
-		},
-		{
-			name:     "BigUint_from_string_10",
-			endpoint: "big_u_s_10",
-			hex:      []string{"3130"},
-			expected: big.NewInt(10),
-		},
-		{
-			name:     "BigUint_from_random_string",
-			endpoint: "big_u_s_number",
-			hex: []string{
-				"3832373432383733363433343735393733353933343736393733393637393337363938333435373836393833393035363938393739373839373839",
-			},
-			expected: func() *big.Int {
-				bigUintRandomString, _ := new(
-					big.Int,
-				).SetString("82742873643475973593476973967937698345786983905698979789789", BaseDecimal)
-				return bigUintRandomString
 			}(),
 		},
 		{
@@ -474,7 +417,7 @@ func Test_Parse_List(t *testing.T) {
 			name:     "BigInt",
 			endpoint: "list_bign",
 			hex: []string{
-				"000000050577f695350000000109000000072d383233343732000000063533343233370000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72",
+				"000000050577f69535000000010900000004fff36f50000000030826dd0000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72",
 			},
 			expected: func() []*big.Int {
 				bigInt128pos, _ := new(
@@ -498,7 +441,7 @@ func Test_Parse_List(t *testing.T) {
 			name:     "BigUint",
 			endpoint: "list_bigun",
 			hex: []string{
-				"00000001ea00000002266a000000043a9e8554000000087864b47dcf08ef8c0000004438323732333637353235343337363537363738363334373234333635383236333538363832333536383236383931323733363435373637383639383637373838373635370000000f0864a6c0c92180ec36795616644d36",
+				"00000001ea00000002266a000000043a9e8554000000087864b47dcf08ef8c0000001d0311821D7EB083EE2D255B7DFA8F665639FED96C2998FDB113657562A90000000f0864a6c0c92180ec36795616644d36",
 			},
 			expected: func() []*big.Int {
 				bigUintString, _ := new(
@@ -613,7 +556,7 @@ func Test_Parse_List(t *testing.T) {
 			name:     "Two_levels_nested_list_big_int",
 			endpoint: "list_list_list_big_int",
 			hex: []string{
-				"00000002000000030000000387efdb00000002349000000008c91131a14fc23dac000000030000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72000000050103cf744100000002000000030000002839383735373638393739373839393739393837353839373332383739333532313034383438333639000000292d3938373537363839373937383939373939383735383937333238373933353231303438343833363900000002343200000003000000037810250000000154000000064d9f58c4219f",
+				"00000002000000030000000387efdb00000002349000000008c91131a14fc23dac000000030000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72000000050103cf74410000000200000003000000111d05b3eb926950d5852179a29534618bf100000011e2fa4c146d96af2a7ade865d6acb9e740f000000012a00000003000000037810250000000154000000064d9f58c4219f",
 			},
 			expected: func() [][]interface{} {
 				big1, _ := new(big.Int).SetString("-7868453", BaseDecimal)
@@ -740,7 +683,7 @@ func Test_Parse_Option(t *testing.T) {
 		{
 			name:     "big_int_from_buffer",
 			endpoint: "option_bigint_from_buffer",
-			hex:      []string{"010000001332333438373738343735383733343835323337"},
+			hex:      []string{"0100000008209889945685c1b5"},
 			expected: func() *big.Int {
 				big, _ := new(big.Int).SetString("2348778475873485237", BaseDecimal)
 				return big
@@ -777,7 +720,7 @@ func Test_Parse_Option(t *testing.T) {
 		{
 			name:     "biguint_from_buffer",
 			endpoint: "option_biguint_from_buffer",
-			hex:      []string{"0100000015323338373438323734383237393235383737383734"},
+			hex:      []string{"01000000090cf14c43036fdb7472"},
 			expected: func() *big.Int {
 				big, _ := new(big.Int).SetString("238748274827925877874", BaseDecimal)
 				return big
@@ -869,7 +812,7 @@ func Test_Parse_List_Option(t *testing.T) {
 			name:     "Two_levels_nested_list_big_int",
 			endpoint: "option_list_list_list_big_int",
 			hex: []string{
-				"010000000200000002000000030000000387efdb00000002349000000008c91131a14fc23dac000000030000000f39bf6e49095ff7dca078957ceb928e0000000fc64091b6f6a008235f876a83146d72000000050103cf744100000002000000030000002839383735373638393739373839393739393837353839373332383739333532313034383438333639000000292d3938373537363839373937383939373939383735383937333238373933353231303438343833363900000002343200000003000000037810250000000154000000064d9f58c4219f",
+				"0100000002000000020000000300000003" + "87efdb" + "00000002" + "3490" + "00000008" + "c91131a14fc23dac" + "00000003" + "0000000f" + "39bf6e49095ff7dca078957ceb928e" + "0000000f" + "c64091b6f6a008235f876a83146d72" + "00000005" + "0103cf7441" + "00000002" + "00000003" + "00000011" + "1d05b3eb926950d5852179a29534618bf1" + "00000011" + "e2fa4c146d96af2a7ade865d6acb9e740f" + "00000001" + "2a" + "00000003" + "00000003" + "781025" + "00000001" + "54" + "00000006" + "4d9f58c4219f",
 			},
 			expected: func() [][]interface{} {
 				big1, _ := new(big.Int).SetString("-7868453", BaseDecimal)
@@ -937,7 +880,7 @@ func Test_Parse_Tuple(t *testing.T) {
 			name:     "Tuple_of_big_int_address_and_i64",
 			endpoint: "tuple",
 			hex: []string{
-				"0000000e373633343537383934333638393700000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30",
+				"00000006456fa3a8d3e100000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30",
 			},
 			expected: []interface{}{
 				big.NewInt(
@@ -949,7 +892,7 @@ func Test_Parse_Tuple(t *testing.T) {
 			name:     "Tuple_of_big_int_address_and_i64",
 			endpoint: "tuple_nested",
 			hex: []string{
-				"0000000e373633343537383934333638393700000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30490000000a68736475676668756973",
+				"00000006456fa3a8d3e100000000000000000500af4a12b061e511ca9068af4c83e4918477e6c6ad6a9efffffffe84291d30490000000a68736475676668756973",
 			},
 			expected: []interface{}{
 				big.NewInt(
@@ -1056,8 +999,8 @@ func Test_Parse_Query_Variadic(t *testing.T) {
 			hex: []string{
 				"BXf2lTU=",
 				"CQ==",
-				"LTgyMzQ3Mg==",
-				"NTM0MjM3",
+				"829Q",
+				"CCbd",
 				"Ob9uSQlf99ygeJV865KO",
 				"xkCRtvagCCNfh2qDFG1y",
 			},
@@ -1087,7 +1030,7 @@ func Test_Parse_Query_Variadic(t *testing.T) {
 				"Jmo=",
 				"Op6FVA==",
 				"eGS0fc8I74w=",
-				"ODI3MjM2NzUyNTQzNzY1NzY3ODYzNDcyNDM2NTgyNjM1ODY4MjM1NjgyNjg5MTI3MzY0NTc2Nzg2OTg2Nzc4ODc2NTc=",
+				"AxGCHX6wg+4tJVt9+o9mVjn+2WwpmP2xE2V1Yqk=",
 				"CGSmwMkhgOw2eVYWZE02",
 			},
 			expected: func() []*big.Int {
@@ -1165,7 +1108,7 @@ func Test_Parse_Struct(t *testing.T) {
 		}(),
 	}
 
-	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000002b3733373239383739323733353739383830313838373636373336343137383738393337373538373738373400000012010a0000003500000002aaaaaaaaaaaaa80000000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
+	hex := "0052212219605d7c36eece5eb03dc25452212219605d7c36eece5eb03dc2540000001574657374696e67206f757470757473207479706573000000034b4c56667fd274481cf5b07418b2fdc5d8baa6ae717239357f338cde99c2f612a96a9e0000000a050610188339c82a68720000001254a3439ee3f36ccadd6573fdfb67310c46f200000012010a0000003500000002aaaaaaaaaaaaa80000000005000000034b4c56000000034b4649000000084b49442d38473941000000084458422d483838470000000a43484950532d4e383941"
 
 	result, err := abiHandler.DecodeHex("struct_test", []string{hex})
 
@@ -1306,7 +1249,7 @@ func Test_ParseQuery_output_struct(t *testing.T) {
 		}(),
 	}
 
-	queryBase64 := "AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAACs3MzcyOTg3OTI3MzU3OTg4MDE4ODc2NjczNjQxNzg3ODkzNzc1ODc3ODc0AAAAEgEKAAAANQAAAAKqqqqqqqqoAAAAAAUAAAADS0xWAAAAA0tGSQAAAAhLSUQtOEc5QQAAAAhEWEItSDg4RwAAAApDSElQUy1OODlB"
+	queryBase64 := "AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAABJUo0Oe4/Nsyt1lc/37ZzEMRvIAAAASAQoAAAA1AAAAAqqqqqqqqqgAAAAABQAAAANLTFYAAAADS0ZJAAAACEtJRC04RzlBAAAACERYQi1IODhHAAAACkNISVBTLU44OUE="
 
 	result, err := abiHandler.DecodeQuery("struct_test", []string{queryBase64})
 
@@ -1453,9 +1396,9 @@ func Test_ParseQuery_MultiValue_of_struct_and_nested_list(t *testing.T) {
 	expectedOutput := []interface{}{expectedMap, expectedListI32, expectedListBigInt}
 
 	hexInputs := []string{
-		"AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAACs3MzcyOTg3OTI3MzU3OTg4MDE4ODc2NjczNjQxNzg3ODkzNzc1ODc3ODc0AAAAEgEKAAAANQAAAAKqqqqqqqqoAAAAAAUAAAADS0xWAAAAA0tGSQAAAAhLSUQtOEc5QQAAAAhEWEItSDg4RwAAAApDSElQUy1OODlB",
+		"AFIhIhlgXXw27s5esD3CVFIhIhlgXXw27s5esD3CVAAAABV0ZXN0aW5nIG91dHB1dHMgdHlwZXMAAAADS0xWZn/SdEgc9bB0GLL9xdi6pq5xcjk1fzOM3pnC9hKpap4AAAAKBQYQGIM5yCpocgAAABJUo0Oe4/Nsyt1lc/37ZzEMRvIAAAASAQoAAAA1AAAAAqqqqqqqqqgAAAAABQAAAANLTFYAAAADS0ZJAAAACEtJRC04RzlBAAAACERYQi1IODhHAAAACkNISVBTLU44OUE=",
 		"AAAAA2+rAnYAAAAc//+cpAAAAAP////+AAHjCPGzz9w=",
-		"AAAAAgAAAAMAAAADh+/bAAAAAjSQAAAACMkRMaFPwj2sAAAAAwAAAA85v25JCV/33KB4lXzrko4AAAAPxkCRtvagCCNfh2qDFG1yAAAABQEDz3RBAAAAAgAAAAMAAAAoOTg3NTc2ODk3OTc4OTk3OTk4NzU4OTczMjg3OTM1MjEwNDg0ODM2OQAAACktOTg3NTc2ODk3OTc4OTk3OTk4NzU4OTczMjg3OTM1MjEwNDg0ODM2OQAAAAI0MgAAAAMAAAADeBAlAAAAAVQAAAAGTZ9YxCGf",
+		"AAAAAgAAAAMAAAADh+/bAAAAAjSQAAAACMkRMaFPwj2sAAAAAwAAAA85v25JCV/33KB4lXzrko4AAAAPxkCRtvagCCNfh2qDFG1yAAAABQEDz3RBAAAAAgAAAAMAAAARHQWz65JpUNWFIXmilTRhi/EAAAAR4vpMFG2Wryp63oZdasuedA8AAAABKgAAAAMAAAADeBAlAAAAAVQAAAAGTZ9YxCGf",
 	}
 
 	result, err := abiHandler.DecodeQuery("multi_value_nested_list_struct", hexInputs)
@@ -1474,9 +1417,26 @@ func Test_DecodeStruct(t *testing.T) {
 	errLoad := abiHandler.LoadAbi(jsonAbi)
 	require.Nil(t, errLoad, "error opening abi", errLoad)
 
-	hex := "5a8228800e2a7a4decf109302d52ee67558402e0c4131e4df61a3d5b8002b438000000034b4649000000022710000000034b4c560000000441e36c940000000d4b46494b4c564c502d3348314700000003039f4f000000040bd6fa51000000037fad9f00000005d75c39315d00000000004f6fac00000000000087f80000000068e4059c"
+	hex := "50630e5d63c70e1b7985344af7e33699736771d0a5db02929653c89b9ee444690000000844564b2d33345a480000000301e240000000034b4c560000000230390000000b44564b4b4c562d5047594c00000002987e000000061cd96aee9ede000000065b3abdcdbdea00000006091f79615fca0000000001b25b9200000000000014a100000000698b92c8"
 
-	_, err := abiHandler.DecodeStruct("AddLiquidityEvent", hex)
+	decodedValue, err := abiHandler.DecodeStruct("AddLiquidityEvent", hex)
 	require.Nil(t, err)
 
+	expected := map[string]interface{}{
+		"caller":                "klv12p3suhtrcu8pk7v9x3900cekn9ekwuws5hds9y5k20yfh8hyg35ss3s8ex",
+		"first_token_id":        "DVK-34ZH",
+		"first_token_amount":    big.NewInt(123456),
+		"second_token_id":       "KLV",
+		"second_token_amount":   big.NewInt(12345),
+		"lp_token_id":           "DVKKLV-PGYL",
+		"lp_token_amount":       big.NewInt(39038),
+		"lp_supply":             big.NewInt(31720127504094),
+		"first_token_reserves":  big.NewInt(100307850608106),
+		"second_token_reserves": big.NewInt(10030785060810),
+		"block":                 uint64(28466066),
+		"epoch":                 uint64(5281),
+		"timestamp":             uint64(1770754760),
+	}
+
+	assert.Equal(t, expected, decodedValue)
 }
