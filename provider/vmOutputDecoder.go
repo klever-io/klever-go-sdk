@@ -404,12 +404,6 @@ func (a *vmOutputData) decodeInt(hexRef *string, bitsHexLen int) (int, error) {
 func (a *vmOutputData) decodeBigUint(hexRef *string, trim int) (*big.Int, error) {
 	hexToDecode := a.handleTrim(hexRef, trim*2)
 
-	targetValue, err := a.decodeStringBigNumber(&hexToDecode)
-	// if that function suceeds, then it was a string representing a decimal big number
-	if err == nil {
-		return targetValue, nil
-	}
-
 	targetValue, ok := new(big.Int).SetString(hexToDecode, utils.BaseHex)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string %s to decode to uint64", hexToDecode)
@@ -420,12 +414,6 @@ func (a *vmOutputData) decodeBigUint(hexRef *string, trim int) (*big.Int, error)
 
 func (a *vmOutputData) decodeBigInt(hexRef *string, trim int) (*big.Int, error) {
 	hexToDecode := a.handleTrim(hexRef, trim*2)
-
-	targetValueFromString, err := a.decodeStringBigNumber(&hexToDecode)
-	// if that function suceeds, then it was a string representing a decimal number
-	if err == nil {
-		return targetValueFromString, nil
-	}
 
 	targetValueFromInt128, err := a.handleBigIntTill128(&hexToDecode)
 	if err == nil {
@@ -438,20 +426,6 @@ func (a *vmOutputData) decodeBigInt(hexRef *string, trim int) (*big.Int, error) 
 	}
 
 	return big.NewInt(int64(targetValue)), nil
-}
-
-func (a *vmOutputData) decodeStringBigNumber(hexRef *string) (*big.Int, error) {
-	targetString, err := a.decodeString(hexRef, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	targetValue, ok := new(big.Int).SetString(targetString, utils.BaseDecimal)
-	if !ok {
-		return nil, fmt.Errorf("invalid hex string %s to decode to BigInt", (*hexRef))
-	}
-
-	return targetValue, nil
 }
 
 func (a *vmOutputData) handleBigIntTill128(hexRef *string) (*big.Int, error) {
