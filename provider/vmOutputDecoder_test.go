@@ -1492,6 +1492,24 @@ func Test_DecodeStruct_KdaTokenPayment(t *testing.T) {
 				"amount":           big.NewInt(0),
 			},
 		},
+		{
+			name: "NONZERO_nonce",
+			hex:  "000000034b4c560000000000000003000000030f4240",
+			expected: map[string]interface{}{
+				"token_identifier": "KLV",
+				"token_nonce":      uint64(3),
+				"amount":           big.NewInt(1000000),
+			},
+		},
+		{
+			name: "NONZERO_nonce_zero_amount",
+			hex:  "000000034b4c56000000000000000500000000",
+			expected: map[string]interface{}{
+				"token_identifier": "KLV",
+				"token_nonce":      uint64(5),
+				"amount":           big.NewInt(0),
+			},
+		},
 	}
 
 	for _, tc := range testCases {
