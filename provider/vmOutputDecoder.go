@@ -404,6 +404,10 @@ func (a *vmOutputData) decodeInt(hexRef *string, bitsHexLen int) (int, error) {
 func (a *vmOutputData) decodeBigUint(hexRef *string, trim int) (*big.Int, error) {
 	hexToDecode := a.handleTrim(hexRef, trim*2)
 
+	if hexToDecode == "" {
+		return big.NewInt(0), nil
+	}
+
 	targetValue, ok := new(big.Int).SetString(hexToDecode, utils.BaseHex)
 	if !ok {
 		return nil, fmt.Errorf("invalid hex string %s to decode to uint64", hexToDecode)
