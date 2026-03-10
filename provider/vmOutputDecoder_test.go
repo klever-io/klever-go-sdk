@@ -1407,7 +1407,7 @@ func Test_ParseQuery_MultiValue_of_struct_and_nested_list(t *testing.T) {
 	assert.ElementsMatch(t, expectedOutput, result)
 }
 
-func Test_DecodeStruct(t *testing.T) {
+func Test_DecodeStruct_AddLiquidityEvent(t *testing.T) {
 	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/scFiles/pair.abi.json")
 	require.Nil(t, errOpen, "error opening abi", errOpen)
 	defer jsonAbi.Close()
@@ -1439,4 +1439,84 @@ func Test_DecodeStruct(t *testing.T) {
 	}
 
 	assert.Equal(t, expected, decodedValue)
+}
+
+func Test_DecodeStruct_KdaTokenPayment(t *testing.T) {
+	jsonAbi, errOpen := os.Open("../cmd/demo/smartContracts/scFiles/pair.abi.json")
+	require.Nil(t, errOpen, "error opening abi", errOpen)
+	defer jsonAbi.Close()
+
+	abiHandler := provider.NewVMOutputHandler()
+
+	errLoad := abiHandler.LoadAbi(jsonAbi)
+	require.Nil(t, errLoad, "error loading abi", errLoad)
+
+	testCases := []struct {
+		name     string
+		hex      string
+		expected map[string]interface{}
+	}{
+		{
+			name: "BABYDGKO_large_amount",
+			hex:  "0000000d4241425944474b4f2d3353363700000000000000000000000602a6db03cc64",
+			expected: map[string]interface{}{
+				"token_identifier": "BABYDGKO-3S67",
+				"token_nonce":      uint64(0),
+				"amount":           big.NewInt(2915662285924),
+			},
+		},
+		{
+			name: "KFI_nonzero_amount",
+			hex:  "000000034b464900000000000000000000000313054f",
+			expected: map[string]interface{}{
+				"token_identifier": "KFI",
+				"token_nonce":      uint64(0),
+				"amount":           big.NewInt(1246543),
+			},
+		},
+		{
+			name: "KLV_nonzero_amount",
+			hex:  "000000034b4c5600000000000000000000000364e728",
+			expected: map[string]interface{}{
+				"token_identifier": "KLV",
+				"token_nonce":      uint64(0),
+				"amount":           big.NewInt(6612776),
+			},
+		},
+		{
+			name: "KFI_zero_amount",
+			hex:  "000000034b4649000000000000000000000000",
+			expected: map[string]interface{}{
+				"token_identifier": "KFI",
+				"token_nonce":      uint64(0),
+				"amount":           big.NewInt(0),
+			},
+		},
+		{
+			name: "NONZERO_nonce",
+			hex:  "000000034b4c560000000000000003000000030f4240",
+			expected: map[string]interface{}{
+				"token_identifier": "KLV",
+				"token_nonce":      uint64(3),
+				"amount":           big.NewInt(1000000),
+			},
+		},
+		{
+			name: "NONZERO_nonce_zero_amount",
+			hex:  "000000034b4c56000000000000000500000000",
+			expected: map[string]interface{}{
+				"token_identifier": "KLV",
+				"token_nonce":      uint64(5),
+				"amount":           big.NewInt(0),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := abiHandler.DecodeStruct("KdaTokenPayment", tc.hex)
+			require.Nil(t, err)
+			assert.Equal(t, tc.expected, result)
+		})
+	}
 }
